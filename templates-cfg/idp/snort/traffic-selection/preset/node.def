@@ -1,0 +1,6 @@
+type: txt
+default: "all"
+help: Set traffic selection preset
+syntax:expression: $VAR(@) in "all"; "Preset must be \"all\""
+comp_help:Possible completions:
+  all           Snort IDP applies to all traffic

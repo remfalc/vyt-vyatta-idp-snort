@@ -1,0 +1,2 @@
+help: Configure the Snort IDP system
+end: sudo /opt/vyatta/sbin/vyatta-update-snort.pl

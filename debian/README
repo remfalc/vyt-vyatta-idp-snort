@@ -1,0 +1,8 @@
+The Debian Package vyatta-idp-snort
+---------------------------------
+
+This package has the Vyatta configuration/operational templates and scripts
+for the Snort Intrusion Detection/Prevention system.
+
+ -- An-Cheng Huang <ancheng@vyatta.com> Wed,  2 Apr 2008
+
