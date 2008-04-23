@@ -246,6 +246,14 @@ ruletype p${i}action
 $def
 EOS
   }
+  $cfg .= <<EOS;
+## include clamav config
+include clamav.config
+
+## set output module
+output alert_fast: alert
+
+EOS
 
   return ($cfg, undef);
 }
