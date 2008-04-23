@@ -5,8 +5,6 @@ use lib "/opt/vyatta/share/perl5";
 use VyattaSnortConfig;
 
 my $FILE_SNORT_CONF = '/etc/snort/snort.conf';
-my $SNORT_INIT = '/etc/init.d/snort';
-my $SNORT_DONE = '/var/run/snort_inline_init.pid';
 
 my $error_prefix = 'Snort IDP configuration error';
 
@@ -26,26 +24,15 @@ if (defined($err)) {
   exit 1;
 }
 
-sub shutdownSnort {
-  # remove iptables queue rule(s) and stop snort (must be in this order)
+if ($config->isEmpty()) {
+  # shutdown
   print 'Stopping Snort IDP...';
-  my $err = $oconfig->removeQueue();
-  if (!defined($err)) {
-    system("$SNORT_INIT stop >&/dev/null");
-    if ($? >> 8) {
-      $err = 'Cannot stop Snort IDP';
-    }
-  }
+  my $err = $oconfig->shutdownSnort();
   if (defined($err)) {
-    print "\n$error_prefix: $err.\n";
+    print "$error_prefix: $err.\n";
     exit 1;
   }
   print " Done.\n";
-}
-
-if ($config->isEmpty()) {
-  # shutdown
-  shutdownSnort();
   exit 0;
 }
 
@@ -66,31 +53,14 @@ while (1) {
   last if (defined($err));
  
   # stop snort
-  shutdownSnort();
+  print 'Stopping Snort IDP...';
+  $err = $oconfig->shutdownSnort();
+  last if (defined($err));
+  print " Done.\n";
   
   # start snort
   print 'Starting Snort IDP...';
-  system("$SNORT_INIT start >&/dev/null");
-  if ($? >> 8) {
-    $err = 'Cannot start Snort IDP';
-    last;
-  }
-  # wait for snort to finish initialization before adding queue rules
-  # to avoid blocking traffic
-  my $count = 0;
-  $| = 1;
-  while ($count < 30 && (! -f $SNORT_DONE)) {
-    print '.';
-    sleep 2;
-    $count++;
-  }
-  if ($count == 30) {
-    $err = 'Snort IDP initialization failed';
-    last;
-  }
- 
-  # add iptables queue rule(s)
-  $err = $config->addQueue();
+  $err = $config->startSnort();
   last;
 }
 if (defined($err)) {

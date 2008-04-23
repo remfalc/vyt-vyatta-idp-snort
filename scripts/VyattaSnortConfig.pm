@@ -12,6 +12,9 @@ my $post_fw_hook = 'VYATTA_POST_FW_HOOK';
 my $queue_prefix = 'VYATTA_SNORT_';
 my $queue_suffix = '_HOOK';
 
+my $SNORT_INIT = '/etc/init.d/snort';
+my $SNORT_DONE = '/var/run/snort_inline_init.pid';
+
 my %fields = (
   _tr_preset => undef,
   _tr_custom => undef,
@@ -187,6 +190,45 @@ sub addQueue {
   return 'Cannot insert rule into iptables' if ($? >> 8);
   # return success
   return undef;
+}
+
+
+# remove iptables queue rule(s) and stop snort (must be in this order).
+# note: this should be invoked on "original" config.
+# returns error message, or undef if success.
+sub shutdownSnort {
+  my ($self) = @_;
+  my $err = $self->removeQueue();
+  if (!defined($err)) {
+    system("$SNORT_INIT stop >&/dev/null");
+    if ($? >> 8) {
+      $err = 'Cannot stop Snort IDP';
+    }
+  }
+  return $err;
+}
+
+# start snort and add iptables queue rule(s) (must be in this order).
+# note: this should be invoked on "new" config.
+# returns error message, or undef if success.
+sub startSnort {
+  my ($self) = @_;
+  system("$SNORT_INIT start >&/dev/null");
+  return 'Cannot start Snort IDP' if ($? >> 8);
+  
+  # wait for snort to finish initialization before adding queue rules
+  # to avoid blocking traffic
+  my $count = 0;
+  $| = 1;
+  while ($count < 30 && (! -f $SNORT_DONE)) {
+    print '.';
+    sleep 2;
+    $count++;
+  }
+  return 'Snort IDP initialization failed' if ($count == 30);
+
+  # add iptables queue rule(s)
+  return $self->addQueue();
 }
 
 sub isEmpty {
