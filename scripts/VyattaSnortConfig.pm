@@ -40,7 +40,7 @@ sub setup {
   my ( $self ) = @_;
   my $config = new VyattaConfig;
 
-  $config->setLevel('idp snort');
+  $config->setLevel('content-inspection ips');
   my @nodes = $config->listNodes();
   if (scalar(@nodes) <= 0) {
     $self->{_is_empty} = 1;
@@ -49,12 +49,14 @@ sub setup {
     $self->{_is_empty} = 0;
   }
 
-  $self->{_tr_preset} = $config->returnValue('traffic-selection preset');
-  $self->{_tr_custom} = $config->returnValue('traffic-selection custom');
   $self->{_p1act} = $config->returnValue('actions priority-1');
   $self->{_p2act} = $config->returnValue('actions priority-2');
   $self->{_p3act} = $config->returnValue('actions priority-3');
   $self->{_p4act} = $config->returnValue('actions other');
+  
+  $config->setLevel('content-inspection traffic-filter');
+  $self->{_tr_preset} = $config->returnValue('preset');
+  $self->{_tr_custom} = $config->returnValue('custom');
 
   return 0;
 }
@@ -63,7 +65,7 @@ sub setupOrig {
   my ( $self ) = @_;
   my $config = new VyattaConfig;
 
-  $config->setLevel('idp snort');
+  $config->setLevel('content-inspection ips');
   my @nodes = $config->listOrigNodes();
   if (scalar(@nodes) <= 0) {
     $self->{_is_empty} = 1;
@@ -72,12 +74,14 @@ sub setupOrig {
     $self->{_is_empty} = 0;
   }
 
-  $self->{_tr_preset} = $config->returnOrigValue('traffic-selection preset');
-  $self->{_tr_custom} = $config->returnOrigValue('traffic-selection custom');
   $self->{_p1act} = $config->returnOrigValue('actions priority-1');
   $self->{_p2act} = $config->returnOrigValue('actions priority-2');
   $self->{_p3act} = $config->returnOrigValue('actions priority-3');
   $self->{_p4act} = $config->returnOrigValue('actions other');
+  
+  $config->setLevel('content-inspection traffic-filter');
+  $self->{_tr_preset} = $config->returnOrigValue('preset');
+  $self->{_tr_custom} = $config->returnOrigValue('custom');
 
   return 0;
 }
@@ -133,7 +137,7 @@ sub setupIptables {
   # run all commands
   foreach (@cmds) {
     system("$_ >&/dev/null");
-    return "Cannot setup iptables for Snort ($_)" if ($? >> 8);
+    return "Cannot setup iptables ($_)" if ($? >> 8);
   }
 
   # return success
@@ -167,9 +171,9 @@ sub removeQueue {
 
 sub checkQueue {
   my ($self) = @_;
-  return 'Traffic selection not defined'
+  return 'Must define "traffic-filter"'
     if (!defined($self->{_tr_preset}) && !defined($self->{_tr_custom}));
-  return 'Cannot define both "preset" and "custom"'
+  return 'Cannot define both "preset" and "custom" for "traffic-filter"'
     if (defined($self->{_tr_preset}) && defined($self->{_tr_custom}));
   return undef;
 }
@@ -183,7 +187,7 @@ sub addQueue {
     $chain = $self->{_tr_custom};
   } else {
     # neither defined. return error.
-    return 'Traffic selection not defined';
+    return 'Must define "traffic-filter"'
   }
   # insert rule at the front (ACCEPT at the end)
   system("iptables -I $post_fw_hook 1 -j $chain");
@@ -202,7 +206,7 @@ sub shutdownSnort {
   if (!defined($err)) {
     system("$SNORT_INIT stop >&/dev/null");
     if ($? >> 8) {
-      $err = 'Cannot stop Snort IDP';
+      $err = 'Stopping failed';
     }
   }
   return $err;
@@ -214,7 +218,7 @@ sub shutdownSnort {
 sub startSnort {
   my ($self) = @_;
   system("$SNORT_INIT start >&/dev/null");
-  return 'Cannot start Snort IDP' if ($? >> 8);
+  return 'Starting failed' if ($? >> 8);
   
   # wait for snort to finish initialization before adding queue rules
   # to avoid blocking traffic
@@ -225,7 +229,7 @@ sub startSnort {
     sleep 2;
     $count++;
   }
-  return 'Snort IDP initialization failed' if ($count == 30);
+  return 'Initialization failed' if ($count == 30);
 
   # add iptables queue rule(s)
   return $self->addQueue();
@@ -341,7 +345,7 @@ sub writeCfg {
 
 sub print_str {
   my ($self) = @_;
-  my $str = 'idp snort';
+  my $str = 'ips';
   $str .= "\n  preset " . $self->{_tr_preset};
   $str .= "\n  custom " . $self->{_tr_custom};
   $str .= "\n  p1act " . $self->{_p1act};

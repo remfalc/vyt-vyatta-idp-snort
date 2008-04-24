@@ -6,7 +6,7 @@ use VyattaSnortConfig;
 
 my $FILE_SNORT_CONF = '/etc/snort/snort.conf';
 
-my $error_prefix = 'Snort IDP configuration error';
+my $error_prefix = 'IPS configuration error';
 
 my $config = new VyattaSnortConfig;
 my $oconfig = new VyattaSnortConfig;
@@ -26,7 +26,7 @@ if (defined($err)) {
 
 if ($config->isEmpty()) {
   # shutdown
-  print 'Stopping Snort IDP...';
+  print 'Stopping IPS...';
   my $err = $oconfig->shutdownSnort();
   if (defined($err)) {
     print "$error_prefix: $err.\n";
@@ -53,13 +53,13 @@ while (1) {
   last if (defined($err));
  
   # stop snort
-  print 'Stopping Snort IDP...';
+  print 'Stopping IPS...';
   $err = $oconfig->shutdownSnort();
   last if (defined($err));
   print " Done.\n";
   
   # start snort
-  print 'Starting Snort IDP...';
+  print 'Starting IPS...';
   $err = $config->startSnort();
   last;
 }

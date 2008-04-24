@@ -20,8 +20,8 @@
  *
  * Author: An-Cheng Huang
  * Date: 2008
- * Description: Vyatta configuration/operational commands for the Snort
- *              Intrusion Detection/Prevention system
+ * Description: Vyatta configuration/operational commands for the
+ *              Intrusion Prevention System (IPS)
  *
  * **** End License ****
  *

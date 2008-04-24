@@ -1,8 +1,8 @@
 type: txt
-default: "alert"
+default: "drop"
 syntax:expression: $VAR(@) in "drop", "sdrop", "alert", "pass";
                    "Action must be \"drop\", \"sdrop\", \"alert\", or \"pass\""
-help: Set Snort IDP action for packets matching priority 2 rules
+help: Set IPS action for packets matching priority 1 rules
 comp_help:Possible completions:
   drop          Drop the packet and generate an alert
   sdrop         Silently drop the packet

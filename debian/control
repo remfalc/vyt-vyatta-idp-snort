@@ -12,6 +12,6 @@ Depends: perl,
  vyatta-cfg-firewall,
  vyatta-op,
  vyatta-snort
-Description: Vyatta commands for Snort IDP
- Vyatta configuration/operational templates and scripts for the Snort Intrusion
- Detection/Prevention system
+Description: Vyatta commands for IPS
+ Vyatta configuration/operational templates and scripts for the Intrusion
+ Prevention System (IPS)
