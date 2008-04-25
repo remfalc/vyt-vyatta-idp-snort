@@ -5,6 +5,7 @@ bin_sudo_usersdir = $(bindir)/sudo-users
 
 sbin_SCRIPTS = scripts/vyatta-update-snort.pl
 sbin_SCRIPTS += scripts/vyatta-proc-snort-rules.pl
+sbin_SCRIPTS += scripts/vyatta-update-inspection.pl
 
 bin_sudo_users_SCRIPTS =
 

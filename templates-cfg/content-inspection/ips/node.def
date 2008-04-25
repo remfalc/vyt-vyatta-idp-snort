@@ -1,2 +1,1 @@
 help: Configure Intrusion Prevention System (IPS)
-end: sudo /opt/vyatta/sbin/vyatta-update-snort.pl

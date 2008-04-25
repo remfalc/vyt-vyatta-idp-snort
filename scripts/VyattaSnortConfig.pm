@@ -40,6 +40,10 @@ sub setup {
   my ( $self ) = @_;
   my $config = new VyattaConfig;
 
+  $config->setLevel('content-inspection traffic-filter');
+  $self->{_tr_preset} = $config->returnValue('preset');
+  $self->{_tr_custom} = $config->returnValue('custom');
+
   $config->setLevel('content-inspection ips');
   my @nodes = $config->listNodes();
   if (scalar(@nodes) <= 0) {
@@ -54,16 +58,16 @@ sub setup {
   $self->{_p3act} = $config->returnValue('actions priority-3');
   $self->{_p4act} = $config->returnValue('actions other');
   
-  $config->setLevel('content-inspection traffic-filter');
-  $self->{_tr_preset} = $config->returnValue('preset');
-  $self->{_tr_custom} = $config->returnValue('custom');
-
   return 0;
 }
 
 sub setupOrig {
   my ( $self ) = @_;
   my $config = new VyattaConfig;
+
+  $config->setLevel('content-inspection traffic-filter');
+  $self->{_tr_preset} = $config->returnOrigValue('preset');
+  $self->{_tr_custom} = $config->returnOrigValue('custom');
 
   $config->setLevel('content-inspection ips');
   my @nodes = $config->listOrigNodes();
@@ -79,10 +83,6 @@ sub setupOrig {
   $self->{_p3act} = $config->returnOrigValue('actions priority-3');
   $self->{_p4act} = $config->returnOrigValue('actions other');
   
-  $config->setLevel('content-inspection traffic-filter');
-  $self->{_tr_preset} = $config->returnOrigValue('preset');
-  $self->{_tr_custom} = $config->returnOrigValue('custom');
-
   return 0;
 }
 
@@ -98,6 +98,11 @@ sub isDifferentFrom {
   return 1 if ($this->{_p4act} ne $that->{_p4act});
   
   return 0;
+}
+
+sub isEmpty {
+  my ($this) = @_;
+  return $this->{_is_empty};
 }
 
 sub rule_num_sort {

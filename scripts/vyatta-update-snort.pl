@@ -4,7 +4,13 @@ use strict;
 use lib "/opt/vyatta/share/perl5";
 use VyattaSnortConfig;
 
-my $FILE_SNORT_CONF = '/etc/snort/snort.conf';
+# writes the ips config file and exits with proper status:
+#   0: success, something changed
+#   1: not configured
+#   2: failed (error message already displayed)
+#   3: success, nothing changed
+
+my $FILE_SNORT_CONF = '/etc/snort/ips.conf';
 
 my $error_prefix = 'IPS configuration error';
 
@@ -13,30 +19,17 @@ my $oconfig = new VyattaSnortConfig;
 $config->setup();
 $oconfig->setupOrig();
 
-if (!($config->isDifferentFrom($oconfig))) {
-  # config not changed. do nothing.
-  exit 0;
-}
-
-my $err = $config->setupIptables();
-if (defined($err)) {
-  print "$error_prefix: $err.\n";
+if ($config->isEmpty()) {
+  # not configured
   exit 1;
 }
 
-if ($config->isEmpty()) {
-  # shutdown
-  print 'Stopping IPS...';
-  my $err = $oconfig->shutdownSnort();
-  if (defined($err)) {
-    print "$error_prefix: $err.\n";
-    exit 1;
-  }
-  print " Done.\n";
-  exit 0;
+if (!($config->isDifferentFrom($oconfig))) {
+  # config not changed. do nothing.
+  exit 3;
 }
 
-my ($snort_conf) = (undef);
+my ($snort_conf, $err) = (undef, undef);
 while (1) {
   ($snort_conf, $err) = $config->get_snort_conf();
   last if (defined($err));
@@ -50,24 +43,14 @@ while (1) {
   
   # insert new lines between markers
   $err = $config->writeCfg($FILE_SNORT_CONF, $snort_conf);
-  last if (defined($err));
- 
-  # stop snort
-  print 'Stopping IPS...';
-  $err = $oconfig->shutdownSnort();
-  last if (defined($err));
-  print " Done.\n";
-  
-  # start snort
-  print 'Starting IPS...';
-  $err = $config->startSnort();
   last;
 }
+
 if (defined($err)) {
+  # failed
   print "$error_prefix: $err.\n";
-  exit 1;
+  exit 2;
 }
 
-print " Done.\n";
 exit 0;
 

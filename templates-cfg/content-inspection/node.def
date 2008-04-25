@@ -1,1 +1,10 @@
 help: Configure Content Inspection
+end: RET1=1
+     if [ -x /opt/vyatta/sbin/vyatta-update-antivirus.pl ]; then
+       sudo /opt/vyatta/sbin/vyatta-update-antivirus.pl
+       RET1=$?
+     fi
+     sudo /opt/vyatta/sbin/vyatta-update-snort.pl
+     RET2=$?
+     sudo /opt/vyatta/sbin/vyatta-update-inspection.pl $RET1 $RET2
+ 
