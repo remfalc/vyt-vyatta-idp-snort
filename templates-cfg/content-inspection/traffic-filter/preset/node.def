@@ -1,5 +1,4 @@
 type: txt
-default: "all"
 help: Set traffic filter preset
 syntax:expression: $VAR(@) in "all"; "Preset must be \"all\""
 comp_help:Possible completions:
