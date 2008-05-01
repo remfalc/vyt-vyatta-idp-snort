@@ -1,0 +1,2 @@
+help: Show detailed IPS logs
+run: /opt/vyatta/sbin/vyatta-show-ips.pl

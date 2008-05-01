@@ -6,10 +6,12 @@ bin_sudo_usersdir = $(bindir)/sudo-users
 sbin_SCRIPTS = scripts/vyatta-update-snort.pl
 sbin_SCRIPTS += scripts/vyatta-proc-snort-rules.pl
 sbin_SCRIPTS += scripts/vyatta-update-inspection.pl
+sbin_SCRIPTS += scripts/vyatta-show-ips.pl
 
 bin_sudo_users_SCRIPTS =
 
 share_perl5_DATA = scripts/VyattaSnortConfig.pm
+share_perl5_DATA += scripts/VyattaSnortUnifiedLog.pm
 
 cpiop = find  . ! -regex '\(.*~\|.*\.bak\|.*\.swp\|.*\#.*\#\)' -print0 | \
   cpio -0pd
@@ -17,4 +19,6 @@ cpiop = find  . ! -regex '\(.*~\|.*\.bak\|.*\.swp\|.*\#.*\#\)' -print0 | \
 install-exec-hook:
 	mkdir -p $(DESTDIR)$(cfgdir)
 	cd templates-cfg; $(cpiop) $(DESTDIR)$(cfgdir)
+	mkdir -p $(DESTDIR)$(opdir)
+	cd templates-op; $(cpiop) $(DESTDIR)$(opdir)
 
