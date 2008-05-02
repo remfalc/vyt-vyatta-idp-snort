@@ -29,7 +29,9 @@ BEGIN {
   our @EXPORT = qw(&open_log_file
                    &seek_to_log_entry
                    &get_next_log_entry
-                   &print_log_entry);
+                   &print_log_entry
+                   &get_class_strs
+                   &get_sig_msg);
   our @EXPORT_OK = qw(%proto_hash %class_hash %sidmsg_hash);
 }
 
@@ -76,8 +78,9 @@ sub process_sidmsgs {
     # do nothing if can't open
     next if (!open($msg, $file));
     while (<$msg>) {
-      next if (!/^(\d+) \|\| ([^\|]+) \|\|/);
+      next if (!/^(\d+) \|\| ([^\|]+\S) *(\|\||$)/);
       $sidmsg_hash{$1} = $2;
+      chomp $sidmsg_hash{$1};
     }
     close $msg;
   }
@@ -189,6 +192,22 @@ sub seek_to_log_entry {
   return undef;
 }
 
+# returns the short name and the description of the class.
+# arg: class_id
+sub get_class_strs {
+  my $class = shift;
+  return (defined($class_hash{$class}))
+         ? (@{$class_hash{$class}}) : ('unknown', 'Unknown class');
+}
+
+# returns the description of a particular signature.
+# arg: "gen:id:rev"
+sub get_sig_msg {
+  my ($sgen, $sid, $srev) = split /:/, $_[0];
+  return (defined($sidmsg_hash{$sid}) && $sgen eq '1')
+         ? $sidmsg_hash{$sid} : 'Unknown signature';
+}
+
 # format and print a log entry
 # args: those returned by get_next_log_entry()
 sub print_log_entry {
@@ -198,22 +217,18 @@ sub print_log_entry {
                   ? $proto_hash{$proto} : $proto;
   my $show_port = ($proto eq '6' || $proto eq '17') ? 1 : 0;
 
-  my $class_str = 'Unknown class';
-  if (defined($class_hash{$class})) {
-    my ($sname, $name) = @{$class_hash{$class}};
-    $class_str = "($sname) $name";
-  }
+  my ($cname, $cdesc) = get_class_strs($class);
+  my $class_str = "($cname) $cdesc";
 
-  my $sid_str = "[$sgen:$sid:$srev]";
-  my $msg_str = (defined($sidmsg_hash{$sid}) && $sgen eq '1')
-                ? $sidmsg_hash{$sid} : 'Unknown signature';
+  my $sid_str = "$sgen:$sid:$srev";
+  my $msg_str = get_sig_msg($sid_str);
 
   my $addr_str = ($show_port) ? "$sip:$sp -> $dip:$dp" : "$sip -> $dip";
 
   print <<EOF;
 $date $time {$proto_str} $addr_str
 $class_str (priority $prio)
-$sid_str $msg_str
+[$sid_str] $msg_str
 ---------------------------------------------------------------------------
 EOF
 }

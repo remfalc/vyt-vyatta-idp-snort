@@ -1,0 +1,2 @@
+help: Show summary of IPS events
+run: /opt/vyatta/sbin/vyatta-show-ips.pl summary
