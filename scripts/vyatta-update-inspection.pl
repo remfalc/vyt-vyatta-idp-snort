@@ -6,19 +6,23 @@ use VyattaSnortConfig;
 use File::Copy;
 
 # use the proper snort config file and stop/start snort depending on config
-# arguments: <antivirus_status> <ips_status>
+# arguments: <antivirus_status> <ips_status> [orig_only]
 
 my $FILE_SNORT_CONF = '/etc/snort/snort.conf';
 my $FILE_IPS_CONF = '/etc/snort/ips.conf';
 my $FILE_ANTIVIRUS_CONF = '/etc/snort/antivirus.conf';
 
-my ($ret_antiv, $ret_ips) = @ARGV;
+my ($ret_antiv, $ret_ips, $orig_only) = @ARGV;
 
 my $error_prefix = 'Content Inspection configuration error';
 
 my $config = new VyattaSnortConfig;
 my $oconfig = new VyattaSnortConfig;
-$config->setup();
+if (defined($orig_only)) {
+  $config->setupOrig();
+} else {
+  $config->setup();
+}
 $oconfig->setupOrig();
 
 if ($ret_antiv eq '2' || $ret_ips eq '2') {

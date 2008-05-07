@@ -22,6 +22,8 @@ my %fields = (
   _p2act     => undef,
   _p3act     => undef,
   _p4act     => undef,
+  _au_oink   => undef,
+  _au_hour   => undef,
   _is_empty  => 1,
 );
 
@@ -58,6 +60,9 @@ sub setup {
   $self->{_p3act} = $config->returnValue('actions priority-3');
   $self->{_p4act} = $config->returnValue('actions other');
   
+  $self->{_au_oink} = $config->returnValue('auto-update oink-code');
+  $self->{_au_hour} = $config->returnValue('auto-update update-hour');
+  
   return 0;
 }
 
@@ -83,7 +88,27 @@ sub setupOrig {
   $self->{_p3act} = $config->returnOrigValue('actions priority-3');
   $self->{_p4act} = $config->returnOrigValue('actions other');
   
+  $self->{_au_oink} = $config->returnOrigValue('auto-update oink-code');
+  $self->{_au_hour} = $config->returnOrigValue('auto-update update-hour');
+  
   return 0;
+}
+
+sub checkAutoUpdate {
+  my ($self, $orig) = @_;
+  my $config = new VyattaConfig;
+  my $exists = ($orig) ?
+                  $config->existsOrig('content-inspection ips auto-update')
+                  : $config->exists('content-inspection ips auto-update');
+  if ($exists) {
+    if (!defined($self->{_au_oink}) || !defined($self->{_au_hour})) {
+      return ('NONE NONE',
+              'Both "oink-code" and "update-hour" must be set');
+    }
+  } else {
+    return ('NONE NONE', undef);
+  }
+  return ("$self->{_au_oink} $self->{_au_hour}", undef);
 }
 
 sub isDifferentFrom {
@@ -96,6 +121,8 @@ sub isDifferentFrom {
   return 1 if ($this->{_p2act} ne $that->{_p2act});
   return 1 if ($this->{_p3act} ne $that->{_p3act});
   return 1 if ($this->{_p4act} ne $that->{_p4act});
+
+  # ignore auto-update changes
   
   return 0;
 }
@@ -281,13 +308,19 @@ my %ruletype_defs = ( 'drop' => $rule_drop_def,
 sub get_snort_conf {
   my ($self) = @_;
 
+  return (undef, 'Action for "priority-1" not defined')
+    if (!defined($self->{_p1act}));
+  return (undef, 'Action for "priority-2" not defined')
+    if (!defined($self->{_p2act}));
+  return (undef, 'Action for "priority-3" not defined')
+    if (!defined($self->{_p3act}));
+  return (undef, 'Action for "other" not defined')
+    if (!defined($self->{_p4act}));
+
   # add actions
   my $cfg = "\n## actions\n";
-  # set default action if not set
-  my @actions = ( ((defined($self->{_p1act})) ? $self->{_p1act} : 'drop'),
-                  ((defined($self->{_p2act})) ? $self->{_p2act} : 'alert'),
-                  ((defined($self->{_p3act})) ? $self->{_p3act} : 'alert'),
-                  ((defined($self->{_p4act})) ? $self->{_p4act} : 'pass') );
+  my @actions = ($self->{_p1act}, $self->{_p2act}, $self->{_p3act},
+                 $self->{_p4act});
   for my $i (1 .. 4) {
     my $action = $actions[$i - 1];
     my $def = $ruletype_defs{$action};

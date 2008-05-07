@@ -19,6 +19,25 @@ my $oconfig = new VyattaSnortConfig;
 $config->setup();
 $oconfig->setupOrig();
 
+my ($snort_conf, $au_str, $err) = (undef, undef, undef);
+
+# provide config access for auto-updater.
+# not part of the snort configuration.
+if (defined($ARGV[0]) && $ARGV[0] eq 'get-auto-update') {
+  # look at "active" (original)
+  ($au_str, $err) = $oconfig->checkAutoUpdate(1);
+  print "$au_str";
+  exit 0;
+}
+
+# check new auto-update config (if any)
+($au_str, $err) = $config->checkAutoUpdate(0);
+if (defined($err)) {
+  # invalid auto-update config
+  print "$error_prefix: $err.\n";
+  exit 2;
+}
+
 if ($config->isEmpty()) {
   # not configured
   exit 1;
@@ -29,7 +48,6 @@ if (!($config->isDifferentFrom($oconfig))) {
   exit 3;
 }
 
-my ($snort_conf, $err) = (undef, undef);
 while (1) {
   ($snort_conf, $err) = $config->get_snort_conf();
   last if (defined($err));

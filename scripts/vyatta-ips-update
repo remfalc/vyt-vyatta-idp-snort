@@ -1,0 +1,4 @@
+#!/bin/sh
+
+/opt/vyatta/sbin/vyatta-proc-snort-updates >/dev/null 2>&1
+

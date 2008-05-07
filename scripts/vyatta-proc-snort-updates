@@ -1,0 +1,158 @@
+#!/bin/bash
+
+WORK_DIR='/opt/vyatta/etc/ips/work'
+BACKUP_DIR='/opt/vyatta/etc/ips/backup'
+LOG_FILE='/opt/vyatta/etc/ips/update.log'
+URL_PREFIX='http://www.snort.org/pub-bin/oinkmaster.cgi'
+SNORT_UPDATE_FILE='snortrules-snapshot-2.7.tar'
+CUR_TIME=$(date +%F-%H%M%S)
+
+# when invoked from cron, we don't have these variables
+export VYATTA_EDIT_LEVEL='/'
+export VYATTA_TEMPLATE_LEVEL='/'
+export VYATTA_ACTIVE_CONFIGURATION_DIR='/opt/vyatta/config/active'
+
+log_message ()
+{
+  echo "$CUR_TIME: $*" >> $LOG_FILE
+}
+
+abort_updates ()
+{
+  log_message "$*"
+  log_message 'Update aborted due to error. IPS rules not updated.'
+  exit 1
+}
+
+# get auto-update configuration
+AU_CFG=($(/opt/vyatta/sbin/vyatta-update-snort.pl get-auto-update))
+OINK_CODE=${AU_CFG[0]}
+UPD_HOUR=${AU_CFG[1]}
+
+if [ "$UPD_HOUR" == "NONE" ]; then
+  # not configured. do nothing.
+  exit 0
+fi
+
+# note: since auto-update is configured, ips must be configured.
+#       so the current config can't be antivirus-only.
+
+cur_hour=$(date +%-H)
+if [ "$cur_hour" != "$UPD_HOUR" ]; then
+  # not the right hour. do nothing.
+  exit 0
+fi
+
+# clean up work dir
+rm -rf $WORK_DIR
+mkdir -p $WORK_DIR
+
+# get the update file
+cd $WORK_DIR
+if ! wget -q $URL_PREFIX/$OINK_CODE/$SNORT_UPDATE_FILE.gz; then
+  abort_updates "Failed to get $URL_PREFIX/$OINK_CODE/$SNORT_UPDATE_FILE.gz"
+fi
+
+# sanity check
+if [ ! -r $WORK_DIR/$SNORT_UPDATE_FILE.gz ]; then
+  abort_updates "Failed to get $SNORT_UPDATE_FILE.gz"
+fi
+
+# extract
+gunzip $SNORT_UPDATE_FILE.gz >&/dev/null
+tar xf $SNORT_UPDATE_FILE >&/dev/null
+
+# now we have the following directories
+#   doc: not using
+#   so_rules: not using
+#   etc: replaces /etc/snort
+#   rules: replaces /etc/snort/rules
+if [ ! -d etc -o ! -d rules ]; then
+  abort_updates 'Invalid update file'
+fi
+
+# process etc/
+(
+  cd etc
+  # generate ips.conf from new snort.conf
+  sed '/^var RULE_PATH / {
+         s/\(var RULE_PATH \).*$/\1\/etc\/snort\/rules/
+         a\
+\n### NOTE: Lines between the BEGIN and END markers below are generated\
+###       automatically. Do NOT modify by hand.\
+# === BEGIN VYATTA SNORT CONFIG ===\
+# === END VYATTA SNORT CONFIG ===
+       }' snort.conf > ips.conf
+
+  if [ ! -f ips.conf ]; then
+    abort_updates 'Cannot generate ips.conf'
+  fi
+
+  if ! grep -q 'BEGIN VYATTA SNORT CONFIG' ips.conf; then
+    abort_updates 'Cannot generate ips.conf'
+  fi
+
+  # copy the vyatta section from the old ips.conf
+  sed -n '1,/^# === BEGIN VYATTA SNORT CONFIG ===/p' ips.conf > ips.conf.new
+  sed -n '1,/^# === BEGIN VYATTA SNORT CONFIG ===/d
+          /^# === END VYATTA SNORT CONFIG ===/,$d
+          p' /etc/snort/ips.conf >> ips.conf.new
+  sed -n '/^# === END VYATTA SNORT CONFIG ===/,$p' ips.conf >> ips.conf.new
+  mv ips.conf.new ips.conf
+
+  # correct library path
+  sed -i 's/\/usr\/local\/lib/\/usr\/lib/' ips.conf
+
+  # generate snort.conf from ips.conf
+  cp -f ips.conf snort.conf
+
+  # sanity check
+  if ! grep -q '^ruletype p1action' snort.conf; then
+    abort_updates 'Cannot generate ips.conf'
+  fi
+
+  # get the missing files
+  if ! cp /etc/snort/{antivirus.conf,clamav.config,snort.debian.conf} .; then
+    abort_updates 'Original config file missing'
+  fi
+)
+
+# process rules/
+if ! /opt/vyatta/sbin/vyatta-proc-snort-rules.pl \
+        --classfile ./etc/classification.config \
+        --ruledir ./rules --outdir ./rules-new; then
+  abort_updates 'Cannot process downloaded rules'
+fi
+
+# any other checks before committing to the updates
+
+# move /etc/snort to backup
+mkdir -p $BACKUP_DIR
+if ! mv /etc/snort $BACKUP_DIR/snort.$CUR_TIME >&/dev/null; then
+  abort_updates 'Failed to move /etc/snort'
+fi
+
+# move etc to /etc/snort
+if ! mv etc /etc/snort >&/dev/null; then
+  abort_updates 'Failed to move etc'
+fi
+
+# move rules-new to /etc/snort/rules
+if ! mv rules-new /etc/snort/rules >&/dev/null; then
+  abort_updates 'Failed to move rules'
+fi
+
+# 'snort -T' check.
+# if it fails, restore the directories and abort
+if ! /etc/init.d/snort config-check >&/dev/null; then
+  rm -rf /etc/snort
+  mv $BACKUP_DIR/snort.$CUR_TIME /etc/snort >&/dev/null
+  abort_updates 'Final rule check failed'
+fi
+
+# finally, restart snort
+/opt/vyatta/sbin/vyatta-update-inspection.pl 3 0 orig_only
+
+log_message 'IPS rules update completed successfully'
+exit 0
+
