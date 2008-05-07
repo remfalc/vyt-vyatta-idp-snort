@@ -12,7 +12,8 @@ Depends: perl,
  vyatta-cfg-firewall,
  vyatta-op,
  vyatta-snort,
- wget
+ wget,
+ coreutils
 Description: Vyatta commands for IPS
  Vyatta configuration/operational templates and scripts for the Intrusion
  Prevention System (IPS)
