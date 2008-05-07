@@ -1,0 +1,6 @@
+help: Show log for IPS rules updte
+run: if [ -r /opt/vyatta/etc/ips/update.log ]; then
+       cat /opt/vyatta/etc/ips/update.log
+     else
+       echo Update log not found
+     fi
