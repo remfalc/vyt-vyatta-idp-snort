@@ -1,5 +1,6 @@
 type: txt
 help: Set traffic filter preset
 syntax:expression: $VAR(@) in "all"; "Preset must be \"all\""
+allowed: echo all
 comp_help:Possible completions:
   all           Apply Content Inspection to all traffic
