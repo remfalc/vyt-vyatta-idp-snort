@@ -44,6 +44,7 @@ if [ "$cur_hour" != "$UPD_HOUR" ]; then
   exit 0
 fi
 
+mkdir -p $BASE_DIR
 cd $BASE_DIR
 
 # clean up work dir
