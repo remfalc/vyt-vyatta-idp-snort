@@ -1,3 +1,38 @@
+vyatta-idp-snort (0.2) unstable; urgency=low
+
+	  3.1.0
+  [ Mark O'Brien ]
+
+
+  [ An-Cheng Huang ]
+  * fix for bug 3342: ensure working directory is created.
+  * fix for bug 3321: add "preset" completion
+
+  [ rbalocca ]
+  * Ignore derived files
+
+  [ An-Cheng Huang ]
+  * * add "show ips update-log" operational command.
+
+  [ rbalocca ]
+  * Remove empty dir
+  * Convert to our method of changelog creation
+
+  [ An-Cheng Huang ]
+  * only do actual rule update if new update is available.
+  * initial implementation of auto-update for snort rules.
+  * add "show ips summary" operational command
+  * add "show ips log" operational command
+  * remove default preset value
+  * make IPS interoperate with anti-virus configuration.
+  * reorganize IPS configuration hierarchy
+  * move snort start/stop functions to module for reuse.
+  * enable clamav in snort config file (sync with vyatta-snort).
+
+  [ Mark O'Brien ]
+
+ -- Mark O'Brien <mobrien@firebolt.vyatta.com>  Tue, 17 Jun 2008 09:26:45 -0700
+
 vyatta-idp-snort (0.1) unstable; urgency=low
 
   * Initial Release.
