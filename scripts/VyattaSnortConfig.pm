@@ -207,6 +207,13 @@ sub checkQueue {
     if (!defined($self->{_tr_preset}) && !defined($self->{_tr_custom}));
   return 'Cannot define both "preset" and "custom" for "traffic-filter"'
     if (defined($self->{_tr_preset}) && defined($self->{_tr_custom}));
+  if (defined($self->{_tr_custom})) {
+    my $chain = $self->{_tr_custom};
+    system("iptables -L $chain -n >&/dev/null");
+    if ($? >> 8) {
+      return "Custom chain \"$chain\" is not valid";
+    }
+  }
   return undef;
 }
 
@@ -219,7 +226,7 @@ sub addQueue {
     $chain = $self->{_tr_custom};
   } else {
     # neither defined. return error.
-    return 'Must define "traffic-filter"'
+    return 'Must define "traffic-filter"';
   }
   # insert rule at the front (ACCEPT at the end)
   system("iptables -I $post_fw_hook 1 -j $chain");
@@ -249,6 +256,10 @@ sub shutdownSnort {
 # returns error message, or undef if success.
 sub startSnort {
   my ($self) = @_;
+
+  my $err = $self->checkQueue();
+  return $err if (defined($err));
+
   system("$SNORT_INIT start >&/dev/null");
   return 'Starting failed' if ($? >> 8);
   
