@@ -21,7 +21,7 @@
 
 use strict;
 use lib '/opt/vyatta/share/perl5';
-use VyattaSnortUnifiedLog;
+use Vyatta::Snort::UnifiedLog;
 use Sort::Versions;
 
 my $SNORT_LOG_DIR = '/var/log/snort';

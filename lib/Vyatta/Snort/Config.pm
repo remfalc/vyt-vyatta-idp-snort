@@ -1,4 +1,4 @@
-package VyattaSnortConfig;
+package Vyatta::Snort::Config;
 
 use strict;
 use lib '/opt/vyatta/share/perl5';

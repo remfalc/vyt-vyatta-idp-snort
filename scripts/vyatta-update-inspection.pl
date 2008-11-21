@@ -2,7 +2,7 @@
 
 use strict;
 use lib "/opt/vyatta/share/perl5";
-use VyattaSnortConfig;
+use Vyatta::Snort::Config;
 use File::Copy;
 
 # use the proper snort config file and stop/start snort depending on config
@@ -16,8 +16,8 @@ my ($ret_antiv, $ret_ips, $orig_only) = @ARGV;
 
 my $error_prefix = 'Content Inspection configuration error';
 
-my $config = new VyattaSnortConfig;
-my $oconfig = new VyattaSnortConfig;
+my $config = new Vyatta::Snort::Config;
+my $oconfig = new Vyatta::Snort::Config;
 if (defined($orig_only)) {
   $config->setupOrig();
 } else {

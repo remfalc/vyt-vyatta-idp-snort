@@ -17,7 +17,7 @@
 # All Rights Reserved.
 # **** End License ****
 
-package VyattaSnortUnifiedLog;
+package Vyatta::Snort::UnifiedLog;
 
 use strict;
 use NetAddr::IP;

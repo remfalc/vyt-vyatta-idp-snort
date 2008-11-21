@@ -1,6 +1,6 @@
 cfgdir		 = $(datadir)/vyatta-cfg/templates
 opdir		 = $(datadir)/vyatta-op/templates
-share_perl5dir	 = $(datarootdir)/perl5
+share_perl5dir	 = $(datarootdir)/perl5/Vyatta/Snort
 cron_hourlydir = /etc/cron.hourly
 
 sbin_SCRIPTS = scripts/vyatta-update-snort.pl
@@ -11,8 +11,8 @@ sbin_SCRIPTS += scripts/vyatta-proc-snort-updates
 
 cron_hourly_SCRIPTS = scripts/vyatta-ips-update
 
-share_perl5_DATA = scripts/VyattaSnortConfig.pm
-share_perl5_DATA += scripts/VyattaSnortUnifiedLog.pm
+share_perl5_DATA = lib/Vyatta/Snort/Config.pm
+share_perl5_DATA += lib/Vyatta/Snort/UnifiedLog.pm
 
 cpiop = find  . ! -regex '\(.*~\|.*\.bak\|.*\.swp\|.*\#.*\#\)' -print0 | \
   cpio -0pd

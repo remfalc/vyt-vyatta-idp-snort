@@ -2,7 +2,7 @@
 
 use strict;
 use lib "/opt/vyatta/share/perl5";
-use VyattaSnortConfig;
+require Vyatta::Snort::Config;
 
 # writes the ips config file and exits with proper status:
 #   0: success, something changed
@@ -14,8 +14,8 @@ my $FILE_SNORT_CONF = '/etc/snort/ips.conf';
 
 my $error_prefix = 'IPS configuration error';
 
-my $config = new VyattaSnortConfig;
-my $oconfig = new VyattaSnortConfig;
+my $config = new Vyatta::Snort::Config;
+my $oconfig = new Vyatta::Snort::Config;
 $config->setup();
 $oconfig->setupOrig();
 
