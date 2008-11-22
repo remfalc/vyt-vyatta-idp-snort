@@ -2,7 +2,7 @@ package Vyatta::Snort::Config;
 
 use strict;
 use lib '/opt/vyatta/share/perl5';
-use VyattaConfig;
+use Vyatta::Config;
 use File::Copy;
 
 my $cfg_delim_begin = '# === BEGIN VYATTA SNORT CONFIG ===';
@@ -40,7 +40,7 @@ sub new {
 
 sub setup {
   my ( $self ) = @_;
-  my $config = new VyattaConfig;
+  my $config = new Vyatta::Config;
 
   $config->setLevel('content-inspection traffic-filter');
   $self->{_tr_preset} = $config->returnValue('preset');
@@ -68,7 +68,7 @@ sub setup {
 
 sub setupOrig {
   my ( $self ) = @_;
-  my $config = new VyattaConfig;
+  my $config = new Vyatta::Config;
 
   $config->setLevel('content-inspection traffic-filter');
   $self->{_tr_preset} = $config->returnOrigValue('preset');
@@ -96,7 +96,7 @@ sub setupOrig {
 
 sub checkAutoUpdate {
   my ($self, $orig) = @_;
-  my $config = new VyattaConfig;
+  my $config = new Vyatta::Config;
   my $exists = ($orig) ?
                   $config->existsOrig('content-inspection ips auto-update')
                   : $config->exists('content-inspection ips auto-update');
