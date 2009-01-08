@@ -1,3 +1,18 @@
+vyatta-idp-snort (0.3.1) unstable; urgency=low
+
+  [ An-Cheng Huang ]
+  * add support for development build
+
+  [ Stephen Hemminger ]
+  * Rename VyattaSnort to Vyatta::Snort::
+  * Convert to Vyatta::Config
+
+  [ An-Cheng Huang ]
+  * update maintainer information
+  * "files" file should be removed before package build
+
+ -- An-Cheng Huang <ancheng@vyatta.com>  Thu, 08 Jan 2009 09:35:56 -0800
+
 vyatta-idp-snort (0.3) unstable; urgency=low
 
 	  3.1.2
