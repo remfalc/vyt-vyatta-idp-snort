@@ -1,10 +1,10 @@
 type: txt
 
-help: Set IPv4 custom traffic filter
+help: Set IPv6 custom traffic filter
 
 allowed:
 	local -a params
-	table=name
+	table=ipv6-name
 	params=( /opt/vyatta/config/active/firewall/${table}/* )
 	echo -n ${params[@]##*/}
-
+	

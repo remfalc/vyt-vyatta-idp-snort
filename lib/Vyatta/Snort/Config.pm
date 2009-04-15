@@ -18,6 +18,8 @@ my $SNORT_DONE = '/var/run/snort_inline_init.pid';
 my %fields = (
   _tr_preset => undef,
   _tr_custom => undef,
+  _tr_ipv6_preset => undef,
+  _tr_ipv6_custom => undef,
   _p1act     => undef,
   _p2act     => undef,
   _p3act     => undef,
@@ -45,6 +47,8 @@ sub setup {
   $config->setLevel('content-inspection traffic-filter');
   $self->{_tr_preset} = $config->returnValue('preset');
   $self->{_tr_custom} = $config->returnValue('custom');
+  $self->{_tr_ipv6_preset} = $config->returnValue('ipv6-preset');
+  $self->{_tr_ipv6_custom} = $config->returnValue('ipv6-custom');
 
   $config->setLevel('content-inspection ips');
   my @nodes = $config->listNodes();
@@ -73,6 +77,8 @@ sub setupOrig {
   $config->setLevel('content-inspection traffic-filter');
   $self->{_tr_preset} = $config->returnOrigValue('preset');
   $self->{_tr_custom} = $config->returnOrigValue('custom');
+  $self->{_tr_ipv6_preset} = $config->returnOrigValue('ipv6-preset');
+  $self->{_tr_ipv6_custom} = $config->returnOrigValue('ipv6-custom');
 
   $config->setLevel('content-inspection ips');
   my @nodes = $config->listOrigNodes();
@@ -117,6 +123,8 @@ sub isDifferentFrom {
   return 1 if ($this->{_is_empty} ne $that->{_is_empty});
   return 1 if ($this->{_tr_preset} ne $that->{_tr_preset});
   return 1 if ($this->{_tr_custom} ne $that->{_tr_custom});
+  return 1 if ($this->{_tr_ipv6_preset} ne $that->{_tr_ipv6_preset});
+  return 1 if ($this->{_tr_ipv6_custom} ne $that->{_tr_ipv6_custom});
   return 1 if ($this->{_p1act} ne $that->{_p1act});
   return 1 if ($this->{_p2act} ne $that->{_p2act});
   return 1 if ($this->{_p3act} ne $that->{_p3act});
@@ -139,6 +147,7 @@ sub rule_num_sort {
   return ($ab[0] <=> $aa[0]);
 }
 
+# Check whether a chain exists in the IPv4 filter table
 sub chainExists {
   my $chain = shift;
   system("iptables -L $chain -vn >&/dev/null");
@@ -146,9 +155,20 @@ sub chainExists {
   return 1;
 }
 
+# Check whether a chain exists in the IPv6 filter table
+sub chainExistsIPv6 {
+  my $chain = shift;
+  system("ip6tables -L $chain -vn >&/dev/null");
+  return 0 if ($? >> 8);
+  return 1;
+}
+
+# Set up the chains for the "all" preset in both the IPv4 and IPv6 fiter
+# tables.
 sub setupIptables {
   my ($self) = @_;
   my %create_hash = ();
+  my %create_hash_ipv6 = ();
   my @cmds = ();
   my @presets = qw( all );
   foreach (@presets) {
@@ -156,81 +176,158 @@ sub setupIptables {
     if (!chainExists($chain)) {
       $create_hash{$_} = 1;
     }
+    if (!chainExistsIPv6($chain)) {
+      $create_hash_ipv6{$_} = 1;
+    }
   }
 
-  # set up preset "all"
+  # set up preset "all" for IPv4 and IPv6
   my $chain = $queue_prefix . 'all' . $queue_suffix;
   if ($create_hash{'all'}) {
     push @cmds,
       "iptables -N $chain",
       "iptables -A $chain -j QUEUE";
   }
+  if ($create_hash_ipv6{'all'}) {
+    push @cmds,
+      "ip6tables -N $chain",
+      "ip6tables -A $chain -j QUEUE";
+  }
 
   # run all commands
   foreach (@cmds) {
     system("$_ >&/dev/null");
-    return "Cannot setup iptables ($_)" if ($? >> 8);
+    return "Cannot setup iptables/ip6tables: ($_)" if ($? >> 8);
   }
 
   # return success
   return undef;
 }
 
+# Remove a rule jumping to a preset or custom chain located in the
+# Vyatta post firewall hook chain of either the IPv4 or IPv6
+# filter table.
+sub removeChain {
+    my ($cmd, $chain) = @_;
+
+    my $grep = "grep ^[0-9] | grep $chain";
+    my @lines = `$cmd -L $post_fw_hook -n --line-number | $grep`;
+    @lines = sort rule_num_sort @lines;
+    # rule number from high to low
+    foreach (@lines) {
+	my ($num, $target) = split /\s+/;
+	next if ($target ne $chain);
+	system("$cmd -D $post_fw_hook $num");
+	return 'Cannot remove rule from iptables/ip6tables' if ($? >> 8);
+    }
+
+    return undef;
+}
+
+# Remove all of the rules we've added located in the Vyatta post firewall
+# hook chain of either the IPv4 or IPv6 filter table.
 sub removeQueue {
   my ($self) = @_;
   my $chain = undef;
+  my $ret1 = undef;
+  my $ret2 = undef;
+
   if (defined($self->{_tr_preset})) {
     $chain = $queue_prefix . $self->{_tr_preset} . $queue_suffix;
   } elsif (defined($self->{_tr_custom})) {
     $chain = $self->{_tr_custom};
-  } else {
-    # neither defined. nothing to remove. return success.
-    return undef;
   }
-  my $grep = "grep ^[0-9] | grep $chain";
-  my @lines = `iptables -L $post_fw_hook -n --line-number | $grep`;
-  @lines = sort rule_num_sort @lines;
-  # rule number from high to low
-  foreach (@lines) {
-    my ($num, $target) = split /\s+/;
-    next if ($target ne $chain);
-    system("iptables -D $post_fw_hook $num");
-    return 'Cannot remove rule from iptables' if ($? >> 8);
+
+  if (defined($chain)) {
+      $ret1 = removeChain ("iptables", $chain);
   }
+
+  $chain = undef;
+  if (defined($self->{_tr_ipv6_preset})) {
+    $chain = $queue_prefix . $self->{_tr_ipv6_preset} . $queue_suffix;
+  } elsif (defined($self->{_tr_ipv6_custom})) {
+    $chain = $self->{_tr_ipv6_custom};
+  }
+
+  if (defined($chain)) {
+      $ret2 = removeChain ("ip6tables", $chain);
+  }
+
+  if (defined($ret1)) {
+      return $ret1;
+  } elsif (defined($ret2)) {
+      return $ret2;
+  }
+
   # return success
   return undef;
 }
 
+# Validate configuration under "traffic-filter".
 sub checkQueue {
   my ($self) = @_;
   return 'Must define "traffic-filter"'
-    if (!defined($self->{_tr_preset}) && !defined($self->{_tr_custom}));
+    if (!defined($self->{_tr_preset}) && !defined($self->{_tr_custom}) &&
+	!defined($self->{_tr_ipv6_preset}) && 
+	!defined($self->{_tr_ipv6_custom}));
+
   return 'Cannot define both "preset" and "custom" for "traffic-filter"'
     if (defined($self->{_tr_preset}) && defined($self->{_tr_custom}));
+
+  return 'Cannot define both "ipv6-preset" and "ipv6-custom" for "traffic-filter"'
+    if (defined($self->{_tr_ipv6_preset}) && 
+	defined($self->{_tr_ipv6_custom}));
+
   if (defined($self->{_tr_custom})) {
     my $chain = $self->{_tr_custom};
     system("iptables -L $chain -n >&/dev/null");
     if ($? >> 8) {
-      return "Custom chain \"$chain\" is not valid";
+      return "Custom chain \"$chain\" is not valid in IPv4 filter table";
     }
   }
+
+  if (defined($self->{_tr_ipv6_custom})) {
+    my $chain = $self->{_tr_ipv6_custom};
+    system("ip6tables -L $chain -n >&/dev/null");
+    if ($? >> 8) {
+      return "Custom chain \"$chain\" is not valid in IPv6 filter table";
+    }
+  }
+
   return undef;
 }
 
+# Based on the configuration parameters under "traffic-filter", add
+# rules to the Vyatta post firewall hook of the IPv4 or IPv6 filter tables
+# jumping to our preset or user defined chains.
 sub addQueue {
   my ($self) = @_;
   my $chain = undef;
+
   if (defined($self->{_tr_preset})) {
     $chain = $queue_prefix . $self->{_tr_preset} . $queue_suffix;
   } elsif (defined($self->{_tr_custom})) {
     $chain = $self->{_tr_custom};
-  } else {
-    # neither defined. return error.
-    return 'Must define "traffic-filter"';
   }
-  # insert rule at the front (ACCEPT at the end)
-  system("iptables -I $post_fw_hook 1 -j $chain");
-  return 'Cannot insert rule into iptables' if ($? >> 8);
+
+  if (defined($chain)) {
+      # insert rule at the front (ACCEPT at the end)
+      system("iptables -I $post_fw_hook 1 -j $chain");
+      return 'Cannot insert rule into iptables' if ($? >> 8);
+  }
+
+  $chain = undef;
+  if (defined($self->{_tr_ipv6_preset})) {
+    $chain = $queue_prefix . $self->{_tr_ipv6_preset} . $queue_suffix;
+  } elsif (defined($self->{_tr_ipv6_custom})) {
+    $chain = $self->{_tr_ipv6_custom};
+  }
+
+  if (defined($chain)) {
+      system("ip6tables -I $post_fw_hook 1 -j $chain");
+      return 'Cannot insert rule into ip6tables' if ($? >> 8);
+  }
+
   # return success
   return undef;
 }
