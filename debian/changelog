@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.3) unstable; urgency=low
+
+  * Add support for IPv6.
+
+ -- Bob Gilligan <gilligan@vyatta.com>  Tue, 14 Apr 2009 17:48:04 -0700
+
 vyatta-idp-snort (0.3.2) unstable; urgency=low
 
   * Change license to GPL
