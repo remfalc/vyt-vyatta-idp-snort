@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.4) unstable; urgency=low
+
+  * UNRELEASED
+
+ -- An-Cheng Huang <ancheng@vyatta.com>  Fri, 29 May 2009 18:36:09 -0700
+
 vyatta-idp-snort (0.3.3) unstable; urgency=low
 
   * Add support for IPv6.
