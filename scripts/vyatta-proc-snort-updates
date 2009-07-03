@@ -5,7 +5,7 @@ WORK_DIR="$BASE_DIR/work"
 BACKUP_DIR="$BASE_DIR/backup"
 LOG_FILE="$BASE_DIR/update.log"
 URL_PREFIX='http://www.snort.org/pub-bin/oinkmaster.cgi'
-SNORT_UPDATE_FILE='snortrules-snapshot-2.7.tar'
+SNORT_UPDATE_FILE='snortrules-snapshot-2.8.tar'
 CUR_TIME=$(date +%F-%H%M%S)
 
 # when invoked from cron, we don't have these variables
@@ -58,7 +58,7 @@ if [ -f $SNORT_UPDATE_FILE.gz ]; then
 fi
 
 # get the update file
-if ! /usr/bin/wget -q $URL_PREFIX/$OINK_CODE/$SNORT_UPDATE_FILE.gz; then
+if ! /usr/bin/wget -O $SNORT_UPDATE_FILE.gz -q $URL_PREFIX/$OINK_CODE/$SNORT_UPDATE_FILE.gz; then
   abort_updates "Failed to get $URL_PREFIX/$OINK_CODE/$SNORT_UPDATE_FILE.gz"
 fi
 
@@ -121,6 +121,9 @@ fi
 
   # correct library path
   sed -i 's/\/usr\/local\/lib/\/usr\/lib/' ips.conf
+
+  # comment out dynamicdetection 
+  sed -i s/^dynamicdetection/#dynamicdetection/ ips.conf
 
   # generate snort.conf from ips.conf
   cp -f ips.conf snort.conf
