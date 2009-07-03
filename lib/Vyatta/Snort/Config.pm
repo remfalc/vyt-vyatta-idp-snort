@@ -382,7 +382,7 @@ sub isEmpty {
 
 my $log_limit = 1;
 my $output_def =<<EOD;
-  output alert_unified: alert, limit $log_limit
+  output alert_unified: filename snort-unified.alert, limit $log_limit
   output log_null
 EOD
 my $rule_drop_def =<<EOD;
