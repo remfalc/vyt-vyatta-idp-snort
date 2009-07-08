@@ -36,15 +36,17 @@ BEGIN {
 }
 
 my $UNIFIED_MAGIC = 0xDEAD4137;
-my $PROTO_FILE = '/etc/protocols';
-my $SNORT_PATH = '/etc/snort';
-my $CLASS_FILE = "$SNORT_PATH/classification.config";
+my $PROTO_FILE  = '/etc/protocols';
+my $SNORT_PATH  = '/etc/snort';
+my $CLASS_FILE  = "$SNORT_PATH/classification.config";
 my $SIDMSG_FILE = "$SNORT_PATH/sid-msg.map";
 my $COMMSG_FILE = "$SNORT_PATH/community-sid-msg.map";
+my $GENMSG_FILE = "$SNORT_PATH/gen-msg.map";
 
-my %proto_hash = ();
-my %class_hash = ();
+my %proto_hash  = ();
+my %class_hash  = ();
 my %sidmsg_hash = ();
+my %genmsg_hash = ();
 
 sub process_protocols {
   my $proto = undef;
@@ -86,6 +88,18 @@ sub process_sidmsgs {
   }
 }
 
+sub process_genmsgs {
+  my $msg = undef;
+  # do nothing if can't open
+  return if (!open($msg, $GENMSG_FILE));
+  while (<$msg>) {
+    next if (/^\s*#/);
+    next if (!/^(\d+)\s*\|\|\s*(\d+)\s*\|\|\s*(.*)$/);
+    $genmsg_hash{"$1:$2"} = $3;
+  }
+  close $msg;
+}
+
 # opens and prepares a log file for subsequent reading.
 # arg: log_file_name
 # returns (undef, handle) if successful.
@@ -99,6 +113,7 @@ sub open_log_file {
   process_protocols() if (scalar(keys %proto_hash) <= 0);
   process_classes() if (scalar(keys %class_hash) <= 0);
   process_sidmsgs() if (scalar(keys %sidmsg_hash) <= 0);
+  process_genmsgs() if (scalar(keys %genmsg_hash) <= 0);
 
   # header:
   #   L: magic
@@ -203,9 +218,14 @@ sub get_class_strs {
 # returns the description of a particular signature.
 # arg: "gen:id:rev"
 sub get_sig_msg {
-  my ($sgen, $sid, $srev) = split /:/, $_[0];
-  return (defined($sidmsg_hash{$sid}) && $sgen eq '1')
-         ? $sidmsg_hash{$sid} : 'Unknown signature';
+  my ($sgen, $sid, $srev) = split(/:/, $_[0]);
+  if ($sgen eq 1) {
+    return defined($sidmsg_hash{$sid}) 
+	? $sidmsg_hash{$sid} : 'Unknown signature';
+  } else {
+    return defined($genmsg_hash{"$sgen:$sid"}) 
+	? $genmsg_hash{"$sgen:$sid"} : 'Unknown generator signature';
+  }
 }
 
 # format and print a log entry
