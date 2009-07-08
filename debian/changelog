@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.3+jenner3) unstable; urgency=low
+
+  * add support for signature messages from gen-msg.map
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 07 Jul 2009 17:07:54 -0700
+
 vyatta-idp-snort (0.3.3+jenner2) unstable; urgency=low
 
   * Modify rule update for 2.8 rules
