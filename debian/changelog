@@ -1,3 +1,12 @@
+vyatta-idp-snort (0.3.5) unstable; urgency=low
+
+  * Modify rule update for 2.8 rules
+  * fix argument error
+  * add support for signature messages from gen-msg.map
+  * hide ipv6 support for snort until 4685 is fixed
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 09 Jul 2009 12:20:35 -0700
+
 vyatta-idp-snort (0.3.4) unstable; urgency=low
 
   * UNRELEASED
