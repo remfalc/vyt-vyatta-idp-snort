@@ -146,6 +146,9 @@ if ! /opt/vyatta/sbin/vyatta-proc-snort-rules.pl \
   abort_updates 'Cannot process downloaded rules'
 fi
 
+# copy any local rules
+cp -f /etc/snort/rules/local.rules rules-new
+
 # any other checks before committing to the updates
 
 # move /etc/snort to backup
