@@ -7,6 +7,7 @@ LOG_FILE="$BASE_DIR/update.log"
 URL_PREFIX='http://www.snort.org/pub-bin/oinkmaster.cgi'
 SNORT_UPDATE_FILE='snortrules-snapshot-2.8.tar'
 CUR_TIME=$(date +%F-%H%M%S)
+LAST_UPDATE_STATUS_FILE="$BASE_DIR/lastupdatestatus"
 
 # when invoked from cron, we don't have these variables
 export VYATTA_EDIT_LEVEL='/'
@@ -22,6 +23,7 @@ abort_updates ()
 {
   log_message "$*"
   log_message 'Update aborted due to error. IPS rules not updated.'
+  echo update failed at `date` > $LAST_UPDATE_STATUS_FILE
   exit 1
 }
 
@@ -178,6 +180,7 @@ fi
 # finally, restart snort
 /opt/vyatta/sbin/vyatta-update-inspection.pl 3 0 orig_only
 
+echo update succeeded at `date` > $LAST_UPDATE_STATUS_FILE
 log_message 'IPS rules update completed successfully'
 log_message "Original rules are moved to $BACKUP_DIR/snort.$CUR_TIME"
 exit 0
