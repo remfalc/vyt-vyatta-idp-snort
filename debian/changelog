@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.8) unstable; urgency=low
+
+  * push priority to node.def
+
+ -- slioch <slioch@eng-140.vyatta.com>  Tue, 20 Oct 2009 16:16:51 -0700
+
 vyatta-idp-snort (0.3.7) unstable; urgency=low
 
   * add last update status information
