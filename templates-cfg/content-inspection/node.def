@@ -1,3 +1,4 @@
+priority: 900
 help: Configure Content Inspection
 end: RET1=1
      if [ -x /opt/vyatta/sbin/vyatta-update-antivirus.pl ]; then
