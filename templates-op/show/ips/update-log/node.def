@@ -1,4 +1,4 @@
-help: Show log for IPS rules updte
+help: Show log for IPS rules update
 run: if [ -r /opt/vyatta/etc/ips/update.log ]; then
        cat /opt/vyatta/etc/ips/update.log
      else
