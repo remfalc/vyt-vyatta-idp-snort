@@ -364,12 +364,12 @@ sub startSnort {
   # to avoid blocking traffic
   my $count = 0;
   $| = 1;
-  while ($count < 30 && (! -f $SNORT_DONE)) {
+  while ($count < 120 && (! -f $SNORT_DONE)) {
     print '.';
     sleep 2;
     $count++;
   }
-  return 'Initialization failed' if ($count == 30);
+  return 'Initialization failed' if ($count == 120);
 
   # add iptables queue rule(s)
   return $self->addQueue();
