@@ -1,3 +1,13 @@
+vyatta-idp-snort (0.3.9) unstable; urgency=low
+
+  [ slioch ]
+  * fix for bug 4757.
+
+  [ An-Cheng Huang ]
+  * increase timeout
+
+ -- An-Cheng Huang <ancheng@vyatta.com>  Thu, 05 Nov 2009 16:41:53 -0800
+
 vyatta-idp-snort (0.3.8) unstable; urgency=low
 
   * push priority to node.def
