@@ -8,7 +8,7 @@ Standards-Version: 3.7.2
 Package: vyatta-idp-snort
 Architecture: all
 Depends: perl,
- vyatta-cfg,
+ vyatta-cfg (>= 0.15.33),
  vyatta-cfg-firewall,
  vyatta-op,
  vyatta-snort,
