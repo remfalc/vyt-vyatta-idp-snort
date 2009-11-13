@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.10) unstable; urgency=low
+
+  * dependency update
+
+ -- Michael Larson <slioch@slioch.vyatta.com>  Fri, 13 Nov 2009 14:02:54 -0800
+
 vyatta-idp-snort (0.3.9) unstable; urgency=low
 
   [ slioch ]
