@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.12) unstable; urgency=low
+
+  * UNRELEASED
+
+ -- An-Cheng Huang <ancheng@vyatta.com>  Wed, 17 Feb 2010 16:14:27 -0800
+
 vyatta-idp-snort (0.3.11) unstable; urgency=low
 
   * added required keyword to help text.
