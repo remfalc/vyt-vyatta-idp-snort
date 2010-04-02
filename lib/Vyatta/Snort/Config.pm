@@ -405,6 +405,7 @@ EOD
 my $rule_pass_def =<<EOD;
 {
   type pass
+$output_def
 }
 EOD
 
