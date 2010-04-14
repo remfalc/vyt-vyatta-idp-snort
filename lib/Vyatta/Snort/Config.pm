@@ -394,6 +394,7 @@ EOD
 my $rule_sdrop_def =<<EOD;
 {
   type sdrop
+  output log_null
 }
 EOD
 my $rule_alert_def =<<EOD;
