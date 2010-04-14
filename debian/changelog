@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.14) unstable; urgency=low
+
+  * Fix 5534: ips auto-update fails with image install.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 13 Apr 2010 17:13:41 -0700
+
 vyatta-idp-snort (0.3.13) unstable; urgency=low
 
   * New version of snort requires an output rule.
