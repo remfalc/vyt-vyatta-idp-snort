@@ -159,6 +159,10 @@ if ! mv /etc/snort $BACKUP_DIR/snort.$CUR_TIME >&/dev/null; then
   abort_updates 'Failed to move /etc/snort'
 fi
 
+# workaround possible unionfs bug where the previous mv does
+# not create a white-out file
+rm -rf /etc/snort
+
 # move etc to /etc/snort
 if ! mv etc /etc/snort >&/dev/null; then
   abort_updates 'Failed to move etc'
