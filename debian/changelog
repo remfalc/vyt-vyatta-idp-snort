@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.15) unstable; urgency=low
+
+  * Fix 5515: committing "content-inspection ips actions <> sdrop"
+    failed.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 13 Apr 2010 18:16:16 -0700
+
 vyatta-idp-snort (0.3.14) unstable; urgency=low
 
   * Fix 5534: ips auto-update fails with image install.
