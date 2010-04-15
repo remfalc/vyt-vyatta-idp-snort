@@ -8,8 +8,7 @@ sbin_SCRIPTS += scripts/vyatta-proc-snort-rules.pl
 sbin_SCRIPTS += scripts/vyatta-update-inspection.pl
 sbin_SCRIPTS += scripts/vyatta-show-ips.pl
 sbin_SCRIPTS += scripts/vyatta-proc-snort-updates
-
-cron_hourly_SCRIPTS = scripts/vyatta-ips-update
+sbin_SCRIPTS += scripts/vyatta-get-snort-rules.pl
 
 share_perl5_DATA = lib/Vyatta/Snort/Config.pm
 share_perl5_DATA += lib/Vyatta/Snort/UnifiedLog.pm
