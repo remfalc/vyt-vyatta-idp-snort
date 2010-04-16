@@ -26,7 +26,7 @@
 use strict;
 use lib "/opt/vyatta/share/perl5";
 
-require Vyatta::Config;
+use Vyatta::Config;
 
 my $rules = $ARGV[0];
 
@@ -53,6 +53,10 @@ sub abort_updates {
 }
 
 my ($cmd, $ret, $oink, $config, $url);
+
+if (! -e $BASE_DIR) {
+    system("mkdir $BASE_DIR");
+}
 
 chomp $CUR_TIME ;
 $config = new Vyatta::Config;
