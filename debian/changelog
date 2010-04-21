@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.18) unstable; urgency=low
+
+  * Fix 5546: IPS update-hour with leading zeroes passes validation but
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 21 Apr 2010 15:55:45 -0700
+
 vyatta-idp-snort (0.3.17) unstable; urgency=low
 
   * Fix script when running from cron.
