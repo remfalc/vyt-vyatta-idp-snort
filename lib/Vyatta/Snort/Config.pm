@@ -120,6 +120,8 @@ sub checkAutoUpdate {
     my $update_hour = $self->{_au_hour};
     my $oink        = $self->{_au_oink};
   
+    $update_hour =~ s/^0*//;
+
     my $rules   = "snortrules-snapshot-2.8.tar.gz";
     my $get_cmd = "/opt/vyatta/sbin/vyatta-get-snort-rules.pl $rules";
 
