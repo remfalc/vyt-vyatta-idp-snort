@@ -445,7 +445,7 @@ EOD
 my $rule_pass_def =<<EOD;
 {
   type pass
-$output_def
+  output log_null
 }
 EOD
 
@@ -484,7 +484,7 @@ EOS
 include clamav.config
 
 ## set output module
-output alert_unified: filename snort-unified.alert, limit 1
+output alert_fast: alert
 
 EOS
 
