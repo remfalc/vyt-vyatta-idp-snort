@@ -71,20 +71,7 @@ cd $BASE_DIR
 rm -rf $WORK_DIR
 mkdir -p $WORK_DIR
 
-old_md5=0
-if [ -f $SNORT_UPDATE_FILE.gz ]; then
-  old_md5=$(/usr/bin/md5sum $SNORT_UPDATE_FILE.gz)
-  rm -f $SNORT_UPDATE_FILE.gz
-fi
-
-mv $NEW_SNORT_UPDATE_FILE $BASE_DIR
-
-new_md5=$(/usr/bin/md5sum $SNORT_UPDATE_FILE.gz)
-if [ "$old_md5" == "$new_md5" ]; then
-  # no update available. do nothing.
-  log_message 'No new update available. IPS rules not updated.'
-  exit 0
-fi
+mv $NEW_SNORT_UPDATE_FILE $BASE_DIR/$SNORT_UPDATE_FILE.gz
 
 cd $WORK_DIR
 cp ../$SNORT_UPDATE_FILE.gz . >&/dev/null
@@ -209,6 +196,6 @@ fi
 echo update succeeded at `date` > $LAST_UPDATE_STATUS_FILE
 log_message 'IPS rules update completed successfully'
 log_message "Original rules are moved to $BACKUP_DIR/snort.$CUR_TIME"
-rm -f $WORK_DIR/SNORT_UPDATE_FILE
+rm -rf $WORK_DIR
 exit 0
 

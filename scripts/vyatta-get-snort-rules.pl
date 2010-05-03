@@ -63,7 +63,7 @@ $config = new Vyatta::Config;
 $config->setLevel('content-inspection ips auto-update');
 $oink = $config->returnOrigValue('oink-code');
 if (! defined($oink)) {
-    about_updates("No oink code configured.");
+    abort_updates("No oink code configured.");
 }
 
 # snort.org only allows you to download every 15 minutes
@@ -82,6 +82,33 @@ if (defined $last_time) {
     }
 } 
 
+my ($old_md5, $new_md5) = (undef, undef);
+
+system("rm -f /tmp/$rules");
+
+my $file = "$BASE_DIR/$rules.md5";
+if (-e $file) {
+    $old_md5 = `cat $file`;
+    chomp $old_md5;
+}
+
+$file = "/tmp/$rules.md5";
+$url = "$URL_PREFIX/$oink/$rules.md5";
+$cmd = "wget -O $file -q $url";
+$ret = system($cmd);
+
+if (-e $file) {
+    $new_md5 = `cat $file`;
+    chomp $new_md5;
+}
+if (defined $old_md5 and defined $new_md5) {
+    if ($old_md5 eq $new_md5) {
+        log_message("No new update available.");
+        system("rm -f $file");
+        exit 1;
+    }
+}
+
 system("echo -n $now > $LAST_DOWNLOAD");
 $url = "$URL_PREFIX/$oink/$rules";
 $cmd = "wget -O /tmp/$rules -q $url";
@@ -89,5 +116,10 @@ $ret = system($cmd);
 if ($ret) {
     abort_updates("Failed to get $url");
 }
+
+#
+# mv new md5 file 
+#
+system("mv /tmp/$rules.md5 $BASE_DIR/$rules.md5");
 
 exit 0;
