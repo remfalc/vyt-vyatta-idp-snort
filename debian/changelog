@@ -1,3 +1,11 @@
+vyatta-idp-snort (0.3.21) unstable; urgency=low
+
+  * Move md5 processing to the script that downloads the file.
+  * Generate a different cron job if snortvrt-subscription is
+    configured.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Mon, 03 May 2010 16:46:20 -0700
+
 vyatta-idp-snort (0.3.20) unstable; urgency=low
 
   * Fix 5562: ips logs alerts even for pass rules.
