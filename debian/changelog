@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.22) unstable; urgency=low
+
+  * Fix snort subscription auto-update for initial install.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 05 May 2010 15:22:38 -0700
+
 vyatta-idp-snort (0.3.21) unstable; urgency=low
 
   * Move md5 processing to the script that downloads the file.
