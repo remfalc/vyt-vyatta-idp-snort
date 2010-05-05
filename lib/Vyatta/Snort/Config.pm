@@ -131,7 +131,7 @@ sub checkAutoUpdate {
   if (!$orig && $self->{_au_oink}) {
     my $update_hour = $self->{_au_hour};
     my $oink        = $self->{_au_oink};
-  
+    
     $update_hour =~ s/^0*//;
     $update_hour = 0 if ($update_hour eq '');
 
@@ -161,6 +161,11 @@ sub checkAutoUpdate {
     $update_hour =~ s/^0*//;
     $update_hour = 0 if ($update_hour eq '');
 
+    my $base_dir = '/opt/vyatta/etc/ips';
+    if (! -e $base_dir) {
+        system("mkdir -p $base_dir");
+    }
+
     my $rules   = "snortrules-snapshot-2.8_s.tar.gz";
     my $get_cmd = "/opt/vyatta/sbin/vg_snort_update -q ";
 
@@ -171,10 +176,6 @@ sub checkAutoUpdate {
     $output .= '# WARNING: You will NOT be able to download ' . "\n";
     $output .= '#          without a valid entitlement key.' . "\n";
     $output .= '#' . "\n\n";
-    $output .= '# when invoked from cron, we dont have these variables' . "\n";
-    $output .= 'export VYATTA_EDIT_LEVEL=\'/\'' . "\n";
-    $output .= 'export VYATTA_TEMPLATE_LEVEL=\'/\'' . "\n";
-    $output .= 'export VYATTA_ACTIVE_CONFIGURATION_DIR=\'/opt/vyatta/config/active\'' . "\n\n";
     $output .= 'cur_hour=$(date +%-H)' . "\n";
     $output .= 'if [ "$cur_hour" != "' . $update_hour . '" ]; then' . "\n";
     $output .= '  # not the right hour. do nothing.' . "\n";
