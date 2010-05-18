@@ -182,6 +182,12 @@ if ! mv rules-new /etc/snort/rules >&/dev/null; then
   abort_updates 'Failed to move rules'
 fi
 
+# update suppress rules
+/opt/vyatta/sbin/vyatta-modify-sids.pl --action=update-rules \
+                --ruledir=/etc/snort/rules \
+                --suppressfile=$BASE_DIR/ips/suppress-sid \
+                --enablefile=$BASE_DIR/ips/enable-sid 
+
 # 'snort -T' check.
 # if it fails, restore the directories and abort
 if ! /etc/init.d/snort config-check >&/dev/null; then

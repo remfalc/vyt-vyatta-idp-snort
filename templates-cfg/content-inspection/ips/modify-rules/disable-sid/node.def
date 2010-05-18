@@ -1,0 +1,38 @@
+multi:
+
+type: u32
+
+help: Set Snort ID (sid) to disable
+
+comp_help: possible completions:
+  <sid>    Set sid to disable
+
+create: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-sid \
+                 --file=${vyatta_sysconfdir}/ips/disable-sid \
+                 --sid="$VAR(@)"
+
+        if [ "$COMMIT_SIBLING_POSITION" = "LAST" ] || \
+           [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
+           sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=update-rules \
+                --ruledir=/etc/snort/rules \
+                --disablefile=${vyatta_sysconfdir}/ips/disable-sid \
+                --enablefile=${vyatta_sysconfdir}/ips/enable-sid 
+        fi;
+
+delete: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=del-sid \
+                 --file=${vyatta_sysconfdir}/ips/disable-sid \
+                 --sid="$VAR(@)"
+        sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-sid \
+                 --file=${vyatta_sysconfdir}/ips/enable-sid \
+                 --sid="$VAR(@)"
+
+        if [ "$COMMIT_SIBLING_POSITION" = "LAST" ] || \
+           [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
+           sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=update-rules \
+                --ruledir=/etc/snort/rules \
+                --disablefile=${vyatta_sysconfdir}/ips/disable-sid \
+                --enablefile=${vyatta_sysconfdir}/ips/enable-sid 
+        fi;
+        sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=del-sid \
+                 --file=${vyatta_sysconfdir}/ips/enable-sid \
+                 --sid="$VAR(@)"

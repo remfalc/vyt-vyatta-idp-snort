@@ -50,6 +50,7 @@ my %class_hash = ();
 my %prio_hash = ( '1' => 'p1action',
                   '2' => 'p2action',
                   '3' => 'p3action',
+                  '4' => 'p4action',
                   'default' => 'p4action' );
 
 open(CLASS, "<$class_file") or die "Cannot open $class_file: $!";
@@ -73,7 +74,7 @@ foreach my $file (@rule_files) {
   open(RIN, "<$rule_dir/$file") or die "Cannot open $rule_dir/$file: $!";
   open(ROUT, ">$out_dir/$file") or die "Cannot open $out_dir/$file: $!";
   while (<RIN>) {
-    if (!/^alert\s/) {
+    if (!/^alert\s/ and !/^# alert\s/) {
       print ROUT;
       next;
     }
@@ -93,7 +94,11 @@ foreach my $file (@rule_files) {
     }
     my $action = (defined($prio_hash{$prio}))
                     ? $prio_hash{$prio} : $prio_hash{'default'};
-    s/^alert\s/$action /;
+    if (/^#/) {
+        s/^# alert\s/# $action /;
+    } else {
+        s/^alert\s/$action /;
+    }
     print ROUT;
   }
   close RIN;
