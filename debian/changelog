@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.23) unstable; urgency=low
+
+  * Add ability to enable/disable specific sid (Snort ID).
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 18 May 2010 16:53:35 -0700
+
 vyatta-idp-snort (0.3.22) unstable; urgency=low
 
   * Fix snort subscription auto-update for initial install.
