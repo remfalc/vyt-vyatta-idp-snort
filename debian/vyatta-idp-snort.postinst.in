@@ -6,4 +6,5 @@ sysconfdir=@sysconfdir@
 bindir=@bindir@
 sbindir=@sbindir@
 
+mkdir -p /opt/vyatta/etc/ips
 
