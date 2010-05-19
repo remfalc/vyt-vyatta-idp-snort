@@ -1,3 +1,11 @@
+vyatta-idp-snort (0.3.25) unstable; urgency=low
+
+  * Create ips directory in postinst.
+  * Change add_sid to add_item so that can be reused.
+  * Add support for defining internal/external networks for snort.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 19 May 2010 16:33:55 -0700
+
 vyatta-idp-snort (0.3.24) unstable; urgency=low
 
   * Fix path for enable/disable sid file.
