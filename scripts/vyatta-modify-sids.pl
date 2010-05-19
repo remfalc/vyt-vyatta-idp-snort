@@ -173,6 +173,31 @@ sub update_rules {
     return 0;
 }
 
+sub update_net {
+    my ($file, $net) = @_;
+    
+    my @networks = read_file($file);
+
+    my ($cmd, $format);
+    if (scalar(@networks) > 0) {
+        $format = '[';
+        foreach my $line (@networks) {
+            chomp $line;
+            $format .= "$line,";
+        }
+        chop $format;  # eat the last comma
+        $format .= ']'; 
+        $format =~ s|\/|\\\/|g;   # change '/' to '\/'
+    } else {
+        $format = 'any';
+    }
+
+    $cmd = "s/^\\(var $net\\).*\$/\\1 $format/";
+    $cmd = "sed -i \'$cmd\' /etc/snort/ips.conf";
+    my $rc = system("$cmd");
+    return $rc;
+}
+
 
 #
 # main
@@ -193,7 +218,7 @@ if (!defined($action)) {
 
 my $rc = 1;
 
-if ($action eq 'add-sid') {
+if ($action eq 'add-item') {
     if (!defined($file)) {
         print "Error: must define file\n";
         exit 1;
@@ -203,12 +228,12 @@ if ($action eq 'add-sid') {
         exit 1;
     }    
 
-    print "Add sid [$file] [$value]\n" if $debug;
+    print "Add [$file] [$value]\n" if $debug;
     add_item($file, $value);
     exit 0;
 }
 
-if ($action eq 'del-sid') {
+if ($action eq 'del-item') {
     if (!defined($file)) {
         print "Error: must define file\n";
         exit 1;
@@ -229,6 +254,24 @@ if ($action eq 'update-rules') {
     }
     print "update rules\n" if $debug;
     $rc = update_rules($rule_dir, $disable_file, $enable_file);
+}
+
+if ($action eq 'update-home-net') {
+    if (!defined($file)) {
+        print "Error: must include file\n";
+        exit 1;
+    }
+    print "update-home-net\n" if $debug;
+    $rc = update_net($file, 'HOME_NET');
+}
+
+if ($action eq 'update-external-net') {
+    if (!defined($file)) {
+        print "Error: must include file\n";
+        exit 1;
+    }
+    print "update-external-net\n" if $debug;
+    $rc = update_net($file, 'EXTERNAL_NET');
 }
 
 exit $rc;

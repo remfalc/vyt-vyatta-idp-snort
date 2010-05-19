@@ -183,10 +183,21 @@ if ! mv rules-new /etc/snort/rules >&/dev/null; then
 fi
 
 # update disable/enable sids in new rules
-/opt/vyatta/sbin/vyatta-modify-sids.pl --action=update-rules \
-                --ruledir=/etc/snort/rules \
+/opt/vyatta/sbin/vyatta-modify-sids.pl              \
+                --action=update-rules               \
+                --ruledir=/etc/snort/rules          \
                 --disablefile=$BASE_DIR/disable-sid \
                 --enablefile=$BASE_DIR/enable-sid 
+
+# update HOME_NET
+/opt/vyatta/sbin/vyatta-modify-sids.pl   \
+                --action=update-home-net \
+                --file=${vyatta_sysconfdir}/ips/home-net
+
+# update EXTERNAL_NET
+/opt/vyatta/sbin/vyatta-modify-sids.pl   \
+                --action=update-external-net \
+                --file=${vyatta_sysconfdir}/ips/external-net
 
 # 'snort -T' check.
 # if it fails, restore the directories and abort

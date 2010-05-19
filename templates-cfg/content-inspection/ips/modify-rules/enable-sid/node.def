@@ -7,7 +7,7 @@ help: Set Snort ID (sid) to enable
 comp_help: possible completions:
   <sid>    Set sid to enable
 
-create: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-sid \
+create: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-item \
                  --file=${vyatta_sysconfdir}/ips/enable-sid \
                  --value="$VAR(@)"
 
@@ -19,10 +19,10 @@ create: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-sid \
                 --enablefile=${vyatta_sysconfdir}/ips/enable-sid 
         fi;
 
-delete: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=del-sid \
+delete: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=del-item \
                  --file=${vyatta_sysconfdir}/ips/enable-sid \
                  --value="$VAR(@)"
-        sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-sid \
+        sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-item \
                  --file=${vyatta_sysconfdir}/ips/disable-sid \
                  --value="$VAR(@)"
 
@@ -33,6 +33,6 @@ delete: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=del-sid \
                 --disablefile=${vyatta_sysconfdir}/ips/disable-sid \
                 --enablefile=${vyatta_sysconfdir}/ips/enable-sid 
         fi;
-        sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=del-sid \
+        sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=del-item \
                  --file=${vyatta_sysconfdir}/ips/disable-sid \
                  --value="$VAR(@)"
