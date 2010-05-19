@@ -9,7 +9,7 @@ comp_help: possible completions:
 
 create: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-sid \
                  --file=${vyatta_sysconfdir}/ips/disable-sid \
-                 --sid="$VAR(@)"
+                 --value="$VAR(@)"
 
         if [ "$COMMIT_SIBLING_POSITION" = "LAST" ] || \
            [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
@@ -21,10 +21,10 @@ create: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-sid \
 
 delete: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=del-sid \
                  --file=${vyatta_sysconfdir}/ips/disable-sid \
-                 --sid="$VAR(@)"
+                 --value="$VAR(@)"
         sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-sid \
                  --file=${vyatta_sysconfdir}/ips/enable-sid \
-                 --sid="$VAR(@)"
+                 --value="$VAR(@)"
 
         if [ "$COMMIT_SIBLING_POSITION" = "LAST" ] || \
            [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
@@ -35,4 +35,4 @@ delete: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=del-sid \
         fi;
         sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=del-sid \
                  --file=${vyatta_sysconfdir}/ips/enable-sid \
-                 --sid="$VAR(@)"
+                 --value="$VAR(@)"

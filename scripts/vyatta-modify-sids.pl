@@ -35,7 +35,7 @@ use warnings;
 
 my $debug = 0;
 
-sub read_sid_file {
+sub read_file {
     my ($file) = @_;
 
     my @lines = ();
@@ -48,7 +48,7 @@ sub read_sid_file {
     return @lines;
 }
 
-sub write_sid_file {
+sub write_file {
     my ($file, @lines) = @_;	    
 
     if (scalar(@lines) > 0) {
@@ -60,27 +60,27 @@ sub write_sid_file {
     }
 }
 
-sub add_sid {
+sub add_item {
     my ($file, $sid) = @_;
 
-    my @lines = read_sid_file($file);
+    my @lines = read_file($file);
     foreach my $line (@lines) {
         return if $line eq $sid;
     }
     push @lines, $sid;
-    write_sid_file($file, @lines);
+    write_file($file, @lines);
     return @lines; 
 }
 
-sub del_sid {
+sub del_item {
     my ($file, $sid) = @_;
 
-    my @lines = read_sid_file($file);
+    my @lines = read_file($file);
     my @new_lines = ();
     foreach my $line (@lines) {
         push @new_lines, $line if $line ne $sid;
     }
-    write_sid_file($file, @new_lines) if scalar(@lines) ne scalar(@new_lines);
+    write_file($file, @new_lines) if scalar(@lines) ne scalar(@new_lines);
     return @new_lines;
 }
 
@@ -91,10 +91,10 @@ sub update_rules {
     my @rule_files = grep /\.rules$/, readdir($RIN_DIR);
     closedir $RIN_DIR;
     
-    my @lines = read_sid_file($disable_file);
+    my @lines = read_file($disable_file);
     my %dsids = map { $_ => 1 } @lines;
 
-    @lines = read_sid_file($enable_file);
+    @lines = read_file($enable_file);
     my %esids = map { $_ => 1 } @lines;
 
     my ($tot, $ok, $disabled, $comments, $err) = (0,0,0,0,0);
@@ -123,7 +123,7 @@ sub update_rules {
                     $ok++;
                     if (defined $esids{$sid}) {
                         # already enabled
-                        $esids{$sid}++ if defined $esids{$sid};
+                        $esids{$sid}++;
                     }
                     if ($dsids{$sid}) {
                         $line = "# $line";
@@ -178,13 +178,13 @@ sub update_rules {
 # main
 #
 
-my ($action, $rule_dir, $disable_file, $enable_file, $file, $sid);
+my ($action, $rule_dir, $disable_file, $enable_file, $file, $value);
 GetOptions('action=s'       => \$action,
            'ruledir=s'      => \$rule_dir,
-           'disablefile=s' => \$disable_file,
+           'disablefile=s'  => \$disable_file,
            'enablefile=s'   => \$enable_file,
            'file=s'         => \$file,
-           'sid=s'          => \$sid,
+           'value=s'        => \$value,
           );
 if (!defined($action)) {
     print "Error: must define action\n";
@@ -198,13 +198,13 @@ if ($action eq 'add-sid') {
         print "Error: must define file\n";
         exit 1;
     }    
-    if (!defined($sid)) {
-        print "Error: must define sid\n";
+    if (!defined($value)) {
+        print "Error: must define value\n";
         exit 1;
     }    
 
-    print "Add sid [$file] [$sid]\n" if $debug;
-    add_sid($file, $sid);
+    print "Add sid [$file] [$value]\n" if $debug;
+    add_item($file, $value);
     exit 0;
 }
 
@@ -213,12 +213,12 @@ if ($action eq 'del-sid') {
         print "Error: must define file\n";
         exit 1;
     }    
-    if (!defined($sid)) {
-        print "Error: must define sid\n";
+    if (!defined($value)) {
+        print "Error: must define value\n";
         exit 1;
     }    
-    print "Del sid [$file] [$sid]\n" if $debug;
-    del_sid($file, $sid);
+    print "Del sid [$file] [$value]\n" if $debug;
+    del_item($file, $value);
     exit 0;
 }
 
