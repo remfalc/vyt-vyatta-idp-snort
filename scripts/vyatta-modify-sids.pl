@@ -174,7 +174,7 @@ sub update_rules {
 }
 
 sub update_net {
-    my ($file, $net) = @_;
+    my ($conf_file, $file, $net) = @_;
     
     my @networks = read_file($file);
 
@@ -193,7 +193,7 @@ sub update_net {
     }
 
     $cmd = "s/^\\(var $net\\).*\$/\\1 $format/";
-    $cmd = "sed -i \'$cmd\' /etc/snort/ips.conf";
+    $cmd = "sed -i \'$cmd\' $conf_file";
     my $rc = system("$cmd");
     return $rc;
 }
@@ -203,11 +203,12 @@ sub update_net {
 # main
 #
 
-my ($action, $rule_dir, $disable_file, $enable_file, $file, $value);
+my ($action, $rule_dir, $disable_file, $enable_file, $conf_file, $file, $value);
 GetOptions('action=s'       => \$action,
            'ruledir=s'      => \$rule_dir,
            'disablefile=s'  => \$disable_file,
            'enablefile=s'   => \$enable_file,
+           'conffile=s'     => \$conf_file,
            'file=s'         => \$file,
            'value=s'        => \$value,
           );
@@ -257,21 +258,29 @@ if ($action eq 'update-rules') {
 }
 
 if ($action eq 'update-home-net') {
+    if (!defined($conf_file)) {
+        print "Error: must include conffile\n";
+        exit 1;
+    }
     if (!defined($file)) {
         print "Error: must include file\n";
         exit 1;
     }
     print "update-home-net\n" if $debug;
-    $rc = update_net($file, 'HOME_NET');
+    $rc = update_net($conf_file, $file, 'HOME_NET');
 }
 
 if ($action eq 'update-external-net') {
+    if (!defined($conf_file)) {
+        print "Error: must include conffile\n";
+        exit 1;
+    }
     if (!defined($file)) {
         print "Error: must include file\n";
         exit 1;
     }
     print "update-external-net\n" if $debug;
-    $rc = update_net($file, 'EXTERNAL_NET');
+    $rc = update_net($conf_file, $file, 'EXTERNAL_NET');
 }
 
 exit $rc;

@@ -2,7 +2,7 @@ multi:
 
 type: ipv4,ipv4net
 
-help: Set network as home-network
+help: Set network as external-network
 
 create: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-item \
                  --file=${vyatta_sysconfdir}/ips/external-net          \
@@ -12,6 +12,7 @@ create: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-item \
            [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
            sudo ${vyatta_sbindir}/vyatta-modify-sids.pl \
                 --action=update-external-net            \
+                --conffile=/etc/snort/ips.conf          \
                 --file=${vyatta_sysconfdir}/ips/external-net
         fi;
 
@@ -23,5 +24,6 @@ delete: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=del-item \
            [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
            sudo ${vyatta_sbindir}/vyatta-modify-sids.pl \
                 --action=update-external-net            \
+                --conffile=/etc/snort/ips.conf          \
                 --file=${vyatta_sysconfdir}/ips/external-net
         fi;

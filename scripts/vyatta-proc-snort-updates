@@ -190,14 +190,16 @@ fi
                 --enablefile=$BASE_DIR/enable-sid 
 
 # update HOME_NET
-/opt/vyatta/sbin/vyatta-modify-sids.pl   \
-                --action=update-home-net \
-                --file=${vyatta_sysconfdir}/ips/home-net
+/opt/vyatta/sbin/vyatta-modify-sids.pl           \
+                --action=update-home-net         \
+                --conffile=/etc/snort/ips.conf   \
+                --file=$BASE_DIR/home-net
 
 # update EXTERNAL_NET
-/opt/vyatta/sbin/vyatta-modify-sids.pl   \
-                --action=update-external-net \
-                --file=${vyatta_sysconfdir}/ips/external-net
+/opt/vyatta/sbin/vyatta-modify-sids.pl           \
+                --action=update-external-net     \
+                --conffile=/etc/snort/ips.conf   \
+                --file=$BASE_DIR/external-net
 
 # 'snort -T' check.
 # if it fails, restore the directories and abort
