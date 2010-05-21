@@ -64,6 +64,8 @@ if [ "$file_type" != "application/x-gzip" ]; then
   exit 1
 fi
 
+log_message "Starting unpack & processing new rules."
+
 mkdir -p $BASE_DIR
 cd $BASE_DIR
 

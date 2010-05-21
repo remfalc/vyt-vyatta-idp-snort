@@ -28,7 +28,8 @@ use lib "/opt/vyatta/share/perl5";
 
 use Vyatta::Config;
 
-my $rules = $ARGV[0];
+my $rules   = $ARGV[0];
+my $verbose = $ARGV[1];
 
 my $BASE_DIR                = '/opt/vyatta/etc/ips';
 my $LOG_FILE                = "$BASE_DIR/update.log";
@@ -41,6 +42,9 @@ my $LAST_DOWNLOAD           = "$BASE_DIR/last_download";
 sub log_message {
     my $msg = shift;
     system("echo \"$CUR_TIME: $msg\" >> $LOG_FILE");
+    if ($verbose) {
+        print "$msg\n";
+    }
 }
 
 sub abort_updates {
@@ -77,7 +81,8 @@ if (-e $LAST_DOWNLOAD) {
 if (defined $last_time) {
     my $diff = $now - $last_time;
     if ($diff < 15*60) {
-        log_message("Too soon to update again. Update $diff seconds ago.");
+        log_message("Snort.org allows 1 download per 15 minutes.");
+        log_message("Last download [$diff] seconds ago.");
         exit(1);
     }
 } 
@@ -111,7 +116,11 @@ if (defined $old_md5 and defined $new_md5) {
 
 system("echo -n $now > $LAST_DOWNLOAD");
 $url = "$URL_PREFIX/$oink/$rules";
-$cmd = "wget -O /tmp/$rules -q $url";
+if ($verbose) {
+    $cmd = "wget -O /tmp/$rules $url";
+} else {
+    $cmd = "wget -O /tmp/$rules -q $url";
+}
 $ret = system($cmd);
 if ($ret) {
     abort_updates("Failed to get $url");
