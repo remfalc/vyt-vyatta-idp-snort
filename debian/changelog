@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.11+kenwood4) unstable; urgency=low
+
+  * Fix 5534: ips auto-update fails with image install.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 21 May 2010 17:27:56 -0700
+
 vyatta-idp-snort (0.3.11+kenwood3) unstable; urgency=low
 
   * UNRELEASED
