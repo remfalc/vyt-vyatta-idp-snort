@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.11+kenwood3) unstable; urgency=low
+
+  * UNRELEASED
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 21 May 2010 17:01:33 -0700
+
 vyatta-idp-snort (0.3.11+kenwood2) unstable; urgency=low
 
   * New version of snort requires an output rule.
