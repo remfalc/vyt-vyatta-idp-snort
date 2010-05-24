@@ -191,6 +191,12 @@ fi
                 --disablefile=$BASE_DIR/disable-sid \
                 --enablefile=$BASE_DIR/enable-sid 
 
+# update exclude rules in new rules
+/opt/vyatta/sbin/vyatta-modify-sids.pl              \
+                --action=update-exclude             \
+                --conffile=/etc/snort/ips.conf      \
+                --file=$BASE_DIR/exclude-rules
+
 # update HOME_NET
 /opt/vyatta/sbin/vyatta-modify-sids.pl           \
                 --action=update-home-net         \

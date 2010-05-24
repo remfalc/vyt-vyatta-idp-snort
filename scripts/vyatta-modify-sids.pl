@@ -178,7 +178,7 @@ sub update_net {
     
     my @networks = read_file($file);
 
-    my ($cmd, $format);
+    my ($cmd, $rc, $format);
     if (scalar(@networks) > 0) {
         $format = '[';
         foreach my $line (@networks) {
@@ -194,8 +194,36 @@ sub update_net {
 
     $cmd = "s/^\\(var $net\\).*\$/\\1 $format/";
     $cmd = "sed -i \'$cmd\' $conf_file";
-    my $rc = system("$cmd");
+    $rc = system("$cmd");
     return $rc;
+}
+
+sub update_exclude {
+    my ($conf_file, $file) = @_;
+
+    my @excludes = read_file($file);
+    
+    my ($cmd, $rc, $format);
+    foreach my $exclude (@excludes) {
+        $format = "s/^\\(include \\\$RULE_PATH\\/$exclude.*\\)\$/# \\1/";
+        $cmd = "sed -i \'$format\' $conf_file";
+        $rc = system($cmd);
+        # print "cmd [$cmd] = $rc\n";
+    }
+    return 0;
+}
+
+sub show_categories {
+    my ($rule_dir) = @_;
+
+    opendir(my $RIN_DIR, "$rule_dir") or die "Cannot open [$rule_dir]: $!";
+    my @rule_files = grep /\.rules$/, readdir($RIN_DIR);
+    closedir $RIN_DIR;
+    if (scalar(@rule_files) < 1) {
+        print "Error: no matching categories in [$rule_dir]\n";
+        exit 1;
+    } 
+    print join("\n", @rule_files), "\n";
 }
 
 
@@ -281,6 +309,29 @@ if ($action eq 'update-external-net') {
     }
     print "update-external-net\n" if $debug;
     $rc = update_net($conf_file, $file, 'EXTERNAL_NET');
+}
+
+if ($action eq 'show-categories') {
+    if (!defined($rule_dir)) {
+        print "Error: must include ruledir\n";
+        exit 1;
+    }
+    print "show-categories\n" if $debug;
+    show_categories($rule_dir);
+    exit 0;
+}
+
+if ($action eq 'update-exclude') {
+    if (!defined($conf_file)) {
+        print "Error: must include conffile\n";
+        exit 1;
+    }
+    if (!defined($file)) {
+        print "Error: must include file\n";
+        exit 1;
+    }
+    print "update exclude\n" if $debug;
+    $rc = update_exclude($conf_file, $file);
 }
 
 exit $rc;
