@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.11+kenwood5) unstable; urgency=low
+
+  * Fix 5562: ips logs alerts even for pass rules.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 26 May 2010 15:04:28 -0700
+
 vyatta-idp-snort (0.3.11+kenwood4) unstable; urgency=low
 
   * Fix 5534: ips auto-update fails with image install.
