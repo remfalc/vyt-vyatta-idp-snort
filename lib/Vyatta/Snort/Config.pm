@@ -444,7 +444,7 @@ EOS
 include clamav.config
 
 ## set output module
-output alert_fast: alert
+#output alert_unified: filename snort-unified.alert, limit 1
 
 EOS
 
