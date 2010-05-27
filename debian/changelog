@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.29) unstable; urgency=low
+
+  * Comment out logging of preproc_rule alerts.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 27 May 2010 14:17:48 -0700
+
 vyatta-idp-snort (0.3.28) unstable; urgency=low
 
   * Add support to exclude a category of snort rules.
