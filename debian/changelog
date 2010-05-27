@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.11+kenwood6) unstable; urgency=low
+
+  * Comment out logging of preproc_rule alerts.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 27 May 2010 14:20:52 -0700
+
 vyatta-idp-snort (0.3.11+kenwood5) unstable; urgency=low
 
   * Fix 5562: ips logs alerts even for pass rules.
