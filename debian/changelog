@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.30) unstable; urgency=low
+
+  * Fix 5616: don't log preproc_rules.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 28 May 2010 10:49:01 -0700
+
 vyatta-idp-snort (0.3.29) unstable; urgency=low
 
   * Comment out logging of preproc_rule alerts.
