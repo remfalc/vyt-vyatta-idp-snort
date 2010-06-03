@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.35) unstable; urgency=low
+
+  * UNRELEASED
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 03 Jun 2010 11:44:25 -0700
+
 vyatta-idp-snort (0.3.34) unstable; urgency=low
 
   * Modify update scripts to work with preproc_rules.
