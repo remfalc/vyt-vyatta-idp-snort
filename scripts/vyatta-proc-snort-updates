@@ -29,7 +29,7 @@ BASE_DIR='/opt/vyatta/etc/ips'
 WORK_DIR="$BASE_DIR/work"
 BACKUP_DIR="$BASE_DIR/backup"
 LOG_FILE="$BASE_DIR/update.log"
-SNORT_UPDATE_FILE='snortrules-snapshot-2.8.tar'
+SNORT_UPDATE_FILE='snortrules-snapshot-2853.tar'
 CUR_TIME=$(date +%F-%H%M%S)
 LAST_UPDATE_STATUS_FILE="$BASE_DIR/lastupdatestatus"
 
@@ -116,6 +116,10 @@ fi
 # === END VYATTA SNORT CONFIG ===
        }' snort.conf > ips.conf
 
+  sed -i '/^var PREPROC_RULE_PATH / {
+         s/\(var PREPROC_RULE_PATH \).*$/\1\/etc\/snort\/preproc_rules/
+       }' ips.conf
+
   if [ ! -f ips.conf ]; then
     abort_updates 'Cannot generate ips.conf'
   fi
@@ -137,6 +141,12 @@ fi
 
   # comment out dynamicdetection 
   sed -i s/^dynamicdetection/#dynamicdetection/ ips.conf
+
+  # enable preproc_rules
+  sed -i 's/^\# \(include $PREPROC_RULE_PATH\/preprocessor.rules.*$\)/\1/' \
+    ips.conf
+  sed -i 's/^\# \(include $PREPROC_RULE_PATH\/decoder.rules.*$\)/\1/' \
+    ips.conf
 
   # generate snort.conf from ips.conf
   cp -f ips.conf snort.conf
@@ -162,6 +172,17 @@ fi
 # copy any local rules
 cp -f /etc/snort/rules/local.rules rules-new
 
+# process preproc rules/
+if [ -d preproc_rules ]; then
+  if ! /opt/vyatta/sbin/vyatta-proc-snort-rules.pl \
+        --classfile ./etc/classification.config \
+        --ruledir ./preproc_rules --outdir ./preproc_rules-new; then
+    abort_updates 'Cannot process downloaded rules'
+  fi
+else
+  cp -rf /etc/snort/preproc_rules etc
+fi
+
 # any other checks before committing to the updates
 
 # move /etc/snort to backup
@@ -182,6 +203,13 @@ fi
 # move rules-new to /etc/snort/rules
 if ! mv rules-new /etc/snort/rules >&/dev/null; then
   abort_updates 'Failed to move rules'
+fi
+
+# move preproc_rules-new to /etc/snort/preproc_rules
+if [ -d preproc_rules-new ]; then
+    if ! mv preproc_rules-new /etc/snort/preproc_rules >&/dev/null; then
+      abort_updates 'Failed to move preproc_rules'
+    fi
 fi
 
 # update disable/enable sids in new rules
