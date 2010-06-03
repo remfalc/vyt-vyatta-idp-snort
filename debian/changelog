@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.34) unstable; urgency=low
+
+  * Modify update scripts to work with preproc_rules.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 03 Jun 2010 11:28:23 -0700
+
 vyatta-idp-snort (0.3.33) unstable; urgency=low
 
   * Change EXTERNAL_NET to be set to !$HOME_NET.
