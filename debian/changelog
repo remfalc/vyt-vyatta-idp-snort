@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.33) unstable; urgency=low
+
+  * Change EXTERNAL_NET to be set to !$HOME_NET.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 02 Jun 2010 17:13:59 -0700
+
 vyatta-idp-snort (0.3.32) unstable; urgency=low
 
   * Fix typo for snort version 2853 instead of 2860 in op update script.
