@@ -173,8 +173,8 @@ sub update_rules {
     return 0;
 }
 
-sub update_net {
-    my ($conf_file, $file, $net) = @_;
+sub update_home_net {
+    my ($conf_file, $file) = @_;
     
     my @networks = read_file($file);
 
@@ -192,9 +192,18 @@ sub update_net {
         $format = 'any';
     }
 
-    $cmd = "s/^\\(var $net\\).*\$/\\1 $format/";
+    $cmd = "s/^\\(var HOME_NET\\).*\$/\\1 $format/";
     $cmd = "sed -i \'$cmd\' $conf_file";
     $rc = system("$cmd");
+
+    if ($format eq 'any') {
+        $cmd = "s/^\\(var EXTERNAL_NET\\).*\$/\\1 $format/";
+    } else {
+        $cmd = "s/^\\(var EXTERNAL_NET\\).*\$/\\1 \!\$HOME_NET/";
+    }
+    $cmd = "sed -i \'$cmd\' $conf_file";
+    $rc = system("$cmd");
+
     return $rc;
 }
 
@@ -295,20 +304,7 @@ if ($action eq 'update-home-net') {
         exit 1;
     }
     print "update-home-net\n" if $debug;
-    $rc = update_net($conf_file, $file, 'HOME_NET');
-}
-
-if ($action eq 'update-external-net') {
-    if (!defined($conf_file)) {
-        print "Error: must include conffile\n";
-        exit 1;
-    }
-    if (!defined($file)) {
-        print "Error: must include file\n";
-        exit 1;
-    }
-    print "update-external-net\n" if $debug;
-    $rc = update_net($conf_file, $file, 'EXTERNAL_NET');
+    $rc = update_home_net($conf_file, $file);
 }
 
 if ($action eq 'show-categories') {
