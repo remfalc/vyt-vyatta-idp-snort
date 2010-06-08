@@ -219,6 +219,13 @@ fi
                 --disablefile=$BASE_DIR/disable-sid \
                 --enablefile=$BASE_DIR/enable-sid 
 
+# update disable/enable sids in new rules
+/opt/vyatta/sbin/vyatta-modify-sids.pl              \
+                --action=update-preproc-rules       \
+                --ruledir=/etc/snort/preproc_rules  \
+                --disablefile=$BASE_DIR/disable-sid \
+                --enablefile=$BASE_DIR/enable-sid 
+
 # update exclude rules in new rules
 /opt/vyatta/sbin/vyatta-modify-sids.pl              \
                 --action=update-exclude             \

@@ -84,17 +84,50 @@ sub del_item {
     return @new_lines;
 }
 
+sub parse_sid {
+    my (@lines) = @_;
+
+    my @new_lines = ();
+
+    foreach my $line (@lines) {
+        my ($gid, $sid) = (undef, undef);
+        if ($line =~ /:/) {
+            if ($line =~ /^(\d+):(\d+)$/) {
+                $gid = $1;
+                $sid = $2;
+                $sid = undef if $gid != 1;
+            } else {
+                die "unexpected error parsing gid:sid";
+            }
+        } else {
+            if ($line =~ /^(\d+)$/) {
+                $gid = 1;
+                $sid = $1;
+            } else {
+                die "unexpected error parsing sid";
+            }
+        }
+        push @new_lines, "$gid:$sid" if defined $sid;
+    }
+
+    return @new_lines;
+}
+
 sub update_rules {
     my ($rule_dir, $disable_file, $enable_file) = @_;
+
+    print "update_rules()\n" if $debug;
 
     opendir(my $RIN_DIR, "$rule_dir") or die "Cannot open [$rule_dir]: $!";
     my @rule_files = grep /\.rules$/, readdir($RIN_DIR);
     closedir $RIN_DIR;
     
     my @lines = read_file($disable_file);
+    @lines = parse_sid(@lines);
     my %dsids = map { $_ => 1 } @lines;
 
     @lines = read_file($enable_file);
+    @lines = parse_sid(@lines);
     my %esids = map { $_ => 1 } @lines;
 
     my ($tot, $ok, $disabled, $comments, $err) = (0,0,0,0,0);
@@ -108,7 +141,7 @@ sub update_rules {
             chomp $line;
             $tot++;
             if (/^#?\s*p[1234]action.*sid:(\d+);.*$/) {
-                my $sid = $1;
+                my $sid = "1:$1";
                 if (/^#/) {
                     $disabled++;
                     if (defined $dsids{$sid}) {
@@ -116,6 +149,7 @@ sub update_rules {
                         $dsids{$sid}++;
                     }
                     if ($esids{$sid}) {
+                        print "enable [$sid] [$file]\n" if $debug;
                         $line =~ s/^#\s*(.*)/$1/;
                         $esids{$sid}++;
                     }
@@ -126,6 +160,7 @@ sub update_rules {
                         $esids{$sid}++;
                     }
                     if ($dsids{$sid}) {
+                        print "disable [$sid] [$file]\n" if $debug;
                         $line = "# $line";
                         $dsids{$sid}++;
                     }
@@ -150,12 +185,14 @@ sub update_rules {
     }
 
     foreach my $sid (sort keys %dsids) {  
+        print "checking dsids [$sid]\n" if $debug;
         if ($dsids{$sid} == 1) {
             print "Warning: disable-sid [$sid] not found.\n";
         }
     }
 
     foreach my $sid (sort keys %esids) {  
+        print "checking esids [$sid]\n" if $debug;
         if ($esids{$sid} == 1) {
             print "Warning: enable-sid [$sid] not found.\n";
         }
@@ -167,7 +204,127 @@ sub update_rules {
         print "        ok: [$ok]\n";
         print "  comments: [$comments]\n";
         print "  disabled: [$disabled]\n";
-        print "     error: [$err]\n";
+        print "     error: [$err]\n\n";
+    }
+
+    return 0;
+}
+
+sub parse_gid_sid {
+    my (@lines) = @_;
+
+    my @new_lines = ();
+
+    foreach my $line (@lines) {
+        my ($gid, $sid) = (undef, undef);
+        if ($line =~ /:/) {
+            if ($line =~ /^(\d+):(\d+)$/) {
+                $gid = $1;
+                $sid = $2;
+            } else {
+                die "unexpected error parsing gid:sid";
+            }
+            push @new_lines, "$line" if defined $gid and $gid != 1;
+        } 
+    }
+
+    return @new_lines;
+}
+
+sub update_preproc_rules {
+    my ($rule_dir, $disable_file, $enable_file) = @_;
+
+    print "update_preproc_rules()\n" if $debug;
+
+    opendir(my $RIN_DIR, "$rule_dir") or die "Cannot open [$rule_dir]: $!";
+    my @rule_files = grep /\.rules$/, readdir($RIN_DIR);
+    closedir $RIN_DIR;
+    
+    my @lines = read_file($disable_file);
+    @lines = parse_gid_sid(@lines);
+    my %dsids = map { $_ => 1 } @lines;
+
+    @lines = read_file($enable_file);
+    @lines = parse_gid_sid(@lines);
+    my %esids = map { $_ => 1 } @lines;
+
+    my ($tot, $ok, $disabled, $comments, $err) = (0,0,0,0,0);
+
+    foreach my $file (@rule_files) {
+        open(my $RIN, '<', "$rule_dir/$file") or 
+            die "Cannot open $rule_dir/$file: $!";
+        my $output = '';
+        while (<$RIN>) {
+            my $line = $_;
+            chomp $line;
+            $tot++;
+            if (/^#?\s*p[1234]action.*sid:\s?(\d+);\s?gid:\s?(\d+)/) {
+                my $sid = $1;
+                my $gid = $2;
+                my $gsid = "$gid:$sid";
+                if (/^#/) {
+                    $disabled++;
+                    if (defined $dsids{$gsid}) {
+                        # already disabled
+                        $dsids{$gsid}++;
+                    }
+                    if ($esids{$gsid}) {
+                        print "enable [$gsid] [$file]\n" if $debug;
+                        $line =~ s/^#\s*(.*)/$1/;
+                        $esids{$gsid}++;
+                    }
+                } else {
+                    $ok++;
+                    if (defined $esids{$gsid}) {
+                        # already enabled
+                        $esids{$gsid}++;
+                    }
+                    if ($dsids{$gsid}) {
+                        print "disable [$gsid] [$file]\n" if $debug;
+                        $line = "# $line";
+                        $dsids{$gsid}++;
+                    }
+                }
+            } else {
+                if ($line eq '') {
+                    # whitespace
+                } elsif ($line =~ /^#/) {
+                    $comments++;
+                } else {
+                    $err++;
+                    print "Warning: not found [$line] in [$file]\n";
+                }
+            }
+            $output .= "$line\n";
+        }
+        close $RIN;
+        open(my $ROUT, '>', "$rule_dir/$file") or 
+            die "Cannot open $rule_dir/$file: $!";
+        print $ROUT $output;
+        close $ROUT;
+    }
+
+    foreach my $sid (sort keys %dsids) {  
+        print "checking dsids [$sid]\n" if $debug;
+        if ($dsids{$sid} == 1) {
+            print "Warning: disable-sid [$sid] not found.\n";
+        }
+    }
+
+    foreach my $sid (sort keys %esids) {  
+        print "checking esids [$sid]\n" if $debug;
+        if ($esids{$sid} == 1) {
+            print "Warning: enable-sid [$sid] not found.\n";
+        }
+    }
+    
+    if ($debug) {
+        print "\n";
+        print "Total line: [$tot]\n";
+        print "        ok: [$ok]\n";
+        print "  comments: [$comments]\n";
+        print "  disabled: [$disabled]\n";
+        print "     error: [$err]\n\n";
     }
 
     return 0;
@@ -292,6 +449,15 @@ if ($action eq 'update-rules') {
     }
     print "update rules\n" if $debug;
     $rc = update_rules($rule_dir, $disable_file, $enable_file);
+}
+
+if ($action eq 'update-preproc-rules') {
+    if (!defined($rule_dir)) {
+        print "Error: must include ruledir\n";
+        exit 1;
+    }
+    print "update preproc_rules\n" if $debug;
+    $rc = update_preproc_rules($rule_dir, $disable_file, $enable_file);
 }
 
 if ($action eq 'update-home-net') {
