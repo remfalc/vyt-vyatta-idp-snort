@@ -61,7 +61,7 @@ system($cmd);
 
 
 print "\nStarting unpack & processing of new rules.\n\n";
-print "Note: this process will rul in the background and will\n";
+print "Note: this process will run in the background and will\n";
 print "take some time.  You can use 'show ips update-log'\n";
 print "to view progress/results.\n\n";
 
