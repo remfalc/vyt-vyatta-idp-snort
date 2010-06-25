@@ -37,18 +37,16 @@ delete: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl        \
                  --file=${vyatta_sysconfdir}/ips/disable-sid \
                  --value="$VAR(@)"
 
-        if [ "$COMMIT_SIBLING_POSITION" = "LAST" ] || \
-           [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
-           sudo ${vyatta_sbindir}/vyatta-modify-sids.pl            \
-                --action=update-rules                              \
-                --ruledir=/etc/snort/rules                         \
-                --disablefile=${vyatta_sysconfdir}/ips/disable-sid \
-                --enablefile=${vyatta_sysconfdir}/ips/enable-sid 
-           sudo ${vyatta_sbindir}/vyatta-modify-sids.pl            \
-                --action=update-preproc-rules                      \
-                --ruledir=/etc/snort/preproc_rules                 \
-                --disablefile=${vyatta_sysconfdir}/ips/disable-sid \
-                --enablefile=${vyatta_sysconfdir}/ips/enable-sid 
+        sudo ${vyatta_sbindir}/vyatta-modify-sids.pl                \
+                 --action=update-rules                              \
+                 --ruledir=/etc/snort/rules                         \
+                 --disablefile=${vyatta_sysconfdir}/ips/disable-sid \
+                 --enablefile=${vyatta_sysconfdir}/ips/enable-sid 
+        sudo ${vyatta_sbindir}/vyatta-modify-sids.pl                \
+                 --action=update-preproc-rules                      \
+                 --ruledir=/etc/snort/preproc_rules                 \
+                 --disablefile=${vyatta_sysconfdir}/ips/disable-sid \
+                 --enablefile=${vyatta_sysconfdir}/ips/enable-sid 
         fi;
         sudo ${vyatta_sbindir}/vyatta-modify-sids.pl         \
                  --action=del-item                           \
