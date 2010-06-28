@@ -47,7 +47,7 @@ delete: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl        \
                  --ruledir=/etc/snort/preproc_rules                 \
                  --disablefile=${vyatta_sysconfdir}/ips/disable-sid \
                  --enablefile=${vyatta_sysconfdir}/ips/enable-sid 
-        fi;
+
         sudo ${vyatta_sbindir}/vyatta-modify-sids.pl         \
                  --action=del-item                           \
                  --file=${vyatta_sysconfdir}/ips/disable-sid \
