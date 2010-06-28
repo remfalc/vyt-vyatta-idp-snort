@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.39) unstable; urgency=low
+
+  * Fix 5740: delete option for enable sid / disable sid does not
+    function correctly
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Mon, 28 Jun 2010 15:58:44 -0700
+
 vyatta-idp-snort (0.3.38) unstable; urgency=low
 
   * Fix 5740: delete option for enable sid / disable sid does not
