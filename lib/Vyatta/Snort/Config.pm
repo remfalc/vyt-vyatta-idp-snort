@@ -166,7 +166,7 @@ sub checkAutoUpdate {
         system("mkdir -p $base_dir");
     }
 
-    my $rules   = "snortrules-snapshot-2853_s.tar.gz";
+    my $rules   = "snortrules-snapshot-2853.tar.gz";
     my $get_cmd = "/opt/vyatta/sbin/vg_snort_update -q ";
 
     $output  = '#!/bin/bash' . "\n#\n";

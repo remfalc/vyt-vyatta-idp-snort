@@ -44,7 +44,7 @@ if ($config->existsOrig("$path oink-code")) {
     $file = 'snortrules-snapshot-2853.tar.gz';
     $cmd = "$sbin/vyatta-get-snort-rules.pl $file 1";
 } elsif ($config->existsOrig("$path snortvrt-subscription")) {
-    $file = 'snortrules-snapshot-2853_s.tar.gz';
+    $file = 'snortrules-snapshot-2853.tar.gz';
     $cmd = "$sbin/vg_snort_update";
 } else {
     print "Error: unexepted update type\n";
