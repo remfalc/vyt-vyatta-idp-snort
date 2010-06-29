@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.40) unstable; urgency=low
+
+  * Fix 5754: need to update snort url for auto-update.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 29 Jun 2010 14:22:30 -0700
+
 vyatta-idp-snort (0.3.39) unstable; urgency=low
 
   * Fix 5740: delete option for enable sid / disable sid does not
