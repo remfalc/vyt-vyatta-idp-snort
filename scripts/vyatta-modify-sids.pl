@@ -379,6 +379,17 @@ sub update_exclude {
     return 0;
 }
 
+sub del_exclude {
+    my ($conf_file, $category) = @_;
+
+    my ($cmd, $rc, $format);
+
+    $format = "s/^\# \\(include \\\$RULE_PATH\\/$category.*\\)\$/\\1/";
+    $cmd = "sed -i \'$format\' $conf_file";
+    $rc = system($cmd);
+    return $rc;
+}
+
 sub show_categories {
     my ($rule_dir) = @_;
 
@@ -494,6 +505,20 @@ if ($action eq 'update-exclude') {
     }
     print "update exclude\n" if $debug;
     $rc = update_exclude($conf_file, $file);
+}
+
+if ($action eq 'del-exclude') {
+    if (!defined($conf_file)) {
+        print "Error: must include conffile\n";
+        exit 1;
+    }
+    if (!defined($value)) {
+        print "Error: must define value\n";
+        exit 1;
+    }    
+
+    print "del exclude [$value]\n" if $debug;
+    $rc = del_exclude($conf_file, $value);
 }
 
 exit $rc;
