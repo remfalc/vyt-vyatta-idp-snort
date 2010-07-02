@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.41) unstable; urgency=low
+
+  * Fix the 2nd bug listed in 5738 - delete exclude-category not
+    working.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 01 Jul 2010 17:54:57 -0700
+
 vyatta-idp-snort (0.3.40) unstable; urgency=low
 
   * Fix 5754: need to update snort url for auto-update.
