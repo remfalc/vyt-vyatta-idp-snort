@@ -1,0 +1,8 @@
+help: Database settings
+
+commit:expression: $VAR(db-name/) != ""; "Must define the database name."
+commit:expression: $VAR(db-type/) != ""; "Must define the database type."
+commit:expression: $VAR(host/) != ""; "Must define the database host."
+commit:expression: $VAR(username/) != ""; "Must define the database username."
+commit:expression: $VAR(password/) != ""; "Must define the database password."
+

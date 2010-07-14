@@ -1,0 +1,9 @@
+type: txt
+
+help: Database type
+
+default: "mysql"
+
+syntax:expression: $VAR(@) in "mysql"; "Type must be 'mysql'."
+
+allowed: echo "mysql"

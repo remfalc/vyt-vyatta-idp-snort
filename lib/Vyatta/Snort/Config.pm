@@ -30,6 +30,7 @@ my %fields = (
   _au_hour   => undef,
   _au_vrtsub => undef,
   _is_empty  => 1,
+  _db_type   => undef,
   _db_dbname => undef,
   _db_host   => undef,
   _db_user   => undef,
@@ -75,7 +76,8 @@ sub setup {
   $self->{_au_hour} = $config->returnValue('auto-update update-hour');
   $self->{_au_vrtsub} = $config->exists('auto-update snortvrt-subscription');
   
-  $config->setLevel('content-inspection ips remote-logging mysql');
+  $config->setLevel('content-inspection ips remote-logging database');
+  $self->{_db_type}   = $config->returnValue('db-type');
   $self->{_db_dbname} = $config->returnValue('db-name');
   $self->{_db_host}   = $config->returnValue('host');
   $self->{_db_user}   = $config->returnValue('username');
@@ -112,7 +114,8 @@ sub setupOrig {
   $self->{_au_hour} = $config->returnOrigValue('auto-update update-hour');
   $self->{_au_vrtsub} = $config->existsOrig('auto-update snortvrt-subscription');
   
-  $config->setLevel('content-inspection remote-logging mysql');
+  $config->setLevel('content-inspection remote-logging database');
+  $self->{_db_type}   = $config->returnOrigValue('db-type');
   $self->{_db_dbname} = $config->returnOrigValue('db-name');
   $self->{_db_host}   = $config->returnOrigValue('host');
   $self->{_db_user}   = $config->returnOrigValue('username');
@@ -644,8 +647,9 @@ sub get_db_conf {
   $output .= "config waldo_file: $by_logdir/waldo\n";
   $output .= "config process_new_records_only\n";
   $output .= "\ninput unified2\n\n";
-  
-  $output .= "output database: log, mysql, user=$self->{_db_user} "
+
+  $output .= "output database: log, $self->{_db_type}, "
+           . "user=$self->{_db_user} "
            . "password=$self->{_db_passwd} "
            . "dbname=$self->{_db_dbname} "
            . "host=$self->{_db_host}\n";
@@ -703,8 +707,7 @@ sub handle_barn {
   if (defined $self->{_db_dbname}) {
       $output = get_db_conf($self);
       $pid = is_running($by_pid);
-      if (!conf_write_file($by_conf, $output) and $pid < 0) {
-          print "by conf has not changed - return\n";
+      if (!conf_write_file($by_conf, $output) and $pid > 0) {
           return 1;
       }
       $pid = is_running($by_pid);
@@ -722,7 +725,7 @@ sub handle_barn {
           return 1;
       }
       print "Starting barnyard2 daemon\n";
-      system("sudo $cmd -D --pid-path $by_pid");
+      system("sudo $cmd -q -D --pid-path $by_pid");
   } else {
       $pid = is_running($by_pid);
       if ($pid != 0) {
@@ -731,6 +734,7 @@ sub handle_barn {
       } 
       system("sudo rm -f $by_conf");
       system("sudo rm -f /var/log/snort/snort-unified*");
+      system("sudo rm -f $by_logdir/waldo");
   }
 }
 

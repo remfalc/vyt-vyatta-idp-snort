@@ -1,5 +1,0 @@
-type: txt
-
-help: MySQL database name
-
-val_help: <db-name>; MySQL database name

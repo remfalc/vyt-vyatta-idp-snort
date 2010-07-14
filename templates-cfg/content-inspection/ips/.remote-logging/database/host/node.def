@@ -1,8 +1,8 @@
 type: txt
-help: MySQL server hostname
+help: Database server hostname
 
-val_help: ipv4; IPv4 address of MySQL server
-val_help: <hostname>; Hostname of MySQL server
+val_help: ipv4; IPv4 address of database server
+val_help: <hostname>; Hostname of database server
 
 syntax:expression: exec "\
        if /opt/vyatta/sbin/vyatta-validate-type.pl -q ipv4 $VAR(@);   \
