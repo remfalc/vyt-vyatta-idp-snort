@@ -4,10 +4,9 @@ type: txt
 
 syntax:expression: pattern $VAR(@) "^[0-9]+\:?[0-9]*$" ; "invalid gid:sid \"$VAR(@)\""
 
-help: Set Snort ID (sid) to disable
+help: Snort ID (sid) to disable
 
-comp_help: possible completions:
-  [<gid>:]<sid>    Set sid to disable (gid defaults to 1)
+val_help: [<gid>:]<sid>; Sid to disable (gid defaults to 1) 
 
 create: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl         \
                  --action=add-item                           \

@@ -2,7 +2,7 @@ multi:
 
 type: txt
 
-help: Set rule category to exclude
+help: IPS rule category to exclude
 
 allowed: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl \
                 --action="show-categories"            \

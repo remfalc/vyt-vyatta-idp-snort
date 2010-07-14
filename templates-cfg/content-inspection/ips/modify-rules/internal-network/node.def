@@ -2,7 +2,10 @@ multi:
 
 type: ipv4,ipv4net
 
-help: Set network as home-network
+help: IPv4 internal network
+
+val_help: IPv4 internal address
+val_help: IPv4 internal network
 
 create: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-item \
                  --file=${vyatta_sysconfdir}/ips/home-net              \

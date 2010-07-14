@@ -1,10 +1,13 @@
 type: txt
+
 default: "alert"
+
 syntax:expression: $VAR(@) in "drop", "sdrop", "alert", "pass";
-                   "Action must be \"drop\", \"sdrop\", \"alert\", or \"pass\""
-help: Set IPS action for packets matching priority 3 rules [REQUIRED]
-comp_help:Possible completions:
-  drop          Drop the packet and generate an alert
-  sdrop         Silently drop the packet
-  alert         Generate an alert and let the packet pass
-  pass          Let the packet pass and do nothing
+                   "Action must be \"drop\", \"sdrop\", \"alert\", or \"pass\"."
+
+help: IPS action for packets matching priority 3 rules [REQUIRED]
+
+val_help: drop; Drop the packet and generate an alert
+val_help: sdrop; Silently drop the packet
+val_help: alert; Generate an alert and let the packet pass (default)
+val_help: pass; Let the packet pass and do nothing 

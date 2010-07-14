@@ -1,7 +1,12 @@
 type: u32
+
 syntax:expression: $VAR(@) >= 0 && $VAR(@) <= 23;
-                   "Update hour must be between 0 and 23"
-help: Set hour of day for IPS rules update [REQUIRED]
+                   "Update hour must be between 0 and 23."
+
+help: Hour of day for IPS rules update [REQUIRED]
+
+val_help: u32:1-23; Hour of day for IPS rules update
+
 allowed: for (( i=0 ; i < 24; i++ )); do echo $i; done
 
 delete: sudo rm -rf /etc/cron.hourly/vyatta-ips-update

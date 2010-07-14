@@ -1,6 +1,6 @@
 type: txt
 
-help: Set IPv4 custom traffic filter
+help: IPv4 custom traffic filter
 
 allowed:
 	local -a params
