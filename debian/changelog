@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.42) unstable; urgency=low
+
+  * Add remote-logging to MySQL for snort, but hide cli till fully
+    baked.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 14 Jul 2010 11:13:35 -0700
+
 vyatta-idp-snort (0.3.41) unstable; urgency=low
 
   * Fix the 2nd bug listed in 5738 - delete exclude-category not
