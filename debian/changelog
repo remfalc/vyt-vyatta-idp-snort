@@ -1,3 +1,11 @@
+vyatta-idp-snort (0.3.43) unstable; urgency=low
+
+  * Rename 'mysql' to 'database' to make it easier to support other
+    database in
+  * De-verbize the help strings.  Replace comp_help with val_help.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 14 Jul 2010 16:41:24 -0700
+
 vyatta-idp-snort (0.3.42) unstable; urgency=low
 
   * Add remote-logging to MySQL for snort, but hide cli till fully
