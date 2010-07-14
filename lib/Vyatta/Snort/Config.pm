@@ -4,6 +4,8 @@ use strict;
 use lib '/opt/vyatta/share/perl5';
 use Vyatta::Config;
 use File::Copy;
+use Sys::Hostname;
+use File::Compare;
 
 my $cfg_delim_begin = '# === BEGIN VYATTA SNORT CONFIG ===';
 my $cfg_delim_end = '# === END VYATTA SNORT CONFIG ===';
@@ -28,6 +30,10 @@ my %fields = (
   _au_hour   => undef,
   _au_vrtsub => undef,
   _is_empty  => 1,
+  _db_dbname => undef,
+  _db_host   => undef,
+  _db_user   => undef,
+  _db_passwd => undef,
 );
 
 sub new {
@@ -69,6 +75,12 @@ sub setup {
   $self->{_au_hour} = $config->returnValue('auto-update update-hour');
   $self->{_au_vrtsub} = $config->exists('auto-update snortvrt-subscription');
   
+  $config->setLevel('content-inspection ips remote-logging mysql');
+  $self->{_db_dbname} = $config->returnValue('db-name');
+  $self->{_db_host}   = $config->returnValue('host');
+  $self->{_db_user}   = $config->returnValue('username');
+  $self->{_db_passwd} = $config->returnValue('password');
+
   return 0;
 }
 
@@ -100,6 +112,12 @@ sub setupOrig {
   $self->{_au_hour} = $config->returnOrigValue('auto-update update-hour');
   $self->{_au_vrtsub} = $config->existsOrig('auto-update snortvrt-subscription');
   
+  $config->setLevel('content-inspection remote-logging mysql');
+  $self->{_db_dbname} = $config->returnOrigValue('db-name');
+  $self->{_db_host}   = $config->returnOrigValue('host');
+  $self->{_db_user}   = $config->returnOrigValue('username');
+  $self->{_db_passwd} = $config->returnOrigValue('password');
+
   return 0;
 }
 
@@ -210,6 +228,11 @@ sub isDifferentFrom {
   return 1 if ($this->{_p2act} ne $that->{_p2act});
   return 1 if ($this->{_p3act} ne $that->{_p3act});
   return 1 if ($this->{_p4act} ne $that->{_p4act});
+
+  return 1 if ($this->{_db_dbname} ne $that->{_db_dbname});
+  return 1 if ($this->{_db_host}   ne $that->{_db_host});
+  return 1 if ($this->{_db_user}   ne $that->{_db_user});
+  return 1 if ($this->{_db_passwd} ne $that->{_db_passwd});
 
   # ignore auto-update changes
   
@@ -461,41 +484,6 @@ sub isEmpty {
   return $self->{_is_empty};
 }
 
-my $log_limit = 1;
-my $output_def =<<EOD;
-  output alert_unified: filename snort-unified.alert, limit $log_limit
-  output log_null
-EOD
-my $rule_drop_def =<<EOD;
-{
-  type drop
-$output_def
-}
-EOD
-my $rule_sdrop_def =<<EOD;
-{
-  type sdrop
-  output log_null
-}
-EOD
-my $rule_alert_def =<<EOD;
-{
-  type alert
-$output_def
-}
-EOD
-my $rule_pass_def =<<EOD;
-{
-  type pass
-  output log_null
-}
-EOD
-
-my %ruletype_defs = ( 'drop' => $rule_drop_def,
-                      'sdrop' => $rule_sdrop_def,
-                      'alert' => $rule_alert_def,
-                      'pass' => $rule_pass_def );
-
 sub get_snort_conf {
   my ($self) = @_;
 
@@ -508,6 +496,53 @@ sub get_snort_conf {
   return (undef, 'Action for "other" not defined')
     if (!defined($self->{_p4act}));
 
+  my $remote_logging;
+  my ($output_def, $out_type, $out_file);
+  if ($self->{_db_dbname}) {
+      # barnyard2 expect unified2 format
+      $out_type = 'unified2';
+      $out_file = 'snort-unified2.log';
+      $remote_logging = 1;
+  } else {
+      # just log alerts when storing locally
+      $out_type = 'alert_unified';
+      $out_file = 'snort-unified.alert';
+      $remote_logging = 0;
+  }
+  $output_def = "output $out_type: filename $out_file, limit 1";
+
+  # drop rule
+  my $rule_drop_def   = "{\n"
+                      . "   type drop\n" 
+                      . "   $output_def\n";
+     $rule_drop_def  .= "   output log_null\n" if ! $remote_logging;
+     $rule_drop_def  .= "}\n";
+
+  # sdrop rule
+  my $rule_sdrop_def  = "{\n"
+                      . "   type sdrop\n" 
+                      . "   output log_null\n"
+                      . "}\n";
+
+  # alert rule
+  my $rule_alert_def  = "{\n"
+                      . "   type alert\n" 
+                      . "   $output_def\n";
+     $rule_alert_def .= "   output log_null\n" if ! $remote_logging;
+     $rule_alert_def .= "}\n";
+
+  # pass rule
+  my $rule_pass_def  = "{\n"
+                     . "  type pass\n"
+                     . "  output log_null\n"
+                     . "}\n";
+
+  my %ruletype_defs  = ( 'drop'  => $rule_drop_def,
+                         'sdrop' => $rule_sdrop_def,
+                         'alert' => $rule_alert_def,
+                         'pass'  => $rule_pass_def );
+
+
   # add actions
   my $cfg = "\n## actions\n";
   my @actions = ($self->{_p1act}, $self->{_p2act}, $self->{_p3act},
@@ -516,10 +551,7 @@ sub get_snort_conf {
     my $action = $actions[$i - 1];
     my $def = $ruletype_defs{$action};
     return (undef, "Action type \"$action\" not defined") if (!defined($def));
-    $cfg .= <<EOS;
-ruletype p${i}action
-$def
-EOS
+    $cfg .= "ruletype p${i}action\n$def\n";
   }
   $cfg .= <<EOS;
 ## include clamav config
@@ -586,6 +618,120 @@ sub print_str {
   $str .= "\n";
 
   return $str;
+}
+
+my $by_daemon = '/usr/bin/barnyard2';
+my $by_logdir = '/var/log/barnyard2';
+my $by_pid    = '/var/run/barnyard2_NULL.pid';
+my $by_conf   = '/etc/snort/barnyard2.conf';
+
+sub get_db_conf {
+  my ($self) = @_;
+    
+  my $output = '';
+  my $host = hostname();
+  
+  $output  = "#\n# autogenerated barnyard2.conf\n#\n \n";
+
+  $output .= "config hostname: $host\n" if defined $host; 
+  $output .= "config alert_with_interface_name\n";
+  $output .= "config quiet\n";
+  $output .= "config logdir: $by_logdir\n";
+  $output .= "config archivedir: /dev/null\n";
+  $output .= "config reference_file: /etc/snort/reference.config\n";
+  $output .= "config gen_file: /etc/snort/gen-msg.map\n";
+  $output .= "config sid_file: /etc/snort/sid-msg.map\n";
+  $output .= "config waldo_file: $by_logdir/waldo\n";
+  $output .= "config process_new_records_only\n";
+  $output .= "\ninput unified2\n\n";
+  
+  $output .= "output database: log, mysql, user=$self->{_db_user} "
+           . "password=$self->{_db_passwd} "
+           . "dbname=$self->{_db_dbname} "
+           . "host=$self->{_db_host}\n";
+
+  return $output;
+}
+
+sub is_same_as_file {
+    my ($file, $value) = @_;
+
+    return if ! -e $file;
+
+    my $mem_file = '';
+    open my $MF, '+<', \$mem_file or die "couldn't open memfile $!\n";
+    print $MF $value;
+    seek($MF, 0, 0);
+    
+    my $rc = compare($file, $MF);
+    return 1 if $rc == 0;
+    return;
+}
+
+sub conf_write_file {
+    my ($file, $config) = @_;
+
+    # Avoid unnecessary writes.  At boot the file will be the
+    # regenerated with the same content.
+    return if is_same_as_file($file, $config);
+
+    open(my $fh, '>', $file) || die "Couldn't open $file - $!";
+    print $fh $config;
+    close $fh;
+    return 1;
+}
+
+sub is_running {
+    my ($pid_file) = @_;
+
+    if (-f $pid_file) {
+	my $pid = `cat $pid_file`;
+	$pid =~ s/\s+$//;  # chomp doesn't remove nl
+	my $ps = `ps -p $pid -o comm=`;
+	if (defined($ps) && $ps ne "") {
+	    return $pid;
+	} 
+    }
+    return 0;
+}
+
+sub handle_barn {
+  my ($self, $orig) = @_;
+
+  my $output;
+  my $pid;
+  if (defined $self->{_db_dbname}) {
+      $output = get_db_conf($self);
+      $pid = is_running($by_pid);
+      if (!conf_write_file($by_conf, $output) and $pid < 0) {
+          print "by conf has not changed - return\n";
+          return 1;
+      }
+      $pid = is_running($by_pid);
+      if ($pid != 0) {
+          system("kill -INT $pid");
+      }
+      my ($cmd, $rc);
+      system("sudo rm -f /var/log/snort/snort-unified*");
+      $cmd = "$by_daemon -c $by_conf -d /var/log/snort -f snort-unified2.log";
+      # test the conf 1st
+      $rc = system("sudo $cmd -T -q");
+      if ($rc) {
+          print "Error: testing $by_conf\n";
+          system("sudo mv $by_conf /tmp");
+          return 1;
+      }
+      print "Starting barnyard2 daemon\n";
+      system("sudo $cmd -D --pid-path $by_pid");
+  } else {
+      $pid = is_running($by_pid);
+      if ($pid != 0) {
+          print "Stopping barnyard2\n";
+          system("kill -INT $pid");
+      } 
+      system("sudo rm -f $by_conf");
+      system("sudo rm -f /var/log/snort/snort-unified*");
+  }
 }
 
 1;

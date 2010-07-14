@@ -66,6 +66,11 @@ if ($config->isEmpty()) {
   exit 1;
 }
 
+# start/stop barnyard as needed
+if ($config->handle_barn($oconfig)) {
+  exit 2;
+}
+
 if (!($config->isDifferentFrom($oconfig))) {
   # config not changed. do nothing.
   exit 3;

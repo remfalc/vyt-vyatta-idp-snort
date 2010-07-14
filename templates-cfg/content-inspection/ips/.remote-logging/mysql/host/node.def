@@ -1,0 +1,25 @@
+type: txt
+help: MySQL server hostname
+
+val_help: ipv4; IPv4 address of MySQL server
+val_help: <hostname>; Hostname of MySQL server
+
+syntax:expression: exec "\
+       if /opt/vyatta/sbin/vyatta-validate-type.pl -q ipv4 $VAR(@);   \
+       then                                                           \
+          exit 0;                                                     \
+       else                                                           \
+          if cat /etc/resolv.conf 2> /dev/null | grep -q nameserver;  \
+          then                                                        \
+              if /usr/bin/host \"$VAR(@)\" &> /dev/null;              \
+              then                                                    \
+                  exit 0;                                             \
+              else                                                    \
+                  echo \"Invalid IP address or host name '$VAR(@)'\"; \
+                  exit 1;                                             \
+              fi                                                      \
+          else                                                        \
+              echo \"Warning: no name resolution available.\";        \
+          fi                                                          \
+       fi ; "
+
