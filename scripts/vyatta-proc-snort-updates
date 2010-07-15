@@ -160,6 +160,11 @@ fi
   if ! cp /etc/snort/{antivirus.conf,clamav.config,snort.debian.conf} .; then
     abort_updates 'Original config file missing'
   fi
+
+  # copy barnyard2.conf if exists
+  if [ -f /etc/snort/barnyard2.conf ]; then
+    cp -f /etc/snort/barnyard2.conf .
+  fi
 )
 
 # process rules/
