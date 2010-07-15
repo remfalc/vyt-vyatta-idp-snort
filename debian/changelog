@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.44) unstable; urgency=low
+
+  * Perserve barnyard2.conf when updating snort rules.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 14 Jul 2010 17:08:26 -0700
+
 vyatta-idp-snort (0.3.43) unstable; urgency=low
 
   * Rename 'mysql' to 'database' to make it easier to support other
