@@ -702,6 +702,11 @@ sub is_running {
 sub handle_barn {
   my ($self, $orig) = @_;
 
+  if (! -f $by_daemon) {
+      print "Error: missing barnyard2 package.\n";
+      return 1;
+  }
+
   my $output;
   my $pid;
   if (defined $self->{_db_dbname}) {
