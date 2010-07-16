@@ -702,14 +702,14 @@ sub is_running {
 sub handle_barn {
   my ($self, $orig) = @_;
 
-  if (! -f $by_daemon) {
-      print "Error: missing barnyard2 package.\n";
-      return 1;
-  }
-
   my $output;
   my $pid;
   if (defined $self->{_db_dbname}) {
+      if (! -f $by_daemon) {
+          print "Error: missing barnyard2 package.\n";
+          return 1;
+      }
+
       $output = get_db_conf($self);
       $pid = is_running($by_pid);
       if (!conf_write_file($by_conf, $output) and $pid > 0) {
