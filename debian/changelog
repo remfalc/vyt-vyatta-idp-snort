@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.46) unstable; urgency=low
+
+  * Move barnyard check to when it's configured.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 16 Jul 2010 14:40:28 -0700
+
 vyatta-idp-snort (0.3.45) unstable; urgency=low
 
   * Add check if barnyard2 is installed.
