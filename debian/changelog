@@ -1,3 +1,12 @@
+vyatta-idp-snort (0.3.47) unstable; urgency=low
+
+  * Fix return value for when not restarting barnyard.
+  * Optimize to not rewrite rules if empty.
+  * Fix not killing barnyard2 on top level delete.
+  * Fix pass rules.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 16 Jul 2010 18:07:59 -0700
+
 vyatta-idp-snort (0.3.46) unstable; urgency=low
 
   * Move barnyard check to when it's configured.
