@@ -74,7 +74,7 @@ foreach my $file (@rule_files) {
   open(RIN, "<$rule_dir/$file") or die "Cannot open $rule_dir/$file: $!";
   open(ROUT, ">$out_dir/$file") or die "Cannot open $out_dir/$file: $!";
   while (<RIN>) {
-    if (!/^alert\s/ and !/^# alert\s/) {
+    if (!/^alert\s/ and !/^# alert\s/ and !/^pass\s/) {
       print ROUT;
       next;
     }
@@ -98,6 +98,7 @@ foreach my $file (@rule_files) {
         s/^# alert\s/# $action /;
     } else {
         s/^alert\s/$action /;
+        s/^pass\s/p4action /;
     }
     print ROUT;
   }
