@@ -61,14 +61,14 @@ if (defined($err)) {
   exit 2;
 }
 
-if ($config->isEmpty()) {
-  # not configured
-  exit 1;
-}
-
 # start/stop barnyard as needed
 if ($config->handle_barn($oconfig)) {
   exit 2;
+}
+
+if ($config->isEmpty()) {
+  # not configured
+  exit 1;
 }
 
 if (!($config->isDifferentFrom($oconfig))) {
