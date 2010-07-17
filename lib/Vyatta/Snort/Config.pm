@@ -713,10 +713,10 @@ sub handle_barn {
       $output = get_db_conf($self);
       $pid = is_running($by_pid);
       if (!conf_write_file($by_conf, $output) and $pid > 0) {
-          return 1;
+          return 0;
       }
       $pid = is_running($by_pid);
-      if ($pid != 0) {
+      if ($pid > 0) {
           system("kill -INT $pid");
       }
       my ($cmd, $rc);
@@ -733,7 +733,7 @@ sub handle_barn {
       system("sudo $cmd -q -D --pid-path $by_pid");
   } else {
       $pid = is_running($by_pid);
-      if ($pid != 0) {
+      if ($pid > 0) {
           print "Stopping barnyard2\n";
           system("kill -INT $pid");
       } 
