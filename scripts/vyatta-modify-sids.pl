@@ -118,17 +118,32 @@ sub update_rules {
 
     print "update_rules()\n" if $debug;
 
+    my $count = 0;
+    my @lines;
+    my %dsids;
+    my %esids;
+ 
+   @lines = read_file($disable_file);
+    if (scalar(@lines) > 0) {
+        @lines = parse_sid(@lines);
+        %dsids = map { $_ => 1 } @lines;
+        $count += scalar(@lines);
+    }
+    print "disable count = $count\n" if $debug;
+
+    @lines = read_file($enable_file);
+    if (scalar(@lines) > 0) {
+        @lines = parse_sid(@lines);
+        %esids = map { $_ => 1 } @lines;
+        $count += scalar(@lines);
+    }
+    print "both count = $count\n" if $debug;
+
+    return 0 if $count == 0;
+
     opendir(my $RIN_DIR, "$rule_dir") or die "Cannot open [$rule_dir]: $!";
     my @rule_files = grep /\.rules$/, readdir($RIN_DIR);
     closedir $RIN_DIR;
-    
-    my @lines = read_file($disable_file);
-    @lines = parse_sid(@lines);
-    my %dsids = map { $_ => 1 } @lines;
-
-    @lines = read_file($enable_file);
-    @lines = parse_sid(@lines);
-    my %esids = map { $_ => 1 } @lines;
 
     my ($tot, $ok, $disabled, $comments, $err) = (0,0,0,0,0);
 
@@ -236,17 +251,32 @@ sub update_preproc_rules {
 
     print "update_preproc_rules()\n" if $debug;
 
+    my $count = 0;
+    my @lines;
+    my %dsids;
+    my %esids;
+    
+    @lines = read_file($disable_file);
+    if (scalar(@lines) > 0) {
+        @lines = parse_gid_sid(@lines);
+        %dsids = map { $_ => 1 } @lines;
+        $count += scalar(@lines);
+    }
+    print "disable count = $count\n" if $debug;
+
+    @lines = read_file($enable_file);
+    if (scalar(@lines) > 0) {
+        @lines = parse_gid_sid(@lines);
+        %esids = map { $_ => 1 } @lines;
+        $count += scalar(@lines);
+    }
+    print "both count = $count\n" if $debug;
+
+    return 0 if $count == 0;
+
     opendir(my $RIN_DIR, "$rule_dir") or die "Cannot open [$rule_dir]: $!";
     my @rule_files = grep /\.rules$/, readdir($RIN_DIR);
     closedir $RIN_DIR;
-    
-    my @lines = read_file($disable_file);
-    @lines = parse_gid_sid(@lines);
-    my %dsids = map { $_ => 1 } @lines;
-
-    @lines = read_file($enable_file);
-    @lines = parse_gid_sid(@lines);
-    my %esids = map { $_ => 1 } @lines;
 
     my ($tot, $ok, $disabled, $comments, $err) = (0,0,0,0,0);
 
@@ -258,6 +288,7 @@ sub update_preproc_rules {
             my $line = $_;
             chomp $line;
             $tot++;
+
             if (/^#?\s*p[1234]action.*sid:\s?(\d+);\s?gid:\s?(\d+)/) {
                 my $sid = $1;
                 my $gid = $2;
