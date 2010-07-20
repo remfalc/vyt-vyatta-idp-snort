@@ -1,5 +1,5 @@
 priority: 900
-help: Configure Content Inspection
+help: Content Inspection settings
 end: RET1=1
      if [ -x /opt/vyatta/sbin/vyatta-update-antivirus.pl ]; then
        sudo /opt/vyatta/sbin/vyatta-update-antivirus.pl
