@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.48) unstable; urgency=low
+
+  * clean up help strings
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Mon, 19 Jul 2010 18:00:21 -0700
+
 vyatta-idp-snort (0.3.47) unstable; urgency=low
 
   * Fix return value for when not restarting barnyard.
