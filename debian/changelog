@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.49) unstable; urgency=low
+
+  * Let barnyard use syslog.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 22 Jul 2010 15:33:51 -0700
+
 vyatta-idp-snort (0.3.48) unstable; urgency=low
 
   * clean up help strings
