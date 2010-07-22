@@ -1,0 +1,16 @@
+type: txt
+
+help: Syslog severity level
+
+default: "info"
+
+syntax:expression: $VAR(@) in "emerg", "alert", "crit", "err", "warning", "notice", "info", "debug"; "\"$VAR(@)\" is not a valid severity level."
+
+val_help: emerg ; Emergency messages
+val_help: alert ; Urgent messages
+val_help: crit ; Critical messages 
+val_help: err ; Error messages
+val_help: warning ; Warning messages
+val_help: notice ; Messages for further investigation (default)
+val_help: info ; Informational messages
+val_help: debug ; Debug messages

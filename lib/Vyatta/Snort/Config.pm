@@ -35,6 +35,8 @@ my %fields = (
   _db_host   => undef,
   _db_user   => undef,
   _db_passwd => undef,
+  _sl_fac    => undef,
+  _sl_level  => undef,
 );
 
 sub new {
@@ -76,12 +78,16 @@ sub setup {
   $self->{_au_hour} = $config->returnValue('auto-update update-hour');
   $self->{_au_vrtsub} = $config->exists('auto-update snortvrt-subscription');
   
-  $config->setLevel('content-inspection ips remote-logging database');
+  $config->setLevel('content-inspection ips output remote-db');
   $self->{_db_type}   = $config->returnValue('db-type');
   $self->{_db_dbname} = $config->returnValue('db-name');
   $self->{_db_host}   = $config->returnValue('host');
   $self->{_db_user}   = $config->returnValue('username');
   $self->{_db_passwd} = $config->returnValue('password');
+
+  $config->setLevel('content-inspection ips output syslog');
+  $self->{_sl_fac}   = $config->returnValue('facility');
+  $self->{_sl_level} = $config->returnValue('level');
 
   return 0;
 }
@@ -114,12 +120,16 @@ sub setupOrig {
   $self->{_au_hour} = $config->returnOrigValue('auto-update update-hour');
   $self->{_au_vrtsub} = $config->existsOrig('auto-update snortvrt-subscription');
   
-  $config->setLevel('content-inspection remote-logging database');
+  $config->setLevel('content-inspection ips output remote-db');
   $self->{_db_type}   = $config->returnOrigValue('db-type');
   $self->{_db_dbname} = $config->returnOrigValue('db-name');
   $self->{_db_host}   = $config->returnOrigValue('host');
   $self->{_db_user}   = $config->returnOrigValue('username');
   $self->{_db_passwd} = $config->returnOrigValue('password');
+
+  $config->setLevel('content-inspection ips output syslog');
+  $self->{_sl_fac}   = $config->returnOrigValue('facility');
+  $self->{_sl_level} = $config->returnOrigValue('level');
 
   return 0;
 }
@@ -236,6 +246,9 @@ sub isDifferentFrom {
   return 1 if ($this->{_db_host}   ne $that->{_db_host});
   return 1 if ($this->{_db_user}   ne $that->{_db_user});
   return 1 if ($this->{_db_passwd} ne $that->{_db_passwd});
+
+  return 1 if ($this->{_sl_fac}   ne $that->{_sl_fac});
+  return 1 if ($this->{_sl_level} ne $that->{_sl_level});
 
   # ignore auto-update changes
   
@@ -623,12 +636,49 @@ sub print_str {
   return $str;
 }
 
+
+#
+# barnyard2 crap below, maybe should move to Barnyard.pm
+#
+
 my $by_daemon = '/usr/bin/barnyard2';
 my $by_logdir = '/var/log/barnyard2';
 my $by_pid    = '/var/run/barnyard2_NULL.pid';
 my $by_conf   = '/etc/snort/barnyard2.conf';
 
-sub get_db_conf {
+my %fac_hash = (
+    'auth'     => 'LOG_AUTH',
+    'authpriv' => 'LOG_AUTHPRIV',
+    'cron'     => 'LOG_CRON',
+    'daemon'   => 'LOG_DAEMON',
+    'kern'     => 'LOG_KERN',
+    'lpr'      => 'LOG_LPR',
+    'mail'     => 'LOG_MAIL',
+    'news'     => 'LOG_NEWS',
+    'syslog'   => 'LOG_SYSLOG',
+    'user'     => 'LOG_USER',
+    'uucp'     => 'LOG_UUCP',
+    'local0'   => 'LOG_LOCAL0',
+    'local1'   => 'LOG_LOCAL1',
+    'local2'   => 'LOG_LOCAL2',
+    'local3'   => 'LOG_LOCAL3',
+    'local4'   => 'LOG_LOCAL4',
+    'local5'   => 'LOG_LOCAL5',
+    'local6'   => 'LOG_LOCAL6',
+);
+
+my %level_hash = (
+    'emerg'   => 'LOG_EMERG',
+    'alert'   => 'LOG_ALERT',
+    'crit'    => 'LOG_CRIT',
+    'err'     => 'LOG_ERR',
+    'warning' => 'LOG_WARNING',
+    'notice'  => 'LOG_NOTICE',
+    'info'    => 'LOG_INFO',
+    'debug'   => 'LOG_DEBUG'
+);
+
+sub get_by_conf {
   my ($self) = @_;
     
   my $output = '';
@@ -648,11 +698,46 @@ sub get_db_conf {
   $output .= "config process_new_records_only\n";
   $output .= "\ninput unified2\n\n";
 
+  return $output;
+}
+
+sub get_db_conf {
+  my ($self) = @_;
+    
+  my $output = '';
+
+  return $output if ! defined $self->{_db_type};
+  return $output if ! defined $self->{_db_host};
+  return $output if ! defined $self->{_db_dbname};
+  return $output if ! defined $self->{_db_user};
+  return $output if ! defined $self->{_db_passwd};
+
   $output .= "output database: log, $self->{_db_type}, "
            . "user=$self->{_db_user} "
            . "password=$self->{_db_passwd} "
            . "dbname=$self->{_db_dbname} "
            . "host=$self->{_db_host}\n";
+
+  return $output;
+}
+
+sub get_sl_conf {
+  my ($self) = @_;
+    
+  my $output = '';
+
+  return $output if ! defined $self->{_sl_fac};
+  return $output if ! defined $self->{_sl_level};
+
+  # output alert_syslog: severity facility 
+
+  my ($fac, $level);
+  $fac   = $fac_hash{$self->{_sl_fac}};
+  $level = $level_hash{$self->{_sl_level}};
+
+  return $output if ! defined $fac or ! defined $level;
+
+  $output .= "output alert_syslog: $level $fac\n";
 
   return $output;
 }
@@ -702,20 +787,26 @@ sub is_running {
 sub handle_barn {
   my ($self, $orig) = @_;
 
-  my $output;
+  my $output = '';
   my $pid;
-  if (defined $self->{_db_dbname}) {
+
+  $output .= get_db_conf($self);
+  $output .= get_sl_conf($self);
+
+  if ($output ne '') {
       if (! -f $by_daemon) {
           print "Error: missing barnyard2 package.\n";
           return 1;
       }
+  
+      my $by_output = get_by_conf($self);
+      
+      $output = $by_output . $output;
 
-      $output = get_db_conf($self);
       $pid = is_running($by_pid);
       if (!conf_write_file($by_conf, $output) and $pid > 0) {
           return 0;
       }
-      $pid = is_running($by_pid);
       if ($pid > 0) {
           system("kill -INT $pid");
       }
