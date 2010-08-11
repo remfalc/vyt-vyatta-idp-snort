@@ -33,11 +33,6 @@ SNORT_UPDATE_FILE='snortrules-snapshot-2853.tar'
 CUR_TIME=$(date +%F-%H%M%S)
 LAST_UPDATE_STATUS_FILE="$BASE_DIR/lastupdatestatus"
 
-# when invoked from cron, we don't have these variables
-export VYATTA_EDIT_LEVEL='/'
-export VYATTA_TEMPLATE_LEVEL='/'
-export VYATTA_ACTIVE_CONFIGURATION_DIR='/opt/vyatta/config/active'
-
 log_message ()
 {
   echo "$CUR_TIME: $*" >> $LOG_FILE
