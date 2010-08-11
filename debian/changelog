@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.51) unstable; urgency=low
+
+  * remove CLI backend env variables usage
+
+ -- An-Cheng Huang <ancheng@vyatta.com>  Wed, 11 Aug 2010 11:42:29 -0700
+
 vyatta-idp-snort (0.3.50) unstable; urgency=low
 
   * UNRELEASED
