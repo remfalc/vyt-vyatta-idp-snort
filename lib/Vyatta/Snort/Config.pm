@@ -514,7 +514,7 @@ sub get_snort_conf {
 
   my $remote_logging;
   my ($output_def, $out_type, $out_file);
-  if ($self->{_db_dbname}) {
+  if ($self->{_db_dbname} or $self->{_sl_fac}) {
       # barnyard2 expect unified2 format
       $out_type = 'unified2';
       $out_file = 'snort-unified2.log';
