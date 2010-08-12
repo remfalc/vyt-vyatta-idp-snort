@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.49+larkspur2) unstable; urgency=low
+
+  * syslog output for IPS not working correctly.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 12 Aug 2010 11:38:38 -0700
+
 vyatta-idp-snort (0.3.49+larkspur1) unstable; urgency=low
 
   * UNRELEASED
