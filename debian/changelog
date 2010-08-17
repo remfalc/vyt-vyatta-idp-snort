@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.52) unstable; urgency=low
+
+  * syslog output for IPS not working correctly.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Tue, 17 Aug 2010 11:56:14 -0700
+
 vyatta-idp-snort (0.3.51) unstable; urgency=low
 
   * remove CLI backend env variables usage
