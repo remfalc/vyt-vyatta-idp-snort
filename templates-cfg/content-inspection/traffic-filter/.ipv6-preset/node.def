@@ -1,10 +1,9 @@
 type: txt
 
-help: Set IPv6 preset traffic filter
+help: IPv6 preset traffic filter
 
 syntax:expression: $VAR(@) in "all"; "Preset must be \"all\""
 
 allowed: echo all
 
-comp_help:Possible completions:
-  all           Apply Content Inspection to all IPv6 traffic
+val_help: all; Content Inspection for all IPv6 traffic
