@@ -2,9 +2,4 @@ type: txt
 
 help: IPv4 custom traffic filter
 
-allowed:
-	local -a params
-	table=name
-	params=( /opt/vyatta/config/active/firewall/${table}/* )
-	echo -n ${params[@]##*/}
-
+allowed: cli-shell-api listActiveNodes firewall name
