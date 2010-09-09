@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.56) unstable; urgency=low
+
+  * remove VPL license from repo.  replace with GPLv2.
+
+ -- Robert Bays <robert@vyatta.com>  Thu, 09 Sep 2010 13:55:09 -0700
+
 vyatta-idp-snort (0.3.55) unstable; urgency=low
 
   * UNRELEASED
