@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.57) unstable; urgency=low
+
+  * Fix 6181: typo in help content-inspection
+
+ -- Stig Thormodsrud <vyatta@vyatta.com>  Fri, 10 Sep 2010 18:11:11 -0700
+
 vyatta-idp-snort (0.3.56) unstable; urgency=low
 
   * remove VPL license from repo.  replace with GPLv2.
