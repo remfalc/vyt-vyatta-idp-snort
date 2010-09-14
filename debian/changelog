@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.49+larkspur3) unstable; urgency=low
+
+  * remove VPL license from repo.  replace with GPLv2.
+
+ -- Robert Bays <robert@vyatta.com>  Tue, 14 Sep 2010 12:26:22 -0700
+
 vyatta-idp-snort (0.3.49+larkspur2) unstable; urgency=low
 
   * syslog output for IPS not working correctly.
