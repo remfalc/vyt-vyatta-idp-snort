@@ -53,7 +53,7 @@ if [ ! -f $NEW_SNORT_UPDATE_FILE ]; then
   exit 1
 fi
 
-file_type=$(file -ib $NEW_SNORT_UPDATE_FILE)
+file_type=$(file --brief --mime-type $NEW_SNORT_UPDATE_FILE)
 if [ "$file_type" != "application/x-gzip" ]; then
   log_message "Invalid file type [$file_type]."
   exit 1
@@ -81,7 +81,7 @@ fi
 # extract
 gunzip $SNORT_UPDATE_FILE.gz >&/dev/null
 
-file_type=$(file -ib $SNORT_UPDATE_FILE)
+file_type=$(file --brief --mime-type  $SNORT_UPDATE_FILE)
 if [ "$file_type" != "application/x-tar" ]; then
   log_message "Invalid file type [$file_type]."
   exit 1
