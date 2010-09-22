@@ -6,7 +6,7 @@ use Vyatta::Config;
 use File::Copy;
 use Sys::Hostname;
 use File::Compare;
-use Vyatta::Misc;
+use Vyatta::IpTables::Mgr;
 
 my $cfg_delim_begin = '# === BEGIN VYATTA SNORT CONFIG ===';
 my $cfg_delim_end = '# === END VYATTA SNORT CONFIG ===';
@@ -434,7 +434,7 @@ sub addQueue {
   if (defined($chain)) {
       foreach my $post_fw_hook (@post_fw_hooks) {
           # insert rule at the end (right before ACCEPT at the end)
-          my $rule_cnt = Vyatta::Misc::count_iptables_rules('iptables',
+          my $rule_cnt = Vyatta::IpTables::Mgr::count_iptables_rules('iptables',
 				'filter', $post_fw_hook);
           system("iptables -I $post_fw_hook $rule_cnt -j $chain");
           return 'Cannot insert rule into iptables' if ($? >> 8);
@@ -451,7 +451,7 @@ sub addQueue {
   if (defined($chain)) {
       foreach my $post_fw_hook (@post_fw_hooks) {
           # insert rule at the end (right before ACCEPT at the end)
-          my $rule_cnt = Vyatta::Misc::count_iptables_rules('ip6tables',
+          my $rule_cnt = Vyatta::IpTables::Mgr::count_iptables_rules('ip6tables',
 				'filter', $post_fw_hook);
           system("ip6tables -I $post_fw_hook $rule_cnt -j $chain");
           return 'Cannot insert rule into ip6tables' if ($? >> 8);
