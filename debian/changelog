@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.59) unstable; urgency=low
+
+  * * update count_iptables_rules usage
+
+ -- Mohit Mehta <mohit@vyatta.com>  Tue, 21 Sep 2010 21:18:00 -0700
+
 vyatta-idp-snort (0.3.58) unstable; urgency=low
 
   [ Stig Thormodsrud ]
