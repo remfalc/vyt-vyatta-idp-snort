@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.60) unstable; urgency=low
+
+  * Fix 6217: squeeze: update ips rules doesn't work in mendocino
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 22 Sep 2010 16:13:36 -0700
+
 vyatta-idp-snort (0.3.59) unstable; urgency=low
 
   * * update count_iptables_rules usage
