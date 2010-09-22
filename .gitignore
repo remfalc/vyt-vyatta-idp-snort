@@ -20,6 +20,7 @@ libtool
 /debian/vyatta-idp-snort
 /debian/vyatta-idp-snort.postinst
 /debian/vyatta-idp-snort.debhelper.log
+/debian/vyatta-idp-snort.substvars
 /INSTALL
 /Makefile.in
 /Makefile

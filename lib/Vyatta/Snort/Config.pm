@@ -6,10 +6,14 @@ use Vyatta::Config;
 use File::Copy;
 use Sys::Hostname;
 use File::Compare;
+use Vyatta::Misc;
 
 my $cfg_delim_begin = '# === BEGIN VYATTA SNORT CONFIG ===';
 my $cfg_delim_end = '# === END VYATTA SNORT CONFIG ===';
-my $post_fw_hook = 'VYATTA_POST_FW_HOOK';
+my $post_fw_in_hook = 'VYATTA_POST_FW_IN_HOOK';
+my $post_fw_fwd_hook = 'VYATTA_POST_FW_FWD_HOOK';
+my $post_fw_out_hook = 'VYATTA_POST_FW_OUT_HOOK';
+my @post_fw_hooks = ($post_fw_in_hook, $post_fw_fwd_hook, $post_fw_out_hook);
 # non-user chain must be 'VYATTA_*_HOOK'
 my $queue_prefix = 'VYATTA_SNORT_';
 my $queue_suffix = '_HOOK';
@@ -325,15 +329,17 @@ sub setupIptables {
 sub removeChain {
     my ($cmd, $chain) = @_;
 
-    my $grep = "grep ^[0-9] | grep $chain";
-    my @lines = `$cmd -L $post_fw_hook -n --line-number | $grep`;
-    @lines = sort rule_num_sort @lines;
-    # rule number from high to low
-    foreach (@lines) {
-	my ($num, $target) = split /\s+/;
-	next if ($target ne $chain);
-	system("$cmd -D $post_fw_hook $num");
-	return 'Cannot remove rule from iptables/ip6tables' if ($? >> 8);
+    foreach my $post_fw_hook (@post_fw_hooks) {
+        my $grep = "grep ^[0-9] | grep $chain";
+        my @lines = `$cmd -L $post_fw_hook -n --line-number | $grep`;
+        @lines = sort rule_num_sort @lines;
+        # rule number from high to low
+        foreach (@lines) {
+	    my ($num, $target) = split /\s+/;
+	    next if ($target ne $chain);
+	    system("$cmd -D $post_fw_hook $num");
+	    return 'Cannot remove rule from iptables/ip6tables' if ($? >> 8);
+        }
     }
 
     return undef;
@@ -426,9 +432,13 @@ sub addQueue {
   }
 
   if (defined($chain)) {
-      # insert rule at the front (ACCEPT at the end)
-      system("iptables -I $post_fw_hook 1 -j $chain");
-      return 'Cannot insert rule into iptables' if ($? >> 8);
+      foreach my $post_fw_hook (@post_fw_hooks) {
+          # insert rule at the end (right before ACCEPT at the end)
+          my $rule_cnt = Vyatta::Misc::count_iptables_rules('iptables',
+				'filter', $post_fw_hook);
+          system("iptables -I $post_fw_hook $rule_cnt -j $chain");
+          return 'Cannot insert rule into iptables' if ($? >> 8);
+      }
   }
 
   $chain = undef;
@@ -439,8 +449,13 @@ sub addQueue {
   }
 
   if (defined($chain)) {
-      system("ip6tables -I $post_fw_hook 1 -j $chain");
-      return 'Cannot insert rule into ip6tables' if ($? >> 8);
+      foreach my $post_fw_hook (@post_fw_hooks) {
+          # insert rule at the end (right before ACCEPT at the end)
+          my $rule_cnt = Vyatta::Misc::count_iptables_rules('ip6tables',
+				'filter', $post_fw_hook);
+          system("ip6tables -I $post_fw_hook $rule_cnt -j $chain");
+          return 'Cannot insert rule into ip6tables' if ($? >> 8);
+      }
   }
 
   # return success
