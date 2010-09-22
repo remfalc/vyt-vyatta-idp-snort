@@ -1,3 +1,14 @@
+vyatta-idp-snort (0.3.58) unstable; urgency=low
+
+  [ Stig Thormodsrud ]
+  * 0.3.57
+
+  [ Mohit Mehta ]
+  * * enable IPS on all post_fw_*_hooks. make IPS last thing on hooks
+    before accept
+
+ -- Mohit Mehta <mohit@vyatta.com>  Tue, 21 Sep 2010 17:39:42 -0700
+
 vyatta-idp-snort (0.3.57) unstable; urgency=low
 
   * Fix 6181: typo in help content-inspection
