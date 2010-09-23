@@ -160,6 +160,11 @@ fi
   if [ -f /etc/snort/barnyard2.conf ]; then
     cp -f /etc/snort/barnyard2.conf .
   fi
+
+  # copy threshold.conf if exists
+  if [ -f /etc/snort/threshold.conf ]; then
+    cp -f /etc/snort/threshold.conf .
+  fi
 )
 
 # process rules/
