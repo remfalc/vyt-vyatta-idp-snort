@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.62) unstable; urgency=low
+
+  * Move traffic-filter target to SNORT_ALL_HOOK, unify code to set
+    ipv4|ipv6 queues
+
+ -- Mohit Mehta <mohit@vyatta.com>  Tue, 28 Sep 2010 14:19:50 -0700
+
 vyatta-idp-snort (0.3.61) unstable; urgency=low
 
   * Preserve snort threshold.conf across rule update.
