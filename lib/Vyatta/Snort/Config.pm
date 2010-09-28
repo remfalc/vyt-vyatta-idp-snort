@@ -17,6 +17,10 @@ my @post_fw_hooks = ($post_fw_in_hook, $post_fw_fwd_hook, $post_fw_out_hook);
 # non-user chain must be 'VYATTA_*_HOOK'
 my $queue_prefix = 'VYATTA_SNORT_';
 my $queue_suffix = '_HOOK';
+my $SNORT_ALL_HOOK = $queue_prefix . 'all' . $queue_suffix;
+
+# may change to NF_QUEUE in future
+my $QUEUE_TARGET = 'QUEUE';
 
 my $SNORT_INIT = '/etc/init.d/snort';
 my $SNORT_DONE = '/var/run/snort_inline_init.pid';
@@ -289,28 +293,26 @@ sub setupIptables {
   my %create_hash = ();
   my %create_hash_ipv6 = ();
   my @cmds = ();
-  my @presets = qw( all );
-  foreach (@presets) {
-    my $chain = $queue_prefix . $_ . $queue_suffix;
-    if (!chainExists($chain)) {
-      $create_hash{$_} = 1;
-    }
-    if (!chainExistsIPv6($chain)) {
-      $create_hash_ipv6{$_} = 1;
-    }
+  my $chain = $SNORT_ALL_HOOK;
+  if (!chainExists($chain)) {
+    $create_hash{'all'} = 1;
+  }
+  if (!chainExistsIPv6($chain)) {
+    $create_hash_ipv6{'all'} = 1;
   }
 
   # set up preset "all" for IPv4 and IPv6
-  my $chain = $queue_prefix . 'all' . $queue_suffix;
   if ($create_hash{'all'}) {
     push @cmds,
       "iptables -N $chain",
-      "iptables -A $chain -j QUEUE";
+      "iptables -A $chain -j $QUEUE_TARGET",
+      "iptables -A $chain -j RETURN";
   }
   if ($create_hash_ipv6{'all'}) {
     push @cmds,
       "ip6tables -N $chain",
-      "ip6tables -A $chain -j QUEUE";
+      "ip6tables -A $chain -j $QUEUE_TARGET",
+      "ip6tables -A $chain -j RETURN";
   }
 
   # run all commands
@@ -349,30 +351,28 @@ sub removeChain {
 # hook chain of either the IPv4 or IPv6 filter table.
 sub removeQueue {
   my ($self) = @_;
-  my $chain = undef;
   my $ret1 = undef;
   my $ret2 = undef;
 
-  if (defined($self->{_tr_preset})) {
-    $chain = $queue_prefix . $self->{_tr_preset} . $queue_suffix;
-  } elsif (defined($self->{_tr_custom})) {
-    $chain = $self->{_tr_custom};
+  my $chain = '';
+  my $custom_chain = '';
+  # ipv4 hook removal
+  if (defined($self->{_tr_preset}) || defined($self->{_tr_custom})) {
+    $chain = $SNORT_ALL_HOOK;
+    $custom_chain = $self->{_tr_custom} if defined $self->{_tr_custom};
   }
 
-  if (defined($chain)) {
-      $ret1 = removeChain ("iptables", $chain);
+  $ret1 = remove_ip_version_queue('ipv4', "$chain", "$custom_chain");
+
+  $chain = '';
+  $custom_chain = '';
+  # ipv6 hook removal
+  if (defined($self->{_tr_ipv6_preset}) || defined($self->{_tr_ipv6_custom})) {
+    $chain = $SNORT_ALL_HOOK;
+    $custom_chain = $self->{_tr_ipv6_custom} if defined $self->{_tr_ipv6_custom};
   }
 
-  $chain = undef;
-  if (defined($self->{_tr_ipv6_preset})) {
-    $chain = $queue_prefix . $self->{_tr_ipv6_preset} . $queue_suffix;
-  } elsif (defined($self->{_tr_ipv6_custom})) {
-    $chain = $self->{_tr_ipv6_custom};
-  }
-
-  if (defined($chain)) {
-      $ret2 = removeChain ("ip6tables", $chain);
-  }
+  $ret2 = remove_ip_version_queue('ipv6', "$chain", "$custom_chain");
 
   if (defined($ret1)) {
       return $ret1;
@@ -382,6 +382,35 @@ sub removeQueue {
 
   # return success
   return undef;
+}
+
+sub remove_ip_version_queue {
+
+  my ($ip_version, $chain, $custom_chain) = @_;
+
+  my $retval = undef;
+  my $iptables_cmd = 'iptables';
+  $iptables_cmd = 'ip6tables' if $ip_version eq 'ipv6';
+
+  if (!($chain eq '')) {
+    $retval = removeChain ("$iptables_cmd", $chain);
+  }
+
+  if (!($chain eq '') && !($custom_chain eq '')) {
+    # remove custom-ruleset and put back $QUEUE_TARGET
+    my $index = ipt_find_chain_rule("$iptables_cmd", 'filter',
+                                    "$chain", "$custom_chain");
+    if (! defined $index) {
+      $retval .= "\nCannot find custom $iptables_cmd $custom_chain target";
+    } else {
+      # replace custom rule-set with $QUEUE_TARGET
+      system("$iptables_cmd -R $chain $index -j $QUEUE_TARGET");
+      $retval .= "\nCannot replace custom $iptables_cmd $custom_chain " .
+		 "target" if ($? >> 8);
+    }
+  }
+
+  return $retval;
 }
 
 # Validate configuration under "traffic-filter".
@@ -423,45 +452,67 @@ sub checkQueue {
 # jumping to our preset or user defined chains.
 sub addQueue {
   my ($self) = @_;
-  my $chain = undef;
+  my $chain = '';
+  my $retval = undef;
 
+  # IPV4 QUEUE SETUP
   if (defined($self->{_tr_preset})) {
-    $chain = $queue_prefix . $self->{_tr_preset} . $queue_suffix;
+    $chain = $QUEUE_TARGET;
   } elsif (defined($self->{_tr_custom})) {
     $chain = $self->{_tr_custom};
   }
 
-  if (defined($chain)) {
-      foreach my $post_fw_hook (@post_fw_hooks) {
-          # insert rule at the end (right before ACCEPT at the end)
-          my $rule_cnt = Vyatta::IpTables::Mgr::count_iptables_rules('iptables',
-				'filter', $post_fw_hook);
-          system("iptables -I $post_fw_hook $rule_cnt -j $chain");
-          return 'Cannot insert rule into iptables' if ($? >> 8);
-      }
-  }
+  $retval = add_ip_version_queue('ipv4', "$chain");
+  return $retval if defined $retval;
 
-  $chain = undef;
+  # IPV6 QUEUE SETUP
+  $chain = '';
   if (defined($self->{_tr_ipv6_preset})) {
-    $chain = $queue_prefix . $self->{_tr_ipv6_preset} . $queue_suffix;
+    $chain = $QUEUE_TARGET;
   } elsif (defined($self->{_tr_ipv6_custom})) {
     $chain = $self->{_tr_ipv6_custom};
   }
 
-  if (defined($chain)) {
-      foreach my $post_fw_hook (@post_fw_hooks) {
-          # insert rule at the end (right before ACCEPT at the end)
-          my $rule_cnt = Vyatta::IpTables::Mgr::count_iptables_rules('ip6tables',
-				'filter', $post_fw_hook);
-          system("ip6tables -I $post_fw_hook $rule_cnt -j $chain");
-          return 'Cannot insert rule into ip6tables' if ($? >> 8);
-      }
-  }
+  $retval = add_ip_version_queue('ipv6', "$chain");
+  return $retval if defined $retval;
 
   # return success
   return undef;
 }
 
+sub add_ip_version_queue {
+
+  my ($ip_version, $chain) = @_;
+
+  my $iptables_cmd = 'iptables';
+  $iptables_cmd = 'ip6tables' if $ip_version eq 'ipv6';
+
+  # if needed, set target to custom instead of the default QUEUE
+  if (!($chain eq '') && !($chain eq $QUEUE_TARGET)) {
+    my $index = ipt_find_chain_rule("$iptables_cmd", 'filter',
+                                    "$SNORT_ALL_HOOK", "$QUEUE_TARGET");
+    if (! defined $index) {
+      return "Cannot find default $iptables_cmd $QUEUE_TARGET target";
+    } else {
+      # replace QUEUE target with custom rule-set
+      system("$iptables_cmd -R $SNORT_ALL_HOOK $index -j $chain");
+      return "Cannot replace default $iptables_cmd $QUEUE_TARGET target" if ($? >> 8);
+    }
+  }
+
+  if (!($chain eq '')) {
+      foreach my $post_fw_hook (@post_fw_hooks) {
+          # insert rule at the end (right before ACCEPT at the end)
+          my $rule_cnt = Vyatta::IpTables::Mgr::count_iptables_rules("$iptables_cmd",
+                                'filter', $post_fw_hook);
+          system("$iptables_cmd -I $post_fw_hook $rule_cnt -j $SNORT_ALL_HOOK");
+          return 'Cannot insert rule into $iptables_cmd' if ($? >> 8);
+      }
+  }
+
+  # success
+  return undef;
+}
 
 # remove iptables queue rule(s) and stop snort (must be in this order).
 # note: this should be invoked on "original" config.
