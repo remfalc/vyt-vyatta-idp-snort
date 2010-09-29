@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.63) unstable; urgency=low
+
+  * enable inspection on all traffic only if inspect-all is enabled
+
+ -- Mohit Mehta <mohit@vyatta.com>  Wed, 29 Sep 2010 10:49:08 -0700
+
 vyatta-idp-snort (0.3.62) unstable; urgency=low
 
   * Move traffic-filter target to SNORT_ALL_HOOK, unify code to set
