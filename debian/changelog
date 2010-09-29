@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.64) unstable; urgency=low
+
+  * Fix 6226: ips can't be configured w/o rules, rules can't be download
+    if ips is not configured
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 29 Sep 2010 15:32:32 -0700
+
 vyatta-idp-snort (0.3.63) unstable; urgency=low
 
   * enable inspection on all traffic only if inspect-all is enabled
