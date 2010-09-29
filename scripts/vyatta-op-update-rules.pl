@@ -31,19 +31,27 @@ use Vyatta::Config;
 my $sbin = '/opt/vyatta/sbin';
 my $config = new Vyatta::Config;
 my $path = 'content-inspection ips auto-update';
+my $oink = undef;
+my $type = '';
 
-if (! $config->existsOrig($path)) {
+my $type = $ARGV[0] if $#ARGV >= 0;
+$oink = $ARGV[1] if $#ARGV == 1;
+
+if (!defined $oink and $type ne 'snortvrt-subscription'
+    and ! $config->existsOrig($path)) 
+{
     print "IPS auto-update is not configured.\n";
     exit 1;
 }
 
 my ($cmd, $rc, $file);
 
-if ($config->existsOrig("$path oink-code")) {
+if (defined $oink or $config->existsOrig("$path oink-code")) {
     print "Requesting download from snort.org\n";
     $file = 'snortrules-snapshot-2853.tar.gz';
-    $cmd = "$sbin/vyatta-get-snort-rules.pl $file 1";
-} elsif ($config->existsOrig("$path snortvrt-subscription")) {
+    $cmd = "$sbin/vyatta-get-snort-rules.pl $file 1 $oink";
+} elsif ($type eq 'snortvrt-subscription' or 
+         $config->existsOrig("$path snortvrt-subscription")) {
     $file = 'snortrules-snapshot-2853.tar.gz';
     $cmd = "$sbin/vg_snort_update";
 } else {

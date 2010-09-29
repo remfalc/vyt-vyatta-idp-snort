@@ -30,6 +30,7 @@ use Vyatta::Config;
 
 my $rules   = $ARGV[0];
 my $verbose = $ARGV[1];
+my $oink    = $ARGV[2];
 
 my $BASE_DIR                = '/opt/vyatta/etc/ips';
 my $LOG_FILE                = "$BASE_DIR/update.log";
@@ -56,16 +57,18 @@ sub abort_updates {
     exit 1
 }
 
-my ($cmd, $ret, $oink, $config, $url);
+my ($cmd, $ret, $config, $url);
 
 if (! -e $BASE_DIR) {
     system("mkdir $BASE_DIR");
 }
 
 chomp $CUR_TIME ;
-$config = new Vyatta::Config;
-$config->setLevel('content-inspection ips auto-update');
-$oink = $config->returnOrigValue('oink-code');
+if (! defined $oink) {
+    $config = new Vyatta::Config;
+    $config->setLevel('content-inspection ips auto-update');
+    $oink = $config->returnOrigValue('oink-code');
+}
 if (! defined($oink)) {
     abort_updates("No oink code configured.");
 }
