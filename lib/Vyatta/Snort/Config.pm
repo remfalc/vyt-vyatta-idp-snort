@@ -45,6 +45,8 @@ my %fields = (
   _db_passwd => undef,
   _sl_fac    => undef,
   _sl_level  => undef,
+  _ins_all   => 'false',
+  _ins_all_v6 => 'false',
 );
 
 sub new {
@@ -97,6 +99,10 @@ sub setup {
   $self->{_sl_fac}   = $config->returnValue('facility');
   $self->{_sl_level} = $config->returnValue('level');
 
+  $config->setLevel('content-inspection inspect-all');
+  $self->{_ins_all} = 'true' if $config->exists('enable');
+  $self->{_ins_all_v6} = 'true' if $config->exists('ipv6-enable');
+
   return 0;
 }
 
@@ -138,6 +144,10 @@ sub setupOrig {
   $config->setLevel('content-inspection ips output syslog');
   $self->{_sl_fac}   = $config->returnOrigValue('facility');
   $self->{_sl_level} = $config->returnOrigValue('level');
+
+  $config->setLevel('content-inspection inspect-all');
+  $self->{_ins_all} = 'true' if $config->existsOrig('enable');
+  $self->{_ins_all_v6} = 'true' if $config->existsOrig('ipv6-enable');
 
   return 0;
 }
@@ -253,6 +263,9 @@ sub isDifferentFrom {
   return 1 if ($this->{_sl_fac}   ne $that->{_sl_fac});
   return 1 if ($this->{_sl_level} ne $that->{_sl_level});
 
+  return 1 if ($this->{_ins_all}   ne $that->{_ins_all});
+  return 1 if ($this->{_ins_all_v6} ne $that->{_ins_all_v6});
+
   # ignore auto-update changes
   
   return 0;
@@ -356,23 +369,34 @@ sub removeQueue {
 
   my $chain = '';
   my $custom_chain = '';
-  # ipv4 hook removal
-  if (defined($self->{_tr_preset}) || defined($self->{_tr_custom})) {
-    $chain = $SNORT_ALL_HOOK;
-    $custom_chain = $self->{_tr_custom} if defined $self->{_tr_custom};
-  }
+  my $inspect_all = '';
 
-  $ret1 = remove_ip_version_queue('ipv4', "$chain", "$custom_chain");
+  # ipv4 hook removal
+  if (defined($self->{_tr_preset}) ||
+      defined($self->{_tr_custom})) {
+    $chain = $SNORT_ALL_HOOK;
+    $custom_chain = $self->{_tr_custom}
+	if defined $self->{_tr_custom};
+  }
+  $inspect_all = $self->{_ins_all};
+
+  $ret1 = remove_ip_version_queue('ipv4', "$chain",
+                                  "$custom_chain", "$inspect_all");
 
   $chain = '';
   $custom_chain = '';
+  $inspect_all = '';
   # ipv6 hook removal
-  if (defined($self->{_tr_ipv6_preset}) || defined($self->{_tr_ipv6_custom})) {
+  if (defined($self->{_tr_ipv6_preset}) ||
+      defined($self->{_tr_ipv6_custom})) {
     $chain = $SNORT_ALL_HOOK;
-    $custom_chain = $self->{_tr_ipv6_custom} if defined $self->{_tr_ipv6_custom};
+    $custom_chain = $self->{_tr_ipv6_custom}
+	if defined $self->{_tr_ipv6_custom};
   }
+  $inspect_all = $self->{_ins_all_v6};
 
-  $ret2 = remove_ip_version_queue('ipv6', "$chain", "$custom_chain");
+  $ret2 = remove_ip_version_queue('ipv6', "$chain",
+                                  "$custom_chain", "$inspect_all");
 
   if (defined($ret1)) {
       return $ret1;
@@ -386,14 +410,14 @@ sub removeQueue {
 
 sub remove_ip_version_queue {
 
-  my ($ip_version, $chain, $custom_chain) = @_;
+  my ($ip_version, $chain, $custom_chain, $inspect_all) = @_;
 
   my $retval = undef;
   my $iptables_cmd = 'iptables';
   $iptables_cmd = 'ip6tables' if $ip_version eq 'ipv6';
 
   if (!($chain eq '')) {
-    $retval = removeChain ("$iptables_cmd", $chain);
+    $retval = removeChain ("$iptables_cmd", $chain) if $inspect_all eq 'true';
   }
 
   if (!($chain eq '') && !($custom_chain eq '')) {
@@ -454,6 +478,7 @@ sub addQueue {
   my ($self) = @_;
   my $chain = '';
   my $retval = undef;
+  my $inspect_all = '';
 
   # IPV4 QUEUE SETUP
   if (defined($self->{_tr_preset})) {
@@ -461,19 +486,22 @@ sub addQueue {
   } elsif (defined($self->{_tr_custom})) {
     $chain = $self->{_tr_custom};
   }
+  $inspect_all = $self->{_ins_all};
 
-  $retval = add_ip_version_queue('ipv4', "$chain");
+  $retval = add_ip_version_queue('ipv4', "$chain", "$inspect_all");
   return $retval if defined $retval;
 
   # IPV6 QUEUE SETUP
   $chain = '';
+  $inspect_all = '';
   if (defined($self->{_tr_ipv6_preset})) {
     $chain = $QUEUE_TARGET;
   } elsif (defined($self->{_tr_ipv6_custom})) {
     $chain = $self->{_tr_ipv6_custom};
   }
+  $inspect_all = $self->{_ins_all_v6};
 
-  $retval = add_ip_version_queue('ipv6', "$chain");
+  $retval = add_ip_version_queue('ipv6', "$chain", "$inspect_all");
   return $retval if defined $retval;
 
   # return success
@@ -482,7 +510,7 @@ sub addQueue {
 
 sub add_ip_version_queue {
 
-  my ($ip_version, $chain) = @_;
+  my ($ip_version, $chain, $inspect_all) = @_;
 
   my $iptables_cmd = 'iptables';
   $iptables_cmd = 'ip6tables' if $ip_version eq 'ipv6';
@@ -500,9 +528,9 @@ sub add_ip_version_queue {
     }
   }
 
-  if (!($chain eq '')) {
+  if (!($chain eq '') && $inspect_all eq 'true') {
       foreach my $post_fw_hook (@post_fw_hooks) {
-          # insert rule at the end (right before ACCEPT at the end)
+          # insert rule at the end [before ACCEPT] if global inspection enabled
           my $rule_cnt = Vyatta::IpTables::Mgr::count_iptables_rules("$iptables_cmd",
                                 'filter', $post_fw_hook);
           system("$iptables_cmd -I $post_fw_hook $rule_cnt -j $SNORT_ALL_HOOK");
