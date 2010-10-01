@@ -1,4 +1,4 @@
-priority: 900
+priority: 230 # before inspect is enabled on interfaces/zones
 help: Content Inspection settings
 end: RET1=1
      if [ -x /opt/vyatta/sbin/vyatta-update-antivirus.pl ]; then

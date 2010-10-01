@@ -11,6 +11,7 @@ sbin_SCRIPTS += scripts/vyatta-show-ips.pl
 sbin_SCRIPTS += scripts/vyatta-proc-snort-updates
 sbin_SCRIPTS += scripts/vyatta-get-snort-rules.pl
 sbin_SCRIPTS += scripts/vyatta-modify-sids.pl
+sbin_SCRIPTS += scripts/vyatta-intf-inspect.pl
 
 bin_sudo_users_SCRIPTS  = scripts/vyatta-op-update-rules.pl
 
@@ -20,9 +21,16 @@ share_perl5_DATA += lib/Vyatta/Snort/UnifiedLog.pm
 cpiop = find  . ! -regex '\(.*~\|.*\.bak\|.*\.swp\|.*\#.*\#\)' -print0 | \
   cpio -0pd
 
+all-local:
+	./gen-interface-templates.pl
+
+clean-local:
+	rm -rf generated-templates
+
 install-exec-hook:
 	mkdir -p $(DESTDIR)$(cfgdir)
 	cd templates-cfg; $(cpiop) $(DESTDIR)$(cfgdir)
+	cd generated-templates; $(cpiop) $(DESTDIR)$(cfgdir)
 	mkdir -p $(DESTDIR)$(opdir)
 	cd templates-op; $(cpiop) $(DESTDIR)$(opdir)
 
