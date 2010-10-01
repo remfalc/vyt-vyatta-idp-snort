@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.65) unstable; urgency=low
+
+  * enable content-inspection configuration on a per-interface basis
+    [IPv6 hidden]
+
+ -- Mohit Mehta <mohit@vyatta.com>  Fri, 01 Oct 2010 11:42:05 -0700
+
 vyatta-idp-snort (0.3.64) unstable; urgency=low
 
   * Fix 6226: ips can't be configured w/o rules, rules can't be download
