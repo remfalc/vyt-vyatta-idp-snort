@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.66) unstable; urgency=low
+
+  * snort out-hook after in-hook and commit check for '$intf $dir
+    enable'
+
+ -- Mohit Mehta <mohit@vyatta.com>  Fri, 01 Oct 2010 17:09:54 -0700
+
 vyatta-idp-snort (0.3.65) unstable; urgency=low
 
   * enable content-inspection configuration on a per-interface basis
