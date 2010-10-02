@@ -131,9 +131,20 @@ sub setup_snort_hook {
     if $error;
 
   # put the snort hook in appropriate post firewall hook
+  # if direction is out then insert rule after in hook
+  my $insert_index = '1';
+  my $index = Vyatta::IpTables::Mgr::ipt_find_chain_rule(
+                $cmd_hash{$cli_ip_ver},
+                $table_hash{$cli_ip_ver},
+                $dir_postfw_hook_hash{$direction},
+                $dir_snort_hook_hash{'in'})
+                if $direction eq 'out';
+
+  $insert_index = ++$index if defined $index;
+
   $cmd =
       "sudo $cmd_hash{$cli_ip_ver} -t $table_hash{$cli_ip_ver} "
-    . "-I $dir_postfw_hook_hash{$direction} "
+    . "-I $dir_postfw_hook_hash{$direction} $insert_index "
     . "-j $dir_snort_hook_hash{$direction} >&/dev/null";
 
   $error = run_cmd($cmd);

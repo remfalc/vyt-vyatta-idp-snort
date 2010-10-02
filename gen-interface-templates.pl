@@ -123,8 +123,7 @@ my %direction_help_hash = (
 );
 
 # Generate the template file located under the "direction" node in the
-# content-inspection tree under an interface.  This template just provides a help
-# message.
+# content-inspection tree under an interface.
 #
 sub gen_direction_template {
   my ( $if_tree, $direction ) = @_;
@@ -138,8 +137,16 @@ sub gen_direction_template {
     or die "Can't open $path/$node_file: $!";
 
   my $date = `date`;
-  print $tp "# Template generated at: $date\n";
-  print $tp "help: Option to inspect $direction_help_hash{$direction}\n";
+  print $tp <<EOF;
+# Template generated at: $date
+help: Option to inspect $direction_help_hash{$direction}
+
+# in future, this might check that either enable or ipv6-enable has been set
+commit:expression: \$VAR(./enable) != ""; 
+	"Need to set 'enable' to inspect IPV4 traffic on \$VAR(../../@)"
+
+EOF
+
   close $tp
     or die "Can't write $path/$node_file: $!";
 }
