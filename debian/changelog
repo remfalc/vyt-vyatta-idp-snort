@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.67) unstable; urgency=low
+
+  * Split serial templates into a separate package. Only SE version shud
+    have them
+
+ -- Mohit Mehta <mohit@vyatta.com>  Mon, 04 Oct 2010 15:49:16 -0700
+
 vyatta-idp-snort (0.3.66) unstable; urgency=low
 
   * snort out-hook after in-hook and commit check for '$intf $dir
