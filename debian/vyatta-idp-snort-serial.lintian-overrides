@@ -1,0 +1,2 @@
+vyatta-idp-snort-serial: file-in-unusual-dir
+vyatta-idp-snort-serial: dir-or-file-in-opt

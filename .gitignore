@@ -17,10 +17,15 @@ libtool
 /config.sub
 /configure
 /debian/files
+/debian/tmp
 /debian/vyatta-idp-snort
 /debian/vyatta-idp-snort.postinst
 /debian/vyatta-idp-snort.debhelper.log
 /debian/vyatta-idp-snort.substvars
+/debian/vyatta-idp-snort-serial
+/debian/vyatta-idp-snort-serial.postinst
+/debian/vyatta-idp-snort-serial.debhelper.log
+/debian/vyatta-idp-snort-serial.substvars
 /INSTALL
 /Makefile.in
 /Makefile

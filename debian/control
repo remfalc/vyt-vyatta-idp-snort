@@ -17,3 +17,9 @@ Depends: perl,
 Description: Vyatta commands for IPS
  Vyatta configuration/operational templates and scripts for the Intrusion
  Prevention System (IPS)
+
+Package: vyatta-idp-snort-serial
+Architecture: all
+Depends:  vyatta-idp-snort
+Description: vyatta-idp-snort serial templates
+ Vyatta IPS configuration templates for serial devices
