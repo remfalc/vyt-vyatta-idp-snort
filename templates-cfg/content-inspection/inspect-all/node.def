@@ -1,4 +1,6 @@
 help: Policy to inspect all inbound, outbound and forwarded traffic
 
-# in future, this might check that either enable or ipv6-enable has been set
-commit:expression: $VAR(./enable) != ""; "Need to set 'enable' to inspect all IPV4 traffic"
+# in future, when ipv6 is enabled, message below will say
+# either 'enable' or 'ipv6-enable' needs to be set
+commit:expression: $VAR(./enable) != "" || $VAR(./ipv6-enable) != ""; 
+	"Need to set 'enable' to inspect all IPV4 traffic"

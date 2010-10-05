@@ -141,8 +141,9 @@ sub gen_direction_template {
 # Template generated at: $date
 help: Option to inspect $direction_help_hash{$direction}
 
-# in future, this might check that either enable or ipv6-enable has been set
-commit:expression: \$VAR(./enable) != ""; 
+# in future, when ipv6 is enabled, message below will say either 
+# 'enable' or 'ipv6-enable' needs to be set
+commit:expression: \$VAR(./enable) != "" || \$VAR(./ipv6-enable) != ""; 
 	"Need to set 'enable' to inspect IPV4 traffic on \$VAR(../../@)"
 
 EOF
