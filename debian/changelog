@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.68) unstable; urgency=low
+
+  * chk for either 'enable' or 'ipv6-enable'; IPv6 will be added to msg
+    whn exposed
+
+ -- Mohit Mehta <mohit@vyatta.com>  Mon, 04 Oct 2010 17:58:55 -0700
+
 vyatta-idp-snort (0.3.67) unstable; urgency=low
 
   * Split serial templates into a separate package. Only SE version shud
