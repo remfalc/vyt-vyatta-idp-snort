@@ -195,24 +195,47 @@ sub gen_template {
     or die "Can't open ${template_dir}/${node_file}:$!";
 
   my $date = `date`;
+  my $tf_preset = 'preset';
+  my $tf_custom = 'custom';
+  $tf_preset = 'ipv6-preset' if $option eq 'ipv6-enable';
+  $tf_custom = 'ipv6-custom' if $option eq 'ipv6-enable';
 
   print $tp <<EOF;
 # Template generated at: $date
 help: Option to enable $direction_term_hash{$direction} $option_help_hash{$option} for interface
 
+# check if traffic-filter is set
+commit:expression:
+exec "
+if cli-shell-api existsEffective				\\
+content-inspection traffic-filter $tf_preset; then		\\
+        exit 0;						\\
+fi;								\\
+if cli-shell-api existsEffective				\\
+content-inspection traffic-filter $tf_custom; then		\\
+        exit 0;						\\
+fi;								\\
+echo $option_help_hash{$option} traffic-filter not set;	\\
+exit 1"
+
+# make sure inspect-all is not enabled
+commit:expression:
+exec "
+if ! cli-shell-api existsEffective				\\
+content-inspection inspect-all $option; then			\\
+        exit 0;						\\
+fi;								\\
+echo $option_help_hash{$option} enabled for all traffic. Not 	\\
+allowed to configure inspection on a per-interface basis.;	\\
+exit 1"
+
 create:
         if ! /opt/vyatta/sbin/vyatta-intf-inspect.pl	\\
-          --action=chk-global-inspect			\\
+          --action=enable-intf-inspect			\\
+          --intf=\$VAR(../../../@)			\\
+          --direction=\$VAR(../@)			\\
           --cli-ip-ver=$option; then
           exit 1
-        else
-          if ! /opt/vyatta/sbin/vyatta-intf-inspect.pl	\\
-            --action=enable-intf-inspect		\\
-            --intf=\$VAR(../../../@)			\\
-            --direction=\$VAR(../@)			\\
-            --cli-ip-ver=$option; then
-            exit 1
-          fi
         fi
 
 delete:
