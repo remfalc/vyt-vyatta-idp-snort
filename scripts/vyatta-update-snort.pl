@@ -76,6 +76,11 @@ if (!($config->isDifferentFrom($oconfig))) {
   exit 3;
 }
 
+if (! -f '/etc/snort/rules') {
+  print "Error: missing snort rules.\n";
+  exit 2;
+}
+
 while (1) {
   ($snort_conf, $err) = $config->get_snort_conf();
   last if (defined($err));
