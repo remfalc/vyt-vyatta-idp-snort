@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.69) unstable; urgency=low
+
+  * commit checks when applying content-inspection on an interface
+
+ -- Mohit Mehta <mohit@vyatta.com>  Tue, 05 Oct 2010 19:12:10 -0700
+
 vyatta-idp-snort (0.3.68) unstable; urgency=low
 
   * chk for either 'enable' or 'ipv6-enable'; IPv6 will be added to msg
