@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.70) unstable; urgency=low
+
+  * * don't allow content-inspection on an interface which is part of a
+    zone
+
+ -- Mohit Mehta <mohit@vyatta.com>  Wed, 06 Oct 2010 16:25:05 -0700
+
 vyatta-idp-snort (0.3.69) unstable; urgency=low
 
   * commit checks when applying content-inspection on an interface
