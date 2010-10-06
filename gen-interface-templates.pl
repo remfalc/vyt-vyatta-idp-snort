@@ -231,6 +231,12 @@ exit 1"
 
 create:
         if ! /opt/vyatta/sbin/vyatta-intf-inspect.pl	\\
+          --action=chk-intf-in-zone			\\
+          --intf=\$VAR(../../../@); then
+          exit 1
+        fi
+
+        if ! /opt/vyatta/sbin/vyatta-intf-inspect.pl	\\
           --action=enable-intf-inspect			\\
           --intf=\$VAR(../../../@)			\\
           --direction=\$VAR(../@)			\\

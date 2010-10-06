@@ -31,6 +31,7 @@ use Vyatta::Snort::Config;
 use Vyatta::Config;
 use Vyatta::IpTables::Mgr;
 use Getopt::Long;
+use Vyatta::Zone;
 
 # post firewall hooks for each CLI direction in the filter table
 my %dir_postfw_hook_hash = (
@@ -80,7 +81,7 @@ my $SNORT_ALL_HOOK = $queue_prefix . 'all' . $queue_suffix;
 my $debug_flag  = "false";
 my $syslog_flag = "false";
 
-my $logger = 'sudo logger -t zone.pm -p local0.warn --';
+my $logger = 'sudo logger -t vyatta-intf-inspect.pl -p local0.warn --';
 
 sub run_cmd {
   my $cmd   = shift;
@@ -297,6 +298,23 @@ sub chk_global_inspect {
   return;
 }
 
+sub chk_intf_in_zone {
+  my ($int_name) = @_;
+
+  # make sure interface is not being used in a zone
+  my @all_zones = Vyatta::Zone::get_all_zones("listNodes");
+  foreach my $zone (@all_zones) {
+    my @zone_interfaces =
+       Vyatta::Zone::get_zone_interfaces("returnValues", $zone);
+    if (scalar(grep(/^$int_name$/, @zone_interfaces)) > 0) {
+      return "interface $int_name is defined under zone $zone. " .
+             "Cannot apply content-inspection to it";
+    }
+  }
+
+  return;
+}
+
 #
 # main
 #
@@ -314,8 +332,8 @@ die "undefined action" if !defined $action;
 
 my ( $error, $warning );
 
-( $error, $warning ) = chk_global_inspect($cli_ip_ver)
-  if $action eq 'chk-global-inspect';
+( $error, $warning ) = chk_intf_in_zone($intf)
+  if $action eq 'chk-intf-in-zone';
 
 ( $error, $warning ) = enable_intf_inspect( $cli_ip_ver, $intf, $direction )
   if $action eq 'enable-intf-inspect';
