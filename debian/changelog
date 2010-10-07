@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.72) unstable; urgency=low
+
+  * Add missing new files from 'update ips rules oinkcode'.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 07 Oct 2010 10:58:04 -0700
+
 vyatta-idp-snort (0.3.71) unstable; urgency=low
 
   * Add check for existance of snort rules.
