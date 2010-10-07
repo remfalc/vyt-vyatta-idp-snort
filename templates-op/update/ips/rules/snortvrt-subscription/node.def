@@ -1,0 +1,3 @@
+help: help: Update IPS rules with oinkcode
+run: sudo /opt/vyatta/bin/sudo-users/vyatta-op-update-rules.pl "$4"
+
