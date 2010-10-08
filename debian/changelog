@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.73) unstable; urgency=low
+
+  * Change file check to directory check.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 07 Oct 2010 18:37:37 -0700
+
 vyatta-idp-snort (0.3.72) unstable; urgency=low
 
   * Add missing new files from 'update ips rules oinkcode'.
