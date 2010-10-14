@@ -20,7 +20,7 @@ my $queue_suffix = '_HOOK';
 my $SNORT_ALL_HOOK = $queue_prefix . 'all' . $queue_suffix;
 
 # may change to NF_QUEUE in future
-my $QUEUE_TARGET = 'QUEUE';
+my $QUEUE_TARGET = 'NFQUEUE --queue-num 0';
 
 my $SNORT_INIT = '/etc/init.d/snort';
 my $SNORT_DONE = '/var/run/snort_inline_init.pid';
