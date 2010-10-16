@@ -19,9 +19,6 @@ my $queue_prefix = 'VYATTA_SNORT_';
 my $queue_suffix = '_HOOK';
 my $SNORT_ALL_HOOK = $queue_prefix . 'all' . $queue_suffix;
 
-# may change to NF_QUEUE in future
-my $QUEUE_TARGET = 'NFQUEUE --queue-num 0';
-
 my $SNORT_INIT = '/etc/init.d/snort';
 my $SNORT_DONE = '/var/run/snort_inline_init.pid';
 
@@ -315,16 +312,18 @@ sub setupIptables {
   }
 
   # set up preset "all" for IPv4 and IPv6
+  my $queue_target = ipt_get_queue_target('SNORT');
+  return "Error: Unknown queue target" if ! defined $queue_target;
   if ($create_hash{'all'}) {
     push @cmds,
       "iptables -N $chain",
-      "iptables -A $chain -j $QUEUE_TARGET",
+      "iptables -A $chain -j $queue_target",
       "iptables -A $chain -j RETURN";
   }
   if ($create_hash_ipv6{'all'}) {
     push @cmds,
       "ip6tables -N $chain",
-      "ip6tables -A $chain -j $QUEUE_TARGET",
+      "ip6tables -A $chain -j $queue_target",
       "ip6tables -A $chain -j RETURN";
   }
 
@@ -420,15 +419,18 @@ sub remove_ip_version_queue {
     $retval = removeChain ("$iptables_cmd", $chain) if $inspect_all eq 'true';
   }
 
+  my $queue_target = ipt_get_queue_target('SNORT');
+  return "\nError: unknown queue target" if ! defined $queue_target;
+
   if (!($chain eq '') && !($custom_chain eq '')) {
-    # remove custom-ruleset and put back $QUEUE_TARGET
+    # remove custom-ruleset and put back $queue_target
     my $index = ipt_find_chain_rule("$iptables_cmd", 'filter',
                                     "$chain", "$custom_chain");
     if (! defined $index) {
       $retval .= "\nCannot find custom $iptables_cmd $custom_chain target";
     } else {
-      # replace custom rule-set with $QUEUE_TARGET
-      system("$iptables_cmd -R $chain $index -j $QUEUE_TARGET");
+      # replace custom rule-set with $queue_target
+      system("$iptables_cmd -R $chain $index -j $queue_target");
       $retval .= "\nCannot replace custom $iptables_cmd $custom_chain " .
 		 "target" if ($? >> 8);
     }
@@ -480,9 +482,12 @@ sub addQueue {
   my $retval = undef;
   my $inspect_all = '';
 
+  my $queue_target = ipt_get_queue_target('SNORT');
+  return "\nError: unknown queue target" if ! defined $queue_target;
+
   # IPV4 QUEUE SETUP
   if (defined($self->{_tr_preset})) {
-    $chain = $QUEUE_TARGET;
+    $chain = $queue_target;
   } elsif (defined($self->{_tr_custom})) {
     $chain = $self->{_tr_custom};
   }
@@ -495,7 +500,7 @@ sub addQueue {
   $chain = '';
   $inspect_all = '';
   if (defined($self->{_tr_ipv6_preset})) {
-    $chain = $QUEUE_TARGET;
+    $chain = $queue_target;
   } elsif (defined($self->{_tr_ipv6_custom})) {
     $chain = $self->{_tr_ipv6_custom};
   }
@@ -512,19 +517,22 @@ sub add_ip_version_queue {
 
   my ($ip_version, $chain, $inspect_all) = @_;
 
+  my $queue_target = ipt_get_queue_target('SNORT');
+  return "\nError: unknown queue target" if ! defined $queue_target;
+
   my $iptables_cmd = 'iptables';
   $iptables_cmd = 'ip6tables' if $ip_version eq 'ipv6';
 
   # if needed, set target to custom instead of the default QUEUE
-  if (!($chain eq '') && !($chain eq $QUEUE_TARGET)) {
+  if (!($chain eq '') && !($chain eq $queue_target)) {
     my $index = ipt_find_chain_rule("$iptables_cmd", 'filter',
-                                    "$SNORT_ALL_HOOK", "$QUEUE_TARGET");
+                                    "$SNORT_ALL_HOOK", "$queue_target");
     if (! defined $index) {
-      return "Cannot find default $iptables_cmd $QUEUE_TARGET target";
+      return "Cannot find default $iptables_cmd $queue_target target";
     } else {
       # replace QUEUE target with custom rule-set
       system("$iptables_cmd -R $SNORT_ALL_HOOK $index -j $chain");
-      return "Cannot replace default $iptables_cmd $QUEUE_TARGET target" if ($? >> 8);
+      return "Cannot replace default $iptables_cmd $queue_target target" if ($? >> 8);
     }
   }
 
