@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.75) unstable; urgency=low
+
+  * Change snort to use library routine to get it's queue target.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 15 Oct 2010 18:28:54 -0700
+
 vyatta-idp-snort (0.3.74) unstable; urgency=low
 
   * Convert vyatta-idp-snort from IPQ to NFQUEUE.
