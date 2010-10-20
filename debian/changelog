@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.76) unstable; urgency=low
+
+  * Fix snortvrt-subscription help string.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 20 Oct 2010 15:48:08 -0700
+
 vyatta-idp-snort (0.3.75) unstable; urgency=low
 
   * Change snort to use library routine to get it's queue target.
