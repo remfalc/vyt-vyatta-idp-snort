@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.78) unstable; urgency=low
+
+  * Checks to disallow user from mis-configuring IDS
+
+ -- Mohit Mehta <mohit@vyatta.com>  Mon, 25 Oct 2010 15:42:26 -0700
+
 vyatta-idp-snort (0.3.77) unstable; urgency=low
 
   * Remove extra help tag.
