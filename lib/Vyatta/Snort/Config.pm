@@ -7,6 +7,7 @@ use File::Copy;
 use Sys::Hostname;
 use File::Compare;
 use Vyatta::IpTables::Mgr;
+use Vyatta::Zone;
 
 my $cfg_delim_begin = '# === BEGIN VYATTA SNORT CONFIG ===';
 my $cfg_delim_end = '# === END VYATTA SNORT CONFIG ===';
@@ -45,6 +46,10 @@ my %fields = (
   _ins_all   => 'false',
   _ins_all_v6 => 'false',
 );
+
+sub get_snort_all_hook {
+  return $SNORT_ALL_HOOK;
+}
 
 sub new {
   my $that = shift;
@@ -733,6 +738,63 @@ sub print_str {
   return $str;
 }
 
+# this function is used to list all the directions in which content-inspection
+# is enabled for a given IP version. Currently, inspection can be enabled
+# EITHER globally OR on a per interface [in|out|local] and zone-pair basis
+sub inspect_enabled_list {
+  my ($self, $direction, $ip_version, $proposed_config) = @_;
+  my $global_inspect = 'false';
+  my @zone_pairs = ();
+  my @interface_dirs = ();
+  my $inspect_active = 'false';
+  my $listnodesfunc = ($proposed_config ? 'listNodes' : 'listOrigNodes');
+  my $existsnodefunc = ($proposed_config ? 'exists' : 'existsOrig');
+
+  # check whether global-inspection is enabled
+  if ($direction eq 'all-directions' || $direction eq 'global-inspect') {
+    $global_inspect = $self->{_ins_all} if $ip_version eq 'v4';
+    $global_inspect = $self->{_ins_all_v6} if $ip_version eq 'v6';
+  }
+
+  # get list of all interfaces that have inspection enabled
+  if ($direction eq 'all-directions' || $direction eq 'interface-dir') {
+    my $cfg = new Vyatta::Config;
+    for (Vyatta::Interface::get_all_cfg_interfaces()) {
+      my ($iname, $ipath) = ($_->{name}, $_->{path});
+      for my $dir ($cfg->$listnodesfunc("$ipath content-inspection")) {
+        my $enable = 'enable' if $ip_version eq 'v4';
+        $enable = 'ipv6-enable' if $ip_version eq 'v6';
+        my $ichain = $cfg->$existsnodefunc("$ipath content-inspection $dir $enable");
+          push @interface_dirs, "$iname-$dir" if defined $ichain;
+      }
+    }
+  }
+
+  # get list of all zone-pairs that have inspection enabled
+  if ($direction eq 'all-directions' || $direction eq 'zone-pair') {
+    my @all_zones = Vyatta::Zone::get_all_zones($listnodesfunc);
+    foreach my $zone (@all_zones) {
+      my @from_zones = Vyatta::Zone::get_from_zones($listnodesfunc,$zone);
+      foreach my $fromzone (@from_zones) {
+        my $ruleset_type = 'name' if $ip_version eq 'v4';
+        $ruleset_type = 'ipv6-name' if $ip_version eq 'v6';
+        my $ips_enabled = Vyatta::Zone::is_ips_enabled(
+                                $existsnodefunc,$zone,$fromzone,$ruleset_type);
+        push @zone_pairs, "$zone-from-$fromzone" if defined $ips_enabled;
+      }
+    }
+  }
+
+  if ($global_inspect eq 'true' ||
+      (scalar(@interface_dirs) != 0) ||
+      (scalar(@zone_pairs) != 0))
+  {
+    $inspect_active = 'true';
+  }
+
+  # if $global_inspect is true then zone-pairs and intf_dirs must be empty
+  return ($inspect_active, $global_inspect, \@interface_dirs, \@zone_pairs);
+}
 
 #
 # barnyard2 crap below, maybe should move to Barnyard.pm

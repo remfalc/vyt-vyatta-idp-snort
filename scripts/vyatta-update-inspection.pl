@@ -35,6 +35,7 @@ my $FILE_IPS_CONF = '/etc/snort/ips.conf';
 my $FILE_ANTIVIRUS_CONF = '/etc/snort/antivirus.conf';
 
 my ($ret_antiv, $ret_ips, $orig_only) = @ARGV;
+my ($inspect_active, $global_inspect, $interface_dirs_ref, $zone_pairs_ref);
 
 my $error_prefix = 'Content Inspection configuration error';
 
@@ -54,6 +55,15 @@ if ($ret_antiv eq '2' || $ret_ips eq '2') {
 
 if ($ret_antiv eq '1' && $ret_ips eq '1') {
   # neither is configured. shutdown
+  ($inspect_active, $global_inspect, $interface_dirs_ref, $zone_pairs_ref) =
+      $config->inspect_enabled_list('all-directions','v4', 'proposed-config');
+
+  if ($inspect_active eq 'true') {
+    print "Error: IPv4 Content-inspection enabled " .
+          "on an interface or a zone. Cannot delete it\n";
+    exit 1;
+  }
+
   print 'Stopping Content Inspection...';
   my $err = $oconfig->shutdownSnort();
   if (defined($err)) {
@@ -80,6 +90,17 @@ while (1) {
   } else {
     # ips is configured. use the ips config.
     # (antivirus is covered either way.)
+    ($inspect_active, $global_inspect, $interface_dirs_ref, $zone_pairs_ref) =
+	$config->inspect_enabled_list('all-directions','v4','proposed-config');
+
+    my @interface_dirs = @$interface_dirs_ref;
+    my @zone_pairs = @$zone_pairs_ref;
+    if ($global_inspect eq 'true' &&
+        (scalar(@interface_dirs) != 0 || scalar(@zone_pairs) != 0)) {
+        print "Error: IPv4 Content-inspection enabled on an interface or a " .
+              "zone. Cannot enable inspect-all\n";
+        exit 1;
+    }
     $src = $FILE_IPS_CONF;
   }
   if (!copy($src, $FILE_SNORT_CONF)) {
@@ -108,5 +129,14 @@ if (defined($err)) {
 }
 
 print " Done.\n";
+
+if ($inspect_active eq 'false') {
+  print "Warning: IPv4 Content-inspection not enabled " .
+        "globally or on any interface or zone\n";
+}
+
+# Need to do the same checks as above using
+# inspect_enabled_list() for IPv6 in future
+
 exit 0;
 
