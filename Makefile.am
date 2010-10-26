@@ -3,6 +3,9 @@ opdir		  = $(datadir)/vyatta-op/templates
 share_perl5dir	  = $(datarootdir)/perl5/Vyatta/Snort
 bin_sudo_usersdir = $(bindir)/sudo-users
 cron_hourlydir    = /etc/cron.hourly
+curverdir         = $(sysconfdir)/config-migrate/current
+
+curver_DATA = cfg-version/content-inspection@1
 
 sbin_SCRIPTS = scripts/vyatta-update-snort.pl
 sbin_SCRIPTS += scripts/vyatta-proc-snort-rules.pl
