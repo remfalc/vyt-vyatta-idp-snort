@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.79) unstable; urgency=low
+
+  * add current config version and update gitignore
+
+ -- Mohit Mehta <mohit@vyatta.com>  Tue, 26 Oct 2010 16:39:26 -0700
+
 vyatta-idp-snort (0.3.78) unstable; urgency=low
 
   * Checks to disallow user from mis-configuring IDS
