@@ -44,6 +44,7 @@ my %fields = (
   _sl_fac    => undef,
   _sl_level  => undef,
   _local_log => 0,
+  _prelude   => undef,
   _ins_all   => 'false',
   _ins_all_v6 => 'false',
 );
@@ -103,6 +104,9 @@ sub setup {
   $self->{_sl_level} = $config->returnValue('level');
 
   $config->setLevel('content-inspection ips output');
+  $self->{_prelude}  = $config->exists('prelude');
+
+  $config->setLevel('content-inspection ips output');
   $self->{_local_log} = 1 if $config->exists('local');
 
   $config->setLevel('content-inspection inspect-all');
@@ -150,6 +154,9 @@ sub setupOrig {
   $config->setLevel('content-inspection ips output syslog');
   $self->{_sl_fac}   = $config->returnOrigValue('facility');
   $self->{_sl_level} = $config->returnOrigValue('level');
+
+  $config->setLevel('content-inspection ips output');
+  $self->{_prelude}  = $config->existsOrig('prelude');
 
   $config->setLevel('content-inspection ips output');
   $self->{_local_log} = 1 if $config->existsOrig('local');
@@ -271,6 +278,8 @@ sub isDifferentFrom {
 
   return 1 if ($this->{_sl_fac}   ne $that->{_sl_fac});
   return 1 if ($this->{_sl_level} ne $that->{_sl_level});
+
+  return 1 if ($this->{_prelude}  ne $that->{_prelude});
 
   return 1 if ($this->{_local_log} ne $that->{_local_log});
 
@@ -626,7 +635,7 @@ sub get_snort_conf {
   my $remote_logging = 0;
   my $local_logging  = $self->{_local_log};
   my ($loc_out_def, $rem_out_def);
-  if ($self->{_db_dbname} or $self->{_sl_fac}) {
+  if ($self->{_db_dbname} or $self->{_sl_fac} or $self->{_predule}) {
       my ($rem_out_type, $rem_out_file);
       # barnyard2 expect unified2 format
       $rem_out_type = 'unified2';
@@ -819,6 +828,7 @@ my $by_daemon = '/usr/bin/barnyard2';
 my $by_logdir = '/var/log/barnyard2';
 my $by_pid    = '/var/run/barnyard2_NULL.pid';
 my $by_conf   = '/etc/snort/barnyard2.conf';
+my $prelude   = 'profile=snort';
 
 my %fac_hash = (
     'auth'     => 'LOG_AUTH',
@@ -916,6 +926,20 @@ sub get_sl_conf {
   return $output;
 }
 
+sub get_prelude_conf {
+  my ($self) = @_;
+    
+  my $output = '';
+
+  return $output if ! defined $self->{_prelude};
+
+  # output alert_prelude: profile=snort 
+
+  $output .= "#output alert_prelude: $prelude\n";
+
+  return $output;
+}
+
 sub is_same_as_file {
     my ($file, $value) = @_;
 
@@ -966,6 +990,7 @@ sub handle_barn {
 
   $output .= get_db_conf($self);
   $output .= get_sl_conf($self);
+  $output .= get_prelude_conf($self);
 
   if ($output ne '') {
       if (! -f $by_daemon) {
