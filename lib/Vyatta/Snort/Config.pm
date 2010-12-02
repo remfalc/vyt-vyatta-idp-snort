@@ -43,6 +43,7 @@ my %fields = (
   _db_passwd => undef,
   _sl_fac    => undef,
   _sl_level  => undef,
+  _local_log => 0,
   _ins_all   => 'false',
   _ins_all_v6 => 'false',
 );
@@ -101,6 +102,9 @@ sub setup {
   $self->{_sl_fac}   = $config->returnValue('facility');
   $self->{_sl_level} = $config->returnValue('level');
 
+  $config->setLevel('content-inspection ips output');
+  $self->{_local_log} = 1 if $config->exists('local');
+
   $config->setLevel('content-inspection inspect-all');
   $self->{_ins_all} = 'true' if $config->exists('enable');
   $self->{_ins_all_v6} = 'true' if $config->exists('ipv6-enable');
@@ -146,6 +150,9 @@ sub setupOrig {
   $config->setLevel('content-inspection ips output syslog');
   $self->{_sl_fac}   = $config->returnOrigValue('facility');
   $self->{_sl_level} = $config->returnOrigValue('level');
+
+  $config->setLevel('content-inspection ips output');
+  $self->{_local_log} = 1 if $config->existsOrig('local');
 
   $config->setLevel('content-inspection inspect-all');
   $self->{_ins_all} = 'true' if $config->existsOrig('enable');
@@ -264,6 +271,8 @@ sub isDifferentFrom {
 
   return 1 if ($this->{_sl_fac}   ne $that->{_sl_fac});
   return 1 if ($this->{_sl_level} ne $that->{_sl_level});
+
+  return 1 if ($this->{_local_log} ne $that->{_local_log});
 
   return 1 if ($this->{_ins_all}   ne $that->{_ins_all});
   return 1 if ($this->{_ins_all_v6} ne $that->{_ins_all_v6});
@@ -614,25 +623,31 @@ sub get_snort_conf {
   return (undef, 'Action for "other" not defined')
     if (!defined($self->{_p4act}));
 
-  my $remote_logging;
-  my ($output_def, $out_type, $out_file);
+  my $remote_logging = 0;
+  my $local_logging  = $self->{_local_log};
+  my ($loc_out_def, $rem_out_def);
   if ($self->{_db_dbname} or $self->{_sl_fac}) {
+      my ($rem_out_type, $rem_out_file);
       # barnyard2 expect unified2 format
-      $out_type = 'unified2';
-      $out_file = 'snort-unified2.log';
+      $rem_out_type = 'unified2';
+      $rem_out_file = 'snort-unified2.log';
+      $rem_out_def  = "output $rem_out_type: filename $rem_out_file, limit 1";
       $remote_logging = 1;
-  } else {
+  } 
+
+  if (! $remote_logging or $local_logging) {
+      my ($loc_out_type, $loc_out_file);
       # just log alerts when storing locally
-      $out_type = 'alert_unified';
-      $out_file = 'snort-unified.alert';
-      $remote_logging = 0;
+      $loc_out_type = 'alert_unified';
+      $loc_out_file = 'snort-unified.alert';
+      $loc_out_def  = "output $loc_out_type: filename $loc_out_file, limit 1";
   }
-  $output_def = "output $out_type: filename $out_file, limit 1";
 
   # drop rule
   my $rule_drop_def   = "{\n"
-                      . "   type drop\n" 
-                      . "   $output_def\n";
+                      . "   type drop\n";
+     $rule_drop_def  .= "   $loc_out_def\n" if $local_logging;
+     $rule_drop_def  .= "   $rem_out_def\n" if $remote_logging;
      $rule_drop_def  .= "   output log_null\n" if ! $remote_logging;
      $rule_drop_def  .= "}\n";
 
@@ -644,8 +659,9 @@ sub get_snort_conf {
 
   # alert rule
   my $rule_alert_def  = "{\n"
-                      . "   type alert\n" 
-                      . "   $output_def\n";
+                      . "   type alert\n";
+     $rule_alert_def  .= "   $loc_out_def\n" if $local_logging;
+     $rule_alert_def  .= "   $rem_out_def\n" if $remote_logging;
      $rule_alert_def .= "   output log_null\n" if ! $remote_logging;
      $rule_alert_def .= "}\n";
 
@@ -659,7 +675,6 @@ sub get_snort_conf {
                          'sdrop' => $rule_sdrop_def,
                          'alert' => $rule_alert_def,
                          'pass'  => $rule_pass_def );
-
 
   # add actions
   my $cfg = "\n## actions\n";
