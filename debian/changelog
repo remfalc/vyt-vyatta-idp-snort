@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.81) unstable; urgency=low
+
+  * Bump up content-inspection version #.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Fri, 03 Dec 2010 16:26:53 -0800
+
 vyatta-idp-snort (0.3.80) unstable; urgency=low
 
   * Allow local logging in addition to remote logging.
