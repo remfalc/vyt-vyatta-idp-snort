@@ -1,0 +1,5 @@
+help: Show summary of IPS rules
+run: /opt/vyatta/sbin/vyatta-show-ips-class.pl       \
+        --classfile=/etc/snort/classification.config \
+        --ruledir=/etc/snort/rules                   \
+        --preprocdir=/etc/snort/preproc_rules
