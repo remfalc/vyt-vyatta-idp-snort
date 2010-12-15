@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.82) unstable; urgency=low
+
+  * Add show command for snort rules summary
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 15 Dec 2010 12:19:21 -0800
+
 vyatta-idp-snort (0.3.81) unstable; urgency=low
 
   * Bump up content-inspection version #.
