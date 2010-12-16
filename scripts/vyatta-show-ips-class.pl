@@ -98,7 +98,7 @@ if (! -d $rule_dir) {
 parse_rules($rule_dir);
 parse_rules($preproc_dir) if -d $preproc_dir;
 
-my $format = "%-60s %10s %10s\n";
+my $format = "%-60s %8s %8s\n";
 printf("\n$format\n", 'Snort Classifications', 'Enabled', 'Disabled');
 
 my %grand_tot = ();
@@ -114,7 +114,7 @@ foreach my $num (1..4) {
         printf($format, $value, $enabled, $disabled);
     }
     my ($tot_enable, $tot_disable) = (undef, undef);
-    printf($format, '', '-' x 10, '-' x 10);
+    printf($format, '', '-' x 8, '-' x 8);
     $tot_enable  = $class_hash{$num}{'enabled'};
     $tot_enable  = 0 if ! defined $tot_enable;
     $tot_disable = $class_hash{$num}{'disabled'};
@@ -123,7 +123,7 @@ foreach my $num (1..4) {
     $grand_tot{'enabled'}  += $tot_enable;
     $grand_tot{'disabled'} += $tot_disable;
 }
-printf("\n\n$format", 'Total', '=' x 10, '=' x 10);
+printf("\n\n$format", 'Total', '=' x 8, '=' x 8);
 printf($format, '', $grand_tot{'enabled'}, $grand_tot{'disabled'});
 
 # end of file
