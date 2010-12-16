@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.83) unstable; urgency=low
+
+  * Fix output to fit in less than 80 columns.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 15 Dec 2010 17:01:08 -0800
+
 vyatta-idp-snort (0.3.82) unstable; urgency=low
 
   * Add show command for snort rules summary
