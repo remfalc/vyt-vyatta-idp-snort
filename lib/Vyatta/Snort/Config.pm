@@ -92,21 +92,21 @@ sub setup {
   $self->{_au_hour} = $config->returnValue('auto-update update-hour');
   $self->{_au_vrtsub} = $config->exists('auto-update snortvrt-subscription');
   
-  $config->setLevel('content-inspection ips output remote-db');
+  $config->setLevel('content-inspection ips log remote-db');
   $self->{_db_type}   = $config->returnValue('db-type');
   $self->{_db_dbname} = $config->returnValue('db-name');
   $self->{_db_host}   = $config->returnValue('host');
   $self->{_db_user}   = $config->returnValue('username');
   $self->{_db_passwd} = $config->returnValue('password');
 
-  $config->setLevel('content-inspection ips output syslog');
+  $config->setLevel('content-inspection ips log syslog');
   $self->{_sl_fac}   = $config->returnValue('facility');
   $self->{_sl_level} = $config->returnValue('level');
 
-  $config->setLevel('content-inspection ips output');
+  $config->setLevel('content-inspection ips log');
   $self->{_prelude}  = $config->exists('prelude');
 
-  $config->setLevel('content-inspection ips output');
+  $config->setLevel('content-inspection ips local');
   $self->{_local_log} = 1 if $config->exists('local');
 
   $config->setLevel('content-inspection inspect-all');
@@ -144,21 +144,21 @@ sub setupOrig {
   $self->{_au_hour} = $config->returnOrigValue('auto-update update-hour');
   $self->{_au_vrtsub} = $config->existsOrig('auto-update snortvrt-subscription');
   
-  $config->setLevel('content-inspection ips output remote-db');
+  $config->setLevel('content-inspection ips log remote-db');
   $self->{_db_type}   = $config->returnOrigValue('db-type');
   $self->{_db_dbname} = $config->returnOrigValue('db-name');
   $self->{_db_host}   = $config->returnOrigValue('host');
   $self->{_db_user}   = $config->returnOrigValue('username');
   $self->{_db_passwd} = $config->returnOrigValue('password');
 
-  $config->setLevel('content-inspection ips output syslog');
+  $config->setLevel('content-inspection ips log syslog');
   $self->{_sl_fac}   = $config->returnOrigValue('facility');
   $self->{_sl_level} = $config->returnOrigValue('level');
 
-  $config->setLevel('content-inspection ips output');
+  $config->setLevel('content-inspection ips log');
   $self->{_prelude}  = $config->existsOrig('prelude');
 
-  $config->setLevel('content-inspection ips output');
+  $config->setLevel('content-inspection ips log');
   $self->{_local_log} = 1 if $config->existsOrig('local');
 
   $config->setLevel('content-inspection inspect-all');
