@@ -200,7 +200,7 @@ sub checkAutoUpdate {
     $update_hour =~ s/^0*//;
     $update_hour = 0 if ($update_hour eq '');
 
-    my $rules   = "snortrules-snapshot-2853.tar.gz";
+    my $rules   = "snortrules-snapshot-2861.tar.gz";
     my $get_cmd = "/opt/vyatta/sbin/vyatta-get-snort-rules.pl $rules";
 
     $output  = '#!/bin/bash' . "\n#\n";
@@ -226,7 +226,7 @@ sub checkAutoUpdate {
         system("mkdir -p $base_dir");
     }
 
-    my $rules   = "snortrules-snapshot-2853.tar.gz";
+    my $rules   = "snortrules-snapshot-2861.tar.gz";
     my $get_cmd = "/opt/vyatta/sbin/vg_snort_update -q ";
 
     $output  = '#!/bin/bash' . "\n#\n";
