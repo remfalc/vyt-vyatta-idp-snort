@@ -106,7 +106,7 @@ sub setup {
   $config->setLevel('content-inspection ips log');
   $self->{_prelude}  = $config->exists('prelude');
 
-  $config->setLevel('content-inspection ips local');
+  $config->setLevel('content-inspection ips log');
   $self->{_local_log} = 1 if $config->exists('local');
 
   $config->setLevel('content-inspection inspect-all');
