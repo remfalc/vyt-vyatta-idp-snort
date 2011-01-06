@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.84+mendocino4) unstable; urgency=low
+
+  * Fix snort local alert logging.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 06 Jan 2011 14:48:21 -0800
+
 vyatta-idp-snort (0.3.84+mendocino3) unstable; urgency=low
 
   * Fix version dependancy
