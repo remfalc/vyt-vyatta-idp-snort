@@ -50,7 +50,8 @@ if (defined $oink or $config->existsOrig("$path oink-code")) {
     print "Requesting download from snort.org\n";
     $file = 'snortrules-snapshot-2861.tar.gz';
     $cmd = "$sbin/vyatta-get-snort-rules.pl $file 1 $oink";
-} elsif ($config->existsOrig("$path snortvrt-subscription")) {
+} elsif ($type eq 'snortvrt-subscription' or 
+         $config->existsOrig("$path snortvrt-subscription")) { 
     $file = 'snortrules-snapshot-2861.tar.gz';
     $cmd = "$sbin/vg_snort_update";
 } else {
