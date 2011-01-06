@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.84+mendocino3) unstable; urgency=low
+
+  * Fix version dependancy
+  * Fix merge conflict.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 05 Jan 2011 18:31:33 -0800
+
 vyatta-idp-snort (0.3.84+mendocino2) unstable; urgency=low
 
   * Update to use 2.8.6.3 url.
