@@ -11,7 +11,7 @@ Depends: perl,
  vyatta-cfg (>= 0.15.33),
  vyatta-cfg-firewall,
  vyatta-op,
- vyatta-snort (>= 2.8.6.1-vyatta-1+napa1),
+ vyatta-snort (>= 2.8.6.1),
  wget,
  coreutils
 Description: Vyatta commands for IPS
