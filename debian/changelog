@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.87) unstable; urgency=low
+
+  * Change snort dependency to napa version.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 06 Jan 2011 17:31:50 -0800
+
 vyatta-idp-snort (0.3.86) unstable; urgency=low
 
   * Update to use 2.8.6.3 url.
