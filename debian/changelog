@@ -1,3 +1,12 @@
+vyatta-idp-snort (0.3.86) unstable; urgency=low
+
+  * Update to use 2.8.6.3 url.
+  * Fix version dependancy
+  * Fix merge conflict.
+  * Fix snort local alert logging.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 06 Jan 2011 16:56:10 -0800
+
 vyatta-idp-snort (0.3.85) unstable; urgency=low
 
   * new branch
