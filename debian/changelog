@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.84+mendocino5) unstable; urgency=low
+
+  * Fix 6656: snort/barnyard fails on boot if remote db configured
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 19 Jan 2011 18:17:47 -0800
+
 vyatta-idp-snort (0.3.84+mendocino4) unstable; urgency=low
 
   * Fix snort local alert logging.
