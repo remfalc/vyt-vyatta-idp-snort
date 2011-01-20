@@ -5,6 +5,7 @@ end: RET1=1
        sudo /opt/vyatta/sbin/vyatta-update-antivirus.pl
        RET1=$?
      fi
+     export VYATTA_BOOTING=$BOOT
      sudo /opt/vyatta/sbin/vyatta-update-snort.pl
      RET2=$?
      sudo /opt/vyatta/sbin/vyatta-update-inspection.pl $RET1 $RET2
