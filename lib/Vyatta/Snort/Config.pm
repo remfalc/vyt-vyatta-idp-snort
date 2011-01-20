@@ -982,6 +982,9 @@ sub is_running {
     return 0;
 }
 
+my $by_watch     = '/opt/vyatta/sbin/vyatta-barn-watcher.pl';
+my $by_watch_pid = '/var/run/vyatta-barn-watcher';
+
 sub handle_barn {
   my ($self, $orig) = @_;
 
@@ -993,36 +996,35 @@ sub handle_barn {
   $output .= get_prelude_conf($self);
 
   if ($output ne '') {
-      if (! -f $by_daemon) {
-          print "Error: missing barnyard2 package.\n";
-          return 1;
-      }
-  
       my $by_output = get_by_conf($self);
-      
       $output = $by_output . $output;
 
-      $pid = is_running($by_pid);
+      $pid = is_running($by_watch_pid);
       if (!conf_write_file($by_conf, $output) and $pid > 0) {
           return 0;
       }
       if ($pid > 0) {
-          system("kill -INT $pid");
+          system("kill -SIGINT $pid");
       }
       my ($cmd, $rc);
       system("sudo rm -f /var/log/snort/snort-unified*");
-      $cmd = "$by_daemon -c $by_conf -d /var/log/snort -f snort-unified2.log";
-      # test the conf 1st
-      $rc = system("sudo $cmd -T -q");
-      if ($rc) {
-          print "Error: testing $by_conf\n";
-          system("sudo mv $by_conf /tmp");
-          return 1;
+      if ($ENV{'VYATTA_BOOTING'} ne 'yes') {
+          $cmd = "$by_daemon -c $by_conf -d /var/log/snort -T -q";
+          $rc = system("sudo $cmd");
+          if ($rc) {
+              print "Error: testing $by_conf\n";
+              system("sudo mv $by_conf /tmp");
+              return 1;
+          }
+      } 
+      $cmd = "$by_watch --pidfile $by_watch_pid ";
+      if (defined $self->{_db_host}) {
+          $cmd .= "--ipaddr $self->{_db_host}";
       }
       print "Starting barnyard2 daemon\n";
-      system("sudo $cmd -q -D --pid-path $by_pid");
+      system("sudo $cmd > /dev/null 2>&1 &");
   } else {
-      $pid = is_running($by_pid);
+      $pid = is_running($by_watch_pid);
       if ($pid > 0) {
           print "Stopping barnyard2\n";
           system("kill -INT $pid");

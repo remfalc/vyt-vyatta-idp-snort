@@ -16,6 +16,7 @@ sbin_SCRIPTS += scripts/vyatta-get-snort-rules.pl
 sbin_SCRIPTS += scripts/vyatta-modify-sids.pl
 sbin_SCRIPTS += scripts/vyatta-intf-inspect.pl
 sbin_SCRIPTS += scripts/vyatta-show-ips-class.pl
+sbin_SCRIPTS += scripts/vyatta-barn-watcher.pl
 
 bin_sudo_users_SCRIPTS  = scripts/vyatta-op-update-rules.pl
 
