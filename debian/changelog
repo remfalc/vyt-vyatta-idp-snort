@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.84+mendocino6) unstable; urgency=low
+
+  * Fix 6688: "show ips rule summary" doesn't account for exclude-
+    category
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Thu, 20 Jan 2011 16:26:30 -0800
+
 vyatta-idp-snort (0.3.84+mendocino5) unstable; urgency=low
 
   * Fix 6656: snort/barnyard fails on boot if remote db configured
