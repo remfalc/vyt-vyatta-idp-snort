@@ -46,7 +46,8 @@ open(my $CLASS, '<', $class_file) or die "Cannot open $class_file: $!";
 
 my %prio_hash  = ();
 my %class_hash = ();
-my %classname_hash =();
+my %classname_hash = ();
+my %category_hash = ();
 while (<$CLASS>) {
     next if (!/^\s*config\s+classification:\s+(.*)$/);
     my ($name, $desc, $prio) = split /,/, $1;
@@ -56,6 +57,27 @@ while (<$CLASS>) {
 }
 close $CLASS;
 
+sub category_check {
+    my ($category) = @_;
+
+    my ($cmd, $rc, $format);
+    my @lines;
+    $format = "^#?\\s?include\\s+\\\$RULE_PATH/$category";
+    $cmd = "egrep \'$format\'  /etc/snort/snort.conf";
+    @lines = `$cmd`;
+    my $count = scalar(@lines);
+    if ($count == 1) {
+        my $line = shift @lines;
+        if ($line =~ /^#/) {
+            $category_hash{$category} = 0;
+        } else {
+            $category_hash{$category} = 1;
+        }
+        return 1;
+    } 
+    return 0;
+}
+
 sub parse_rules {
     my ($dir) = @_;
 
@@ -63,29 +85,44 @@ sub parse_rules {
     my @rule_files = grep /\.rules$/, readdir($DIR);
     closedir $DIR;
 
+    my $category_disabled;
     foreach my $file (@rule_files) {
+        category_check($file);
+        if (defined $category_hash{$file} and $category_hash{$file} == 0) {
+            $category_disabled = 1;
+        } else {
+            $category_disabled = 0;
+        }
         open(my $RIN, '<', "$dir/$file") or 
             die "Cannot open $dir/$file: $!";
         while (<$RIN>) {
             my $line = $_;
-            if (/[(; ]classtype:\s*([^;]+);/) {
+            if ($line =~ /[(; ]classtype:\s*([^;]+);/) {
                 my $class = $1;
-                if ($line =~ /^#/) {
+                if ($category_disabled == 1) {
                     $class_hash{'disabled'}{$class}++;
                 } else {
-                    $class_hash{'enabled'}{$class}++;
-                }
-                my $prio =$classname_hash{$class};
-                if (defined $prio) {
                     if ($line =~ /^#/) {
+                        $class_hash{'disabled'}{$class}++;
+                    } else {
+                        $class_hash{'enabled'}{$class}++;
+                    }
+                }
+                my $prio = $classname_hash{$class};
+                if (defined $prio) {
+                    if ($category_disabled == 1) {
                         $class_hash{$prio}{'disabled'}++;
                     } else {
-                        $class_hash{$prio}{'enabled'}++;
+                        if ($line =~ /^#/) {
+                            $class_hash{$prio}{'disabled'}++;
+                        } else {
+                            $class_hash{$prio}{'enabled'}++;
+                        }
                     }
                 } else {
                     print "No prio found [$line]\n";
                 }
-            }
+            } 
         }
         close $RIN;
     }
@@ -98,7 +135,15 @@ if (! -d $rule_dir) {
 parse_rules($rule_dir);
 parse_rules($preproc_dir) if -d $preproc_dir;
 
-my $format = "%-60s %8s %8s\n";
+
+my $format = "%-30s %s\n";
+printf("\n$format\n", 'Category', 'Enabled/Disabled');
+foreach my $key (sort keys(%category_hash)) {
+    my $value = $category_hash{$key};
+    printf($format, $key, $value ? 'enabled' : 'disabled');
+}
+
+$format = "%-60s %8s %8s\n";
 printf("\n$format\n", 'Snort Classifications', 'Enabled', 'Disabled');
 
 my %grand_tot = ();
