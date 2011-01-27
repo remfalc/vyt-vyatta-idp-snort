@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.84+mendocino7) unstable; urgency=low
+
+  * Enable local logging if not remote logging.
+  * Warn if local logging is disabled in 'show ips log'.
+
+ -- Stig Thormodsrud <stig@vyatta.com>  Wed, 26 Jan 2011 16:25:40 -0800
+
 vyatta-idp-snort (0.3.84+mendocino6) unstable; urgency=low
 
   * Fix 6688: "show ips rule summary" doesn't account for exclude-
