@@ -1,3 +1,22 @@
+# Author: An-Cheng Huang <ancheng@vyatta.com>
+# Date: 2008
+# Description: Perl script for IPS show command
+
+# **** License ****
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# This code was originally developed by Vyatta, Inc.
+# Portions created by Vyatta are Copyright (C) 2006-2011 Vyatta, Inc.
+# All Rights Reserved.
+# **** End License ****
+
 package Vyatta::Snort::Config;
 
 use strict;
@@ -647,6 +666,7 @@ sub get_snort_conf {
   if (! $remote_logging or $local_logging) {
       my ($loc_out_type, $loc_out_file);
       # just log alerts when storing locally
+      $local_logging = 1;
       $loc_out_type = 'alert_unified';
       $loc_out_file = 'snort-unified.alert';
       $loc_out_def  = "output $loc_out_type: filename $loc_out_file, limit 1";
