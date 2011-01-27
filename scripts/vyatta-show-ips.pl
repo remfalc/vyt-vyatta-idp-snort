@@ -15,7 +15,7 @@
 # General Public License for more details.
 # 
 # This code was originally developed by Vyatta, Inc.
-# Portions created by Vyatta are Copyright (C) 2006, 2007, 2008 Vyatta, Inc.
+# Portions created by Vyatta are Copyright (C) 2006-2011 Vyatta, Inc.
 # All Rights Reserved.
 # **** End License ****
 
@@ -23,6 +23,7 @@ use strict;
 use lib '/opt/vyatta/share/perl5';
 use Vyatta::Snort::UnifiedLog;
 use Sort::Versions;
+use Vyatta::Config;
 
 my $SNORT_LOG_DIR = '/var/log/snort';
 my $SNORT_LOG_PFX = 'snort-unified.alert';
@@ -102,7 +103,13 @@ opendir($logdir, $SNORT_LOG_DIR) or die "Can't open $SNORT_LOG_DIR: $!";
 my @logfiles = sort versioncmp (grep(/^$SNORT_LOG_PFX/, readdir($logdir)));
 closedir $logdir;
 if (scalar(@logfiles) <= 0) {
-  print "No log files found\n";
+  my $config = new Vyatta::Config;
+  $config->setLevel('content-inspection ips log');
+  if (! $config->existsOrig('local')) {
+      print "Local logging not enabled\n";
+  } else {
+    print "No log files found\n";
+  }
   exit 0;
 }
 
