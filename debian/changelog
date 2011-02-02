@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.91) unstable; urgency=low
+
+  * Parital fix for bug 6759 serial packages are incorrectly included in
+    virt ISO
+
+ -- Mohit Mehta <mohit@vyatta.com>  Wed, 02 Feb 2011 12:20:26 -0800
+
 vyatta-idp-snort (0.3.90) unstable; urgency=low
 
   * Enable local logging if not remote logging.
