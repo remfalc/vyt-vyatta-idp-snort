@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.92) unstable; urgency=low
+
+  *  adjust Config.pm for 2.9.0.4 release
+
+ -- John Southworth <john.southworth@vyatta.com>  Tue, 08 Mar 2011 13:34:48 -0600
+
 vyatta-idp-snort (0.3.91) unstable; urgency=low
 
   * Parital fix for bug 6759 serial packages are incorrectly included in
