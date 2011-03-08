@@ -40,7 +40,7 @@ my $queue_suffix = '_HOOK';
 my $SNORT_ALL_HOOK = $queue_prefix . 'all' . $queue_suffix;
 
 my $SNORT_INIT = '/etc/init.d/snort';
-my $SNORT_DONE = '/var/run/snort_inline_init.pid';
+my $SNORT_DONE = '/var/run/snort_vyatta_init.pid';
 
 my %fields = (
   _tr_preset => undef,
@@ -720,7 +720,6 @@ sub get_snort_conf {
 include clamav.config
 
 ## set output module
-output alert_null
 output log_null
 
 EOS
