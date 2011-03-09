@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.93) unstable; urgency=low
+
+  * Fix auto-update getting snort.conf out of sync with vyatta
+    configuration
+
+ -- John Southworth <john.southworth@vyatta.com>  Wed, 09 Mar 2011 12:55:15 -0600
+
 vyatta-idp-snort (0.3.92) unstable; urgency=low
 
   *  adjust Config.pm for 2.9.0.4 release
