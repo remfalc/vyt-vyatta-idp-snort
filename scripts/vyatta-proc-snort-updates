@@ -249,6 +249,9 @@ fi
                 --conffile=/etc/snort/ips.conf   \
                 --file=$BASE_DIR/external-net
 
+# copy new ips.conf to snort.conf
+cp -f /etc/snort/ips.conf /etc/snort/snort.conf
+
 # 'snort -T' check.
 # if it fails, restore the directories and abort
 if ! /etc/init.d/snort config-check >&/dev/null; then
