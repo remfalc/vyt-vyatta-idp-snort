@@ -6,27 +6,3 @@ help: IPv4 internal network
 
 val_help: IPv4 internal address
 val_help: IPv4 internal network
-
-create: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=add-item \
-                 --file=${vyatta_sysconfdir}/ips/home-net              \
-                 --value="$VAR(@)"
-
-        if [ "$COMMIT_SIBLING_POSITION" = "LAST" ] || \
-           [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
-           sudo ${vyatta_sbindir}/vyatta-modify-sids.pl \
-                --action=update-home-net                \
-                --conffile=/etc/snort/ips.conf          \
-                --file=${vyatta_sysconfdir}/ips/home-net
-        fi;
-
-delete: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl --action=del-item \
-                 --file=${vyatta_sysconfdir}/ips/home-net              \
-                 --value="$VAR(@)"
-
-        if [ "$COMMIT_SIBLING_POSITION" = "LAST" ] || \
-           [ "$COMMIT_SIBLING_POSITION" = "FIRSTLAST" ] ; then
-           sudo ${vyatta_sbindir}/vyatta-modify-sids.pl \
-                --action=update-home-net                \
-                --conffile=/etc/snort/ips.conf          \
-                --file=${vyatta_sysconfdir}/ips/home-net
-        fi;

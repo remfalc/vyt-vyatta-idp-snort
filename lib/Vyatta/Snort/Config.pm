@@ -27,6 +27,7 @@ use Sys::Hostname;
 use File::Compare;
 use Vyatta::IpTables::Mgr;
 use Vyatta::Zone;
+use Data::Dumper;
 
 my $cfg_delim_begin = '# === BEGIN VYATTA SNORT CONFIG ===';
 my $cfg_delim_end = '# === END VYATTA SNORT CONFIG ===';
@@ -66,6 +67,10 @@ my %fields = (
   _prelude   => undef,
   _ins_all   => 'false',
   _ins_all_v6 => 'false',
+  _exclude_categories => [],
+  _disable_sids => [],
+  _enable_sids => [],
+  _internal_nets => [],
 );
 
 sub get_snort_all_hook {
@@ -111,6 +116,20 @@ sub setup {
   $self->{_au_hour} = $config->returnValue('auto-update update-hour');
   $self->{_au_vrtsub} = $config->exists('auto-update snortvrt-subscription');
   
+  $config->setLevel('content-inspection ips modify-rules');
+  foreach my $rule ($config->returnValues('exclude-category')){
+    $self->{_exclude_categories} = [ @{$self->{_exclude_categories}}, $rule ];
+  }
+  foreach my $sid ($config->returnValues('disable-sid')){
+    $self->{_disable_sids} = [ @{$self->{_disable_sids}}, $sid ];
+  }
+  foreach my $sid ($config->returnValues('enable-sid')){
+    $self->{_enable_sids} = [ @{$self->{_enable_sids}}, $sid ];
+  }
+  foreach my $sid ($config->returnValues('internal-network')){
+    $self->{_internal_nets} = [ @{$self->{_internal_nets}}, $sid ];
+  }
+
   $config->setLevel('content-inspection ips log remote-db');
   $self->{_db_type}   = $config->returnValue('db-type');
   $self->{_db_dbname} = $config->returnValue('db-name');
@@ -162,6 +181,20 @@ sub setupOrig {
   $self->{_au_oink} = $config->returnOrigValue('auto-update oink-code');
   $self->{_au_hour} = $config->returnOrigValue('auto-update update-hour');
   $self->{_au_vrtsub} = $config->existsOrig('auto-update snortvrt-subscription');
+
+  $config->setLevel('content-inspection ips modify-rules');
+  foreach my $rule ($config->returnOrigValues('exclude-category')){
+    $self->{_exclude_categories} = [ @{$self->{_exclude_categories}}, $rule ];
+  }
+  foreach my $sid ($config->returnOrigValues('disable-sid')){
+    $self->{_disable_sids} = [ @{$self->{_disable_sids}}, $sid ];
+  }
+  foreach my $sid ($config->returnOrigValues('enable-sid')){
+    $self->{_enable_sids} = [ @{$self->{_enable_sids}}, $sid ];
+  }
+  foreach my $net ($config->returnOrigValues('internal-network')){
+    $self->{_internal_nets} = [ @{$self->{_internal_nets}}, $net ];
+  }
   
   $config->setLevel('content-inspection ips log remote-db');
   $self->{_db_type}   = $config->returnOrigValue('db-type');
@@ -219,7 +252,7 @@ sub checkAutoUpdate {
     $update_hour =~ s/^0*//;
     $update_hour = 0 if ($update_hour eq '');
 
-    my $rules   = "snortrules-snapshot-2861.tar.gz";
+    my $rules   = "snortrules-snapshot-2904.tar.gz";
     my $get_cmd = "/opt/vyatta/sbin/vyatta-get-snort-rules.pl $rules";
 
     $output  = '#!/bin/bash' . "\n#\n";
@@ -245,7 +278,7 @@ sub checkAutoUpdate {
         system("mkdir -p $base_dir");
     }
 
-    my $rules   = "snortrules-snapshot-2861.tar.gz";
+    my $rules   = "snortrules-snapshot-2904.tar.gz";
     my $get_cmd = "/opt/vyatta/sbin/vg_snort_update -q ";
 
     $output  = '#!/bin/bash' . "\n#\n";
@@ -277,6 +310,17 @@ sub checkAutoUpdate {
   return ("$self->{_au_oink} $self->{_au_hour}", undef);
 }
 
+sub listsDiff {
+  my @a = @{$_[0]};
+  my @b = @{$_[1]};
+  return 1 if ((scalar @a) != (scalar @b));
+  while (my $a = shift @a) {
+    my $b = shift @b; 
+    return 1 if ($a ne $b);
+  }
+  return 0;
+}
+
 sub isDifferentFrom {
   my ($this, $that) = @_;
 
@@ -289,6 +333,10 @@ sub isDifferentFrom {
   return 1 if ($this->{_p2act} ne $that->{_p2act});
   return 1 if ($this->{_p3act} ne $that->{_p3act});
   return 1 if ($this->{_p4act} ne $that->{_p4act});
+  return 1 if (listsDiff($this->{_exclude_categories}, $that->{_exclude_categories}));
+  return 1 if (listsDiff($this->{_disable_sids}, $that->{_disable_sids}));
+  return 1 if (listsDiff($this->{_enable_sids}, $that->{_enable_sids}));
+  return 1 if (listsDiff($this->{_internal_nets}, $that->{_internal_nets}));
 
   return 1 if ($this->{_db_dbname} ne $that->{_db_dbname});
   return 1 if ($this->{_db_host}   ne $that->{_db_host});
@@ -314,6 +362,8 @@ sub isEmpty {
   my ($this) = @_;
   return $this->{_is_empty};
 }
+
+
 
 sub rule_num_sort {
   my ($a, $b) = (@_);
@@ -637,6 +687,71 @@ sub startSnort {
 sub isEmpty {
   my ($self) = @_;
   return $self->{_is_empty};
+}
+
+sub modifyRules {
+  my ($self) = @_;
+  my $BASE_DIR = '/opt/vyatta/etc/ips';
+  my $FH = undef;
+  open($FH, '>', "$BASE_DIR/disable-sid") or return 1;
+  foreach my $sid (@{$self->{_disable_sids}}){
+    print ${FH} "$sid\n";
+  }
+  close $FH;
+  open($FH, '>', "$BASE_DIR/enable-sid") or return 1;
+  foreach my $sid (@{$self->{_enable_sids}}){
+    print ${FH} "$sid\n";
+  }
+  close $FH;
+  open($FH, '>', "$BASE_DIR/exclude-rules") or return 1;
+  foreach my $rule (@{$self->{_exclude_categories}}){
+    print ${FH} "$rule\n";
+  }
+  close $FH;
+  open($FH, '>', "$BASE_DIR/home-net") or return 1;
+  foreach my $net (@{$self->{_internal_nets}}){
+    print ${FH} "$net\n";
+  }
+  close $FH;
+
+  # update disable/enable sids in new rules
+  my $cmd = "/opt/vyatta/sbin/vyatta-modify-sids.pl";
+     $cmd .= " --action=update-rules";
+     $cmd .= " --ruledir=/etc/snort/rules";  
+     $cmd .= " --disablefile=$BASE_DIR/disable-sid";
+     $cmd .= " --enablefile=$BASE_DIR/enable-sid";
+  system($cmd);
+
+  # update disable/enable sids in new rules
+  $cmd = "/opt/vyatta/sbin/vyatta-modify-sids.pl";
+  $cmd .= " --action=update-preproc-rules";
+  $cmd .= " --ruledir=/etc/snort/preproc_rules";
+  $cmd .= " --disablefile=$BASE_DIR/disable-sid";
+  $cmd .= " --enablefile=$BASE_DIR/enable-sid";
+  system($cmd);
+
+  # update exclude rules in new rules;
+  $cmd = "/opt/vyatta/sbin/vyatta-modify-sids.pl";
+  $cmd .= " --action=update-exclude";
+  $cmd .= " --conffile=/etc/snort/ips.conf";
+  $cmd .= " --file=$BASE_DIR/exclude-rules";
+  system($cmd);
+
+  # update HOME_NET;
+  $cmd = "/opt/vyatta/sbin/vyatta-modify-sids.pl";
+  $cmd .= " --action=update-home-net"   ;
+  $cmd .= " --conffile=/etc/snort/ips.conf";
+  $cmd .= " --file=$BASE_DIR/home-net";
+  system($cmd);
+
+  # update EXTERNAL_NET;
+  $cmd = "/opt/vyatta/sbin/vyatta-modify-sids.pl";
+  $cmd .= " --action=update-external-net"   ;
+  $cmd .= " --conffile=/etc/snort/ips.conf"  ;
+  $cmd .= " --file=$BASE_DIR/external-net";
+  system($cmd);
+
+  return 0;
 }
 
 sub get_snort_conf {

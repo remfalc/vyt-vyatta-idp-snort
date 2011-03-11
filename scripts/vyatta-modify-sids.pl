@@ -139,7 +139,7 @@ sub update_rules {
     }
     print "both count = $count\n" if $debug;
 
-    return 0 if $count == 0;
+    #return 0 if $count == 0;
 
     opendir(my $RIN_DIR, "$rule_dir") or die "Cannot open [$rule_dir]: $!";
     my @rule_files = grep /\.rules$/, readdir($RIN_DIR);
@@ -148,6 +148,8 @@ sub update_rules {
     my ($tot, $ok, $disabled, $comments, $err) = (0,0,0,0,0);
 
     foreach my $file (@rule_files) {
+        my $reset = "sed -i \'s/^\# \\(p[1234].*\\)/\\1/\' $rule_dir/$file";
+        system($reset);
         open(my $RIN, '<', "$rule_dir/$file") or 
             die "Cannot open $rule_dir/$file: $!";
         my $output = '';
@@ -272,7 +274,7 @@ sub update_preproc_rules {
     }
     print "both count = $count\n" if $debug;
 
-    return 0 if $count == 0;
+    #return 0 if $count == 0;
 
     opendir(my $RIN_DIR, "$rule_dir") or die "Cannot open [$rule_dir]: $!";
     my @rule_files = grep /\.rules$/, readdir($RIN_DIR);
@@ -281,6 +283,8 @@ sub update_preproc_rules {
     my ($tot, $ok, $disabled, $comments, $err) = (0,0,0,0,0);
 
     foreach my $file (@rule_files) {
+        my $reset = "sed -i \'s/^\# \\(p[1234].*\\)/\\1/\' $rule_dir/$file";
+        system($reset);
         open(my $RIN, '<', "$rule_dir/$file") or 
             die "Cannot open $rule_dir/$file: $!";
         my $output = '';
@@ -380,14 +384,14 @@ sub update_home_net {
         $format = 'any';
     }
 
-    $cmd = "s/^\\(var HOME_NET\\).*\$/\\1 $format/";
+    $cmd = "s/^\\(ipvar HOME_NET\\).*\$/\\1 $format/";
     $cmd = "sed -i \'$cmd\' $conf_file";
     $rc = system("$cmd");
 
     if ($format eq 'any') {
-        $cmd = "s/^\\(var EXTERNAL_NET\\).*\$/\\1 $format/";
+        $cmd = "s/^\\(ipvar EXTERNAL_NET\\).*\$/\\1 $format/";
     } else {
-        $cmd = "s/^\\(var EXTERNAL_NET\\).*\$/\\1 \!\$HOME_NET/";
+        $cmd = "s/^\\(ipvar EXTERNAL_NET\\).*\$/\\1 \!\$HOME_NET/";
     }
     $cmd = "sed -i \'$cmd\' $conf_file";
     $rc = system("$cmd");
@@ -400,6 +404,8 @@ sub update_exclude {
 
     my @excludes = read_file($file);
     
+    my $reset = "sed -i \'s/\\# \\(include \\\$RULE_PATH\\/.*\\)/\\1/\' $conf_file";
+    system($reset);
     my ($cmd, $rc, $format);
     foreach my $exclude (@excludes) {
         $format = "s/^\\(include \\\$RULE_PATH\\/$exclude.*\\)\$/# \\1/";

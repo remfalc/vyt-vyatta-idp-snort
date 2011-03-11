@@ -24,6 +24,7 @@
 #
 
 use strict;
+use Data::Dumper;
 use lib "/opt/vyatta/share/perl5";
 require Vyatta::Snort::Config;
 
@@ -82,6 +83,9 @@ if (! -d '/etc/snort/rules') {
 }
 
 while (1) {
+  $err = $config->modifyRules();
+  last if ($err == 1);
+
   ($snort_conf, $err) = $config->get_snort_conf();
   last if (defined($err));
   
