@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.95) unstable; urgency=low
+
+  * clean up imports and comments from last commit
+
+ -- John Southworth <john.southworth@vyatta.com>  Fri, 11 Mar 2011 18:25:44 -0600
+
 vyatta-idp-snort (0.3.94) unstable; urgency=low
 
   * Fix out of sync problems for snort.
