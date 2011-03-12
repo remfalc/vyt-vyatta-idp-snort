@@ -27,7 +27,6 @@ use Sys::Hostname;
 use File::Compare;
 use Vyatta::IpTables::Mgr;
 use Vyatta::Zone;
-use Data::Dumper;
 
 my $cfg_delim_begin = '# === BEGIN VYATTA SNORT CONFIG ===';
 my $cfg_delim_end = '# === END VYATTA SNORT CONFIG ===';

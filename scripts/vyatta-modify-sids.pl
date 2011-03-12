@@ -139,8 +139,6 @@ sub update_rules {
     }
     print "both count = $count\n" if $debug;
 
-    #return 0 if $count == 0;
-
     opendir(my $RIN_DIR, "$rule_dir") or die "Cannot open [$rule_dir]: $!";
     my @rule_files = grep /\.rules$/, readdir($RIN_DIR);
     closedir $RIN_DIR;
@@ -273,8 +271,6 @@ sub update_preproc_rules {
         $count += scalar(@lines);
     }
     print "both count = $count\n" if $debug;
-
-    #return 0 if $count == 0;
 
     opendir(my $RIN_DIR, "$rule_dir") or die "Cannot open [$rule_dir]: $!";
     my @rule_files = grep /\.rules$/, readdir($RIN_DIR);

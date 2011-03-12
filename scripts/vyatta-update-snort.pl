@@ -24,7 +24,6 @@
 #
 
 use strict;
-use Data::Dumper;
 use lib "/opt/vyatta/share/perl5";
 require Vyatta::Snort::Config;
 
