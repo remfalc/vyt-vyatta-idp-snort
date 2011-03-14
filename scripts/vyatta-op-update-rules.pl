@@ -37,6 +37,16 @@ my $type = '';
 my $type = $ARGV[0] if $#ARGV >= 0;
 $oink = $ARGV[1] if $#ARGV == 1;
 
+# Get active ruleset number from file instead of hardcoding it
+my $FH;
+if (!open ($FH, '<', '/opt/vyatta/etc/ips/snort-ruleset')){
+  print "Couldn't determine ruleset version\n"; 
+  exit(1); 
+}
+my @ruleset = <$FH>;
+chomp @ruleset;
+(my $rules) = @ruleset;
+
 if (!defined $oink and $type ne 'snortvrt-subscription'
     and ! $config->existsOrig($path)) 
 {
@@ -48,11 +58,11 @@ my ($cmd, $rc, $file);
 
 if (defined $oink or $config->existsOrig("$path oink-code")) {
     print "Requesting download from snort.org\n";
-    $file = 'snortrules-snapshot-2904.tar.gz';
+    $file = "snortrules-snapshot-$rules.tar.gz";
     $cmd = "$sbin/vyatta-get-snort-rules.pl $file 1 $oink";
 } elsif ($type eq 'snortvrt-subscription' or 
          $config->existsOrig("$path snortvrt-subscription")) { 
-    $file = 'snortrules-snapshot-2904.tar.gz';
+    $file = "snortrules-snapshot-$rules.tar.gz";
     $cmd = "$sbin/vg_snort_update";
 } else {
     print "Error: unexepted update type\n";

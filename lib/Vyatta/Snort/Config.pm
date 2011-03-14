@@ -242,6 +242,14 @@ sub checkAutoUpdate {
     return ('NONE NONE', undef);
   }
 
+  my $FH;
+  if (!open ($FH, '<', '/opt/vyatta/etc/ips/snort-ruleset')){
+    return (undef, "Couldn't determine ruleset version");
+  }
+  my @ruleset = <$FH>;
+  chomp @ruleset;
+  (my $cur_ruleset) = @ruleset;
+
   my $file   = "/etc/cron.hourly/vyatta-ips-update";  
   my $output = '';
   if (!$orig && $self->{_au_oink}) {
@@ -251,7 +259,7 @@ sub checkAutoUpdate {
     $update_hour =~ s/^0*//;
     $update_hour = 0 if ($update_hour eq '');
 
-    my $rules   = "snortrules-snapshot-2904.tar.gz";
+    my $rules   = "snortrules-snapshot-$cur_ruleset.tar.gz";
     my $get_cmd = "/opt/vyatta/sbin/vyatta-get-snort-rules.pl $rules";
 
     $output  = '#!/bin/bash' . "\n#\n";
@@ -277,7 +285,7 @@ sub checkAutoUpdate {
         system("mkdir -p $base_dir");
     }
 
-    my $rules   = "snortrules-snapshot-2904.tar.gz";
+    my $rules   = "snortrules-snapshot-$cur_ruleset.tar.gz";
     my $get_cmd = "/opt/vyatta/sbin/vg_snort_update -q ";
 
     $output  = '#!/bin/bash' . "\n#\n";

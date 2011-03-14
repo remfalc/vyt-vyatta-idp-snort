@@ -33,6 +33,8 @@ clean-local:
 	rm -rf generated-templates
 
 install-exec-hook:
+	mkdir -p $(DESTDIR)/opt/vyatta/etc/ips/
+	cp -f scripts/snort-ruleset $(DESTDIR)/opt/vyatta/etc/ips/
 	mkdir -p $(DESTDIR)$(cfgdir)
 	cd templates-cfg; $(cpiop) $(DESTDIR)$(cfgdir)
 	cd generated-templates; $(cpiop) $(DESTDIR)$(cfgdir)
