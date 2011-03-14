@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.84+mendocino8) unstable; urgency=low
+
+  * Fix auto-update getting snort.conf out of sync with vyatta
+    configuration
+
+ -- John Southworth <john.southworth@vyatta.com>  Mon, 14 Mar 2011 13:44:42 -0500
+
 vyatta-idp-snort (0.3.84+mendocino7) unstable; urgency=low
 
   * Enable local logging if not remote logging.
