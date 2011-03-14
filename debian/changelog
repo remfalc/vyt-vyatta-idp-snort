@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.96) unstable; urgency=low
+
+  * Make snort config look for the rule versions from a file instead of
+    being hard-coded
+
+ -- John Southworth <john.southworth@vyatta.com>  Mon, 14 Mar 2011 17:31:33 -0500
+
 vyatta-idp-snort (0.3.95) unstable; urgency=low
 
   * clean up imports and comments from last commit
