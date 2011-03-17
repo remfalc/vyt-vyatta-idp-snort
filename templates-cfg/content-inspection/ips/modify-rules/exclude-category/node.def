@@ -4,6 +4,4 @@ type: txt
 
 help: IPS rule category to exclude
 
-allowed: sudo ${vyatta_sbindir}/vyatta-modify-sids.pl \
-                --action="show-categories"            \
-                --ruledir=/etc/snort/rules
+allowed: sudo cat /opt/vyatta/etc/ips/snort-categories

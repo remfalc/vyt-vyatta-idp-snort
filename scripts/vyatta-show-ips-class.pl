@@ -135,15 +135,7 @@ if (! -d $rule_dir) {
 parse_rules($rule_dir);
 parse_rules($preproc_dir) if -d $preproc_dir;
 
-
-my $format = "%-30s %s\n";
-printf("\n$format\n", 'Category', 'Enabled/Disabled');
-foreach my $key (sort keys(%category_hash)) {
-    my $value = $category_hash{$key};
-    printf($format, $key, $value ? 'enabled' : 'disabled');
-}
-
-$format = "%-60s %8s %8s\n";
+my $format = "%-60s %8s %8s\n";
 printf("\n$format\n", 'Snort Classifications', 'Enabled', 'Disabled');
 
 my %grand_tot = ();

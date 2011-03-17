@@ -365,6 +365,14 @@ sub isDifferentFrom {
   return 0;
 }
 
+sub needsRuleUpdate {
+ my ($this, $that) = @_;
+ return 1 if (listsDiff($this->{_exclude_categories}, $that->{_exclude_categories}));
+ return 1 if (listsDiff($this->{_disable_sids}, $that->{_disable_sids}));
+ return 1 if (listsDiff($this->{_enable_sids}, $that->{_enable_sids}));
+ return 0;
+}
+
 sub isEmpty {
   my ($this) = @_;
   return $this->{_is_empty};
@@ -702,17 +710,23 @@ sub modifyRules {
   my $FH = undef;
   open($FH, '>', "$BASE_DIR/disable-sid") or return 1;
   foreach my $sid (@{$self->{_disable_sids}}){
-    print ${FH} "$sid\n";
+    if ($sid =~ /.*?:.*/){
+      print ${FH} "$sid\n";
+    } else {
+      print ${FH} "1:$sid\n";
+    }
+  }
+  foreach my $rule (@{$self->{_exclude_categories}}){
+    print ${FH} "$rule\n";
   }
   close $FH;
   open($FH, '>', "$BASE_DIR/enable-sid") or return 1;
   foreach my $sid (@{$self->{_enable_sids}}){
-    print ${FH} "$sid\n";
-  }
-  close $FH;
-  open($FH, '>', "$BASE_DIR/exclude-rules") or return 1;
-  foreach my $rule (@{$self->{_exclude_categories}}){
-    print ${FH} "$rule\n";
+    if ($sid =~ /.*?:.*/){
+      print ${FH} "$sid\n";
+    } else {
+      print ${FH} "1:$sid\n";
+    }
   }
   close $FH;
   open($FH, '>', "$BASE_DIR/home-net") or return 1;
@@ -721,27 +735,10 @@ sub modifyRules {
   }
   close $FH;
 
-  # update disable/enable sids in new rules
-  my $cmd = "/opt/vyatta/sbin/vyatta-modify-sids.pl";
-     $cmd .= " --action=update-rules";
-     $cmd .= " --ruledir=/etc/snort/rules";  
-     $cmd .= " --disablefile=$BASE_DIR/disable-sid";
-     $cmd .= " --enablefile=$BASE_DIR/enable-sid";
-  system($cmd);
-
-  # update disable/enable sids in new rules
-  $cmd = "/opt/vyatta/sbin/vyatta-modify-sids.pl";
-  $cmd .= " --action=update-preproc-rules";
-  $cmd .= " --ruledir=/etc/snort/preproc_rules";
-  $cmd .= " --disablefile=$BASE_DIR/disable-sid";
-  $cmd .= " --enablefile=$BASE_DIR/enable-sid";
-  system($cmd);
-
+  my $cmd;
   # update exclude rules in new rules;
-  $cmd = "/opt/vyatta/sbin/vyatta-modify-sids.pl";
-  $cmd .= " --action=update-exclude";
-  $cmd .= " --conffile=/etc/snort/ips.conf";
-  $cmd .= " --file=$BASE_DIR/exclude-rules";
+  $cmd = "/opt/vyatta/sbin/vyatta-proc-snort-changes" ;
+  $cmd .= " /opt/vyatta/etc/ips/snortrules-snapshot-2853.tar.gz 2>&1";
   system($cmd);
 
   # update HOME_NET;

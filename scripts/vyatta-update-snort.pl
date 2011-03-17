@@ -82,7 +82,9 @@ if (! -d '/etc/snort/rules') {
 }
 
 while (1) {
-  $err = $config->modifyRules();
+  if ($config->needsRuleUpdate($oconfig)){
+    $err = $config->modifyRules();
+  }
   last if ($err == 1);
 
   ($snort_conf, $err) = $config->get_snort_conf();
