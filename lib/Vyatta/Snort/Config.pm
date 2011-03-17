@@ -51,6 +51,7 @@ my %fields = (
   _p2act     => undef,
   _p3act     => undef,
   _p4act     => undef,
+  _policy     => undef,
   _au_oink   => undef,
   _au_hour   => undef,
   _au_vrtsub => undef,
@@ -110,6 +111,7 @@ sub setup {
   $self->{_p2act} = $config->returnValue('actions priority-2');
   $self->{_p3act} = $config->returnValue('actions priority-3');
   $self->{_p4act} = $config->returnValue('actions other');
+  $self->{_policy} = $config->returnValue('policy');
   
   $self->{_au_oink} = $config->returnValue('auto-update oink-code');
   $self->{_au_hour} = $config->returnValue('auto-update update-hour');
@@ -176,6 +178,7 @@ sub setupOrig {
   $self->{_p2act} = $config->returnOrigValue('actions priority-2');
   $self->{_p3act} = $config->returnOrigValue('actions priority-3');
   $self->{_p4act} = $config->returnOrigValue('actions other');
+  $self->{_policy} = $config->returnOrigValue('policy');
   
   $self->{_au_oink} = $config->returnOrigValue('auto-update oink-code');
   $self->{_au_hour} = $config->returnOrigValue('auto-update update-hour');
@@ -340,6 +343,7 @@ sub isDifferentFrom {
   return 1 if ($this->{_p2act} ne $that->{_p2act});
   return 1 if ($this->{_p3act} ne $that->{_p3act});
   return 1 if ($this->{_p4act} ne $that->{_p4act});
+  return 1 if ($this->{_policy} ne $that->{_policy});
   return 1 if (listsDiff($this->{_exclude_categories}, $that->{_exclude_categories}));
   return 1 if (listsDiff($this->{_disable_sids}, $that->{_disable_sids}));
   return 1 if (listsDiff($this->{_enable_sids}, $that->{_enable_sids}));
@@ -367,6 +371,7 @@ sub isDifferentFrom {
 
 sub needsRuleUpdate {
  my ($this, $that) = @_;
+ return 1 if ($this->{_policy} ne $that->{_policy});
  return 1 if (listsDiff($this->{_exclude_categories}, $that->{_exclude_categories}));
  return 1 if (listsDiff($this->{_disable_sids}, $that->{_disable_sids}));
  return 1 if (listsDiff($this->{_enable_sids}, $that->{_enable_sids}));
@@ -736,6 +741,8 @@ sub modifyRules {
   close $FH;
 
   my $cmd;
+  $cmd = "sed -i s/ips_policy=.*/ips_policy=$self->{_policy}/ $BASE_DIR/pulledpork.conf";
+  system($cmd);
   # update exclude rules in new rules;
   $cmd = "/opt/vyatta/sbin/vyatta-proc-snort-changes" ;
   $cmd .= " /opt/vyatta/etc/ips/snortrules-snapshot-2853.tar.gz 2>&1";

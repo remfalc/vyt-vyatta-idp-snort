@@ -1,0 +1,12 @@
+type: txt
+
+default: "balanced"
+
+syntax:expression: $VAR(@) in "balanced", "connectivity", "security";
+                   "Policy must be \"balanced\", \"connectivity\", or \"security\"."
+
+help: IPS ruleset policy [REQUIRED]
+
+val_help: balanced; Ruleset optimized for normal traffic environments
+val_help: connectivity; Ruleset optimized for environments with real-time traffic
+val_help: security; Ruleset optimized for high security environments
