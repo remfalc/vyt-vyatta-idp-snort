@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.97) unstable; urgency=low
+
+  * Initial integration of pulledpork rule processor for snort
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 17 Mar 2011 17:50:23 -0500
+
 vyatta-idp-snort (0.3.96) unstable; urgency=low
 
   * Make snort config look for the rule versions from a file instead of
