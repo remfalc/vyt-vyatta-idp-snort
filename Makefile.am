@@ -36,8 +36,6 @@ clean-local:
 
 install-exec-hook:
 	mkdir -p $(DESTDIR)/opt/vyatta/etc/ips/work
-	mkdir -p $(DESTDIR)/etc/snort/rules
-	cp -f scripts/local.rules $(DESTDIR)/etc/snort/rules/
 	cp -f scripts/snort-ruleset $(DESTDIR)/opt/vyatta/etc/ips/
 	cp -f scripts/snort-categories $(DESTDIR)/opt/vyatta/etc/ips/
 	cp -f pulledpork/pulledpork.conf $(DESTDIR)/opt/vyatta/etc/ips/

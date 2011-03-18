@@ -85,6 +85,11 @@ fi
 # extract the new etc directory
 tar xzvf $SNORT_UPDATE_FILE.gz etc>&/dev/null
 
+# We need local rules if this is the first run
+if [ ! -f /etc/snort/rules/local.rules ]; then
+  touch $WORK_DIR/rules/local.rules
+fi
+
 # generate $WORK_DIR/etc/snort/rules/vyatta.rules 
 # with pulledpork. Pulled pork now does the initial processing
 /opt/vyatta/bin/sudo-users/pulledpork.pl \
