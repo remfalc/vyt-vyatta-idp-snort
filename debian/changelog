@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.101) unstable; urgency=low
+
+  * Bugfix 6560: Add priority group to have content-inspection fail
+    indepenedently of the interface it is attached to.
+
+ -- John Southworth <john.southworth@vyatta.com>  Wed, 23 Mar 2011 17:29:05 -0500
+
 vyatta-idp-snort (0.3.100) unstable; urgency=low
 
   * Rework the way that local.rules are treated to prevent overwrite of
