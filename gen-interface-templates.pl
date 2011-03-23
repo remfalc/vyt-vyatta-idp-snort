@@ -108,7 +108,7 @@ sub gen_CI_template {
     or die "Can't create $path/$node_file: $!";
   my $date = `date`;
   print $tp
-    "# Template generated at: $date\npriority: 235 #Priority group to fix content-inspection failure problems\nhelp: Content-inspection options\n";
+    "# Template generated at: $date\npriority: 235 #after content-inspection, before interface configuration\nhelp: Content-inspection options\n";
   close $tp
     or die "Can't write $path/$node_file: $!";
 }
