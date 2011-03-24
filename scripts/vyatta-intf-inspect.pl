@@ -134,7 +134,8 @@ sub setup_snort_hook {
   # put the snort hook in appropriate post firewall hook
   # if direction is out then insert rule after in hook
   my $insert_index = '1';
-  my $index = Vyatta::IpTables::Mgr::ipt_find_chain_rule(
+  my $index;
+  $index = Vyatta::IpTables::Mgr::ipt_find_chain_rule(
                 $cmd_hash{$cli_ip_ver},
                 $table_hash{$cli_ip_ver},
                 $dir_postfw_hook_hash{$direction},

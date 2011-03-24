@@ -34,7 +34,7 @@ my $path = 'content-inspection ips auto-update';
 my $oink = undef;
 my $type = '';
 
-my $type = $ARGV[0] if $#ARGV >= 0;
+$type = $ARGV[0] if $#ARGV >= 0;
 $oink = $ARGV[1] if $#ARGV == 1;
 
 # Get active ruleset number from file instead of hardcoding it

@@ -53,14 +53,14 @@ my %prio_hash = ( '1' => 'p1action',
                   '4' => 'p4action',
                   'default' => 'p4action' );
 
-open(CLASS, "<$class_file") or die "Cannot open $class_file: $!";
-while (<CLASS>) {
+open(my $CLASS, "<", $class_file) or die "Cannot open $class_file: $!";
+while (<$CLASS>) {
   next if (!/^\s*config\s+classification:\s+(.*)$/);
   my ($name, $desc, $prio) = split /,/, $1;
   $prio =~ s/\s*(\d+)\s*/$1/;
   $class_hash{$name} = $prio;
 }
-close CLASS;
+close $CLASS;
 
 opendir(RIN_DIR, "$rule_dir") or die "Cannot open $rule_dir: $!";
 my @rule_files = grep /\.rules$/, readdir(RIN_DIR);
@@ -71,11 +71,11 @@ if (! -d $out_dir) {
 }
 
 foreach my $file (@rule_files) {
-  open(RIN, "<$rule_dir/$file") or die "Cannot open $rule_dir/$file: $!";
-  open(ROUT, ">$out_dir/$file") or die "Cannot open $out_dir/$file: $!";
-  while (<RIN>) {
+  open(my $RIN, "<", $rule_dir/$file) or die "Cannot open $rule_dir/$file: $!";
+  open(my $ROUT, ">", $out_dir/$file) or die "Cannot open $out_dir/$file: $!";
+  while (<$RIN>) {
     if (!/^alert\s/ and !/^# alert\s/ and !/^pass\s/) {
-      print ROUT;
+      print ${ROUT};
       next;
     }
     my $prio = undef;
@@ -86,7 +86,7 @@ foreach my $file (@rule_files) {
       $prio = $1;
     }
     if (!defined($prio)) {
-      print ROUT;
+      print ${ROUT};
       next;
     }
     if (!defined($prio_hash{$prio})) {
@@ -100,9 +100,9 @@ foreach my $file (@rule_files) {
         s/^alert\s/$action /;
         s/^pass\s/p4action /;
     }
-    print ROUT;
+    print ${ROUT};
   }
-  close RIN;
-  close ROUT;
+  close $RIN;
+  close $ROUT;
 }
 

@@ -446,7 +446,7 @@ sub setupIptables {
   }
 
   # return success
-  return undef;
+  return; 
 }
 
 # Remove a rule jumping to a preset or custom chain located in the
@@ -468,7 +468,7 @@ sub removeChain {
         }
     }
 
-    return undef;
+    return;
 }
 
 # Remove all of the rules we've added located in the Vyatta post firewall
@@ -516,7 +516,7 @@ sub removeQueue {
   }
 
   # return success
-  return undef;
+  return;
 }
 
 sub remove_ip_version_queue {
@@ -582,7 +582,7 @@ sub checkQueue {
     }
   }
 
-  return undef;
+  return;
 }
 
 # Based on the configuration parameters under "traffic-filter", add
@@ -622,7 +622,7 @@ sub addQueue {
   return $retval if defined $retval;
 
   # return success
-  return undef;
+  return;
 }
 
 sub add_ip_version_queue {
@@ -659,7 +659,7 @@ sub add_ip_version_queue {
   }
 
   # success
-  return undef;
+  return;
 }
 
 # remove iptables queue rule(s) and stop snort (must be in this order).
@@ -865,15 +865,15 @@ sub writeCfg {
   $tmpf =~ s/\//_/g;
   $tmpf = "/tmp/vyatta_$tmpf.$$";
   return "Cannot create temporary file $tmpf: $!" if (!copy($file, $tmpf));
-  open(FIN, "<$file") or return "Cannot open $file: $!";
-  open(FOUT, ">$tmpf") or return "Cannot open $tmpf: $!";
+  open(my $FIN, "<", $file) or return "Cannot open $file: $!";
+  open(my $FOUT, ">", $tmpf) or return "Cannot open $tmpf: $!";
   my ($skip, $vbegin, $vend) = (0, 0, 0);
-  while (<FIN>) {
+  while (<$FIN>) {
     if (/^$cfg_delim_begin$/) {
       $skip = 1;
       $vbegin = 1;
-      print FOUT;
-      print FOUT $cfg;
+      print ${FOUT};
+      print ${FOUT} $cfg;
       next;
     } elsif (/^$cfg_delim_end$/) {
       $skip = 0;
@@ -881,15 +881,15 @@ sub writeCfg {
     } elsif ($skip) {
       next;
     }
-    print FOUT;
+    print ${FOUT};
   }
-  close FIN;
-  close FOUT;
+  close $FIN;
+  close $FOUT;
   return "Invalid config file: missing Vyatta marker(s)"
     if (!$vbegin || !$vend);
   return "Cannot create config file $file: $!" if (!move($tmpf, $file));
   # return success
-  return undef;
+  return;
 }
 
 sub print_str {
@@ -931,7 +931,8 @@ sub inspect_enabled_list {
     for (Vyatta::Interface::get_all_cfg_interfaces()) {
       my ($iname, $ipath) = ($_->{name}, $_->{path});
       for my $dir ($cfg->$listnodesfunc("$ipath content-inspection")) {
-        my $enable = 'enable' if $ip_version eq 'v4';
+        my $enable;
+        $enable = 'enable' if $ip_version eq 'v4';
         $enable = 'ipv6-enable' if $ip_version eq 'v6';
         my $ichain = $cfg->$existsnodefunc("$ipath content-inspection $dir $enable");
           push @interface_dirs, "$iname-$dir" if defined $ichain;
@@ -945,7 +946,8 @@ sub inspect_enabled_list {
     foreach my $zone (@all_zones) {
       my @from_zones = Vyatta::Zone::get_from_zones($listnodesfunc,$zone);
       foreach my $fromzone (@from_zones) {
-        my $ruleset_type = 'name' if $ip_version eq 'v4';
+        my $ruleset_type;
+        $ruleset_type = 'name' if $ip_version eq 'v4';
         $ruleset_type = 'ipv6-name' if $ip_version eq 'v6';
         my $ips_enabled = Vyatta::Zone::is_ips_enabled(
                                 $existsnodefunc,$zone,$fromzone,$ruleset_type);

@@ -51,7 +51,7 @@ my %genmsg_hash = ();
 sub process_protocols {
   my $proto = undef;
   # do nothing if can't open
-  return if (!open($proto, $PROTO_FILE));
+  return if (!open($proto, "<", $PROTO_FILE));
   while (<$proto>) {
     next if (/^\s*#/);
     next if (!/^\S+\s+(\d+)\s+(\S+)\s/);
@@ -63,7 +63,7 @@ sub process_protocols {
 sub process_classes {
   my $class = undef;
   # do nothing if can't open
-  return if (!open($class, $CLASS_FILE));
+  return if (!open($class, "<", $CLASS_FILE));
   my $idx = 1;
   while (<$class>) {
     next if (/^\s*#/);
@@ -78,7 +78,7 @@ sub process_sidmsgs {
   for my $file ($SIDMSG_FILE, $COMMSG_FILE) {
     my $msg = undef;
     # do nothing if can't open
-    next if (!open($msg, $file));
+    next if (!open($msg, "<", $file));
     while (<$msg>) {
       next if (!/^(\d+) \|\| ([^\|]+\S) *(\|\||$)/);
       $sidmsg_hash{$1} = $2;
@@ -91,7 +91,7 @@ sub process_sidmsgs {
 sub process_genmsgs {
   my $msg = undef;
   # do nothing if can't open
-  return if (!open($msg, $GENMSG_FILE));
+  return if (!open($msg, "<", $GENMSG_FILE));
   while (<$msg>) {
     next if (/^\s*#/);
     next if (!/^(\d+)\s*\|\|\s*(\d+)\s*\|\|\s*(.*)$/);
@@ -107,7 +107,7 @@ sub process_genmsgs {
 sub open_log_file {
   my ($log) = @_;
   my $log_handle = undef;
-  open($log_handle, "<$log") or return ("Cannot open $log: $!", );
+  open($log_handle, "<", $log) or return ("Cannot open $log: $!", );
 
   # prepare the cache
   process_protocols() if (scalar(keys %proto_hash) <= 0);
@@ -204,7 +204,7 @@ sub seek_to_log_entry {
     # file header is 16-byte (see open_log_file())
     return "Seek failed: $!" if (!sysseek($log_handle, ($idx + 16), SEEK_SET));
   }
-  return undef;
+  return;
 }
 
 # returns the short name and the description of the class.
