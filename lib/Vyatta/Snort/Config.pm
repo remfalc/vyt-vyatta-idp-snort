@@ -68,6 +68,7 @@ my %fields = (
   _ins_all   => 'false',
   _ins_all_v6 => 'false',
   _exclude_categories => [],
+  _include_categories => [],
   _disable_sids => [],
   _enable_sids => [],
   _internal_nets => [],
@@ -120,6 +121,9 @@ sub setup {
   $config->setLevel('content-inspection ips modify-rules');
   foreach my $rule ($config->returnValues('exclude-category')){
     $self->{_exclude_categories} = [ @{$self->{_exclude_categories}}, $rule ];
+  }
+  foreach my $rule ($config->returnValues('include-category')){
+    $self->{_include_categories} = [ @{$self->{_include_categories}}, $rule ];
   }
   foreach my $sid ($config->returnValues('disable-sid')){
     $self->{_disable_sids} = [ @{$self->{_disable_sids}}, $sid ];
@@ -185,6 +189,9 @@ sub setupOrig {
   $self->{_au_vrtsub} = $config->existsOrig('auto-update snortvrt-subscription');
 
   $config->setLevel('content-inspection ips modify-rules');
+  foreach my $rule ($config->returnOrigValues('include-category')){
+    $self->{_include_categories} = [ @{$self->{_include_categories}}, $rule ];
+  }
   foreach my $rule ($config->returnOrigValues('exclude-category')){
     $self->{_exclude_categories} = [ @{$self->{_exclude_categories}}, $rule ];
   }
@@ -345,6 +352,7 @@ sub isDifferentFrom {
   return 1 if ($this->{_p4act} ne $that->{_p4act});
   return 1 if ($this->{_policy} ne $that->{_policy});
   return 1 if (listsDiff($this->{_exclude_categories}, $that->{_exclude_categories}));
+  return 1 if (listsDiff($this->{_include_categories}, $that->{_include_categories}));
   return 1 if (listsDiff($this->{_disable_sids}, $that->{_disable_sids}));
   return 1 if (listsDiff($this->{_enable_sids}, $that->{_enable_sids}));
   return 1 if (listsDiff($this->{_internal_nets}, $that->{_internal_nets}));
@@ -373,6 +381,7 @@ sub needsRuleUpdate {
  my ($this, $that) = @_;
  return 1 if ($this->{_policy} ne $that->{_policy});
  return 1 if (listsDiff($this->{_exclude_categories}, $that->{_exclude_categories}));
+ return 1 if (listsDiff($this->{_include_categories}, $that->{_include_categories}));
  return 1 if (listsDiff($this->{_disable_sids}, $that->{_disable_sids}));
  return 1 if (listsDiff($this->{_enable_sids}, $that->{_enable_sids}));
  return 0;
@@ -732,6 +741,9 @@ sub modifyRules {
     } else {
       print ${FH} "1:$sid\n";
     }
+  }
+  foreach my $rule (@{$self->{_include_categories}}){
+    print ${FH} "$rule\n";
   }
   close $FH;
   open($FH, '>', "$BASE_DIR/home-net") or return 1;
