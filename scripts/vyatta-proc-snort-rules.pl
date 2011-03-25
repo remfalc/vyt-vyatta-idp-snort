@@ -71,11 +71,13 @@ if (! -d $out_dir) {
 }
 
 foreach my $file (@rule_files) {
-  open(my $RIN, "<", $rule_dir/$file) or die "Cannot open $rule_dir/$file: $!";
-  open(my $ROUT, ">", $out_dir/$file) or die "Cannot open $out_dir/$file: $!";
+  my $infile = $rule_dir.'/'.$file;
+  my $outfile = $out_dir.'/'.$file;
+  open(my $RIN, "<", $infile) or die "Cannot open $rule_dir/$file: $!";
+  open(my $ROUT, ">", $outfile) or die "Cannot open $out_dir/$file: $!";
   while (<$RIN>) {
     if (!/^alert\s/ and !/^# alert\s/ and !/^pass\s/) {
-      print ${ROUT};
+      print ${ROUT} $_;
       next;
     }
     my $prio = undef;
@@ -86,7 +88,7 @@ foreach my $file (@rule_files) {
       $prio = $1;
     }
     if (!defined($prio)) {
-      print ${ROUT};
+      print ${ROUT} $_;
       next;
     }
     if (!defined($prio_hash{$prio})) {
@@ -100,7 +102,7 @@ foreach my $file (@rule_files) {
         s/^alert\s/$action /;
         s/^pass\s/p4action /;
     }
-    print ${ROUT};
+    print ${ROUT} $_;
   }
   close $RIN;
   close $ROUT;

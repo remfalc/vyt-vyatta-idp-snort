@@ -872,7 +872,7 @@ sub writeCfg {
     if (/^$cfg_delim_begin$/) {
       $skip = 1;
       $vbegin = 1;
-      print ${FOUT};
+      print ${FOUT} $_;
       print ${FOUT} $cfg;
       next;
     } elsif (/^$cfg_delim_end$/) {
@@ -881,7 +881,7 @@ sub writeCfg {
     } elsif ($skip) {
       next;
     }
-    print ${FOUT};
+    print ${FOUT} $_;
   }
   close $FIN;
   close $FOUT;
