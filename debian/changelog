@@ -1,3 +1,12 @@
+vyatta-idp-snort (0.3.105) unstable; urgency=low
+
+  * Add include category parameter for rule customization. Since we
+    allow enabling/disabling specific sids and we have a way to disable
+    an entire category, we should also have a way to enable an entire
+    category/
+
+ -- John Southworth <john.southworth@vyatta.com>  Fri, 25 Mar 2011 14:16:16 -0500
+
 vyatta-idp-snort (0.3.104) unstable; urgency=low
 
   * Fix some problems created by using 3 argument opens
