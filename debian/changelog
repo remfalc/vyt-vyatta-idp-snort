@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.104) unstable; urgency=low
+
+  * Fix some problems created by using 3 argument opens
+
+ -- John Southworth <john.southworth@vyatta.com>  Fri, 25 Mar 2011 11:04:08 -0500
+
 vyatta-idp-snort (0.3.103) unstable; urgency=low
 
   * Fix Perlcritic warnings in snort scripts
