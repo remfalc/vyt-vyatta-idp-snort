@@ -39,6 +39,7 @@ install-exec-hook:
 	cp -f scripts/snort-ruleset $(DESTDIR)/opt/vyatta/etc/ips/
 	cp -f scripts/snort-categories $(DESTDIR)/opt/vyatta/etc/ips/
 	cp -f pulledpork/pulledpork.conf $(DESTDIR)/opt/vyatta/etc/ips/
+	touch $(DESTDIR)/opt/vyatta/etc/ips/drop-sid
 	mkdir -p $(DESTDIR)$(cfgdir)
 	cd templates-cfg; $(cpiop) $(DESTDIR)$(cfgdir)
 	cd generated-templates; $(cpiop) $(DESTDIR)$(cfgdir)
