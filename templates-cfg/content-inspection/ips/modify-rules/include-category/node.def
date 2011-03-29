@@ -1,0 +1,7 @@
+multi:
+
+type: txt
+
+help: IPS rule category to include
+
+allowed: sudo cat /opt/vyatta/etc/ips/snort-categories
