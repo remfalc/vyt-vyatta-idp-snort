@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.107) unstable; urgency=low
+
+  * Add in the templates for include-category
+  * Small README for pulledpork
+
+ -- John Southworth <john.southworth@vyatta.com>  Tue, 29 Mar 2011 12:25:10 -0500
+
 vyatta-idp-snort (0.3.106) unstable; urgency=low
 
   * Integrate the new PulledPork 0.6.0 release
