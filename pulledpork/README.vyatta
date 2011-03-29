@@ -1,0 +1,10 @@
+Pulledpork rule proecessor for snort
+
+Available at http://code.google.com/p/pulledpork/
+
+Current version in vyatta 0.6.0
+
+Vyatta specific changes for Pulledpork:
+  We don't use pulledpork for downloading rules. 
+  Downloading is handled by our own scripts, and since Crypt::SSLeay is not available in debian, 
+    we comment out this line.
