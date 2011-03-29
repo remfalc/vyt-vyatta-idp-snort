@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.106) unstable; urgency=low
+
+  * Integrate the new PulledPork 0.6.0 release
+
+ -- John Southworth <john.southworth@vyatta.com>  Tue, 29 Mar 2011 11:42:04 -0500
+
 vyatta-idp-snort (0.3.105) unstable; urgency=low
 
   * Add include category parameter for rule customization. Since we
