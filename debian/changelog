@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.109) unstable; urgency=low
+
+  * Make snort work with image upgrade
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 07 Apr 2011 14:19:44 -0500
+
 vyatta-idp-snort (0.3.108) unstable; urgency=low
 
   * update ruleset version
