@@ -26,10 +26,11 @@
 NEW_SNORT_UPDATE_FILE=$1
 
 BASE_DIR='/opt/vyatta/etc/ips'
+CONFIG_DIR='/config/ips'
 WORK_DIR="$BASE_DIR/work"
 BACKUP_DIR="$BASE_DIR/backup"
 LOG_FILE="$BASE_DIR/update.log"
-SNORT_UPDATE_FILE="snortrules-snapshot-2853.tar"
+SNORT_UPDATE_FILE="snortrules-snapshot-latest.tar"
 CUR_TIME=$(date +%F-%H%M%S)
 LAST_UPDATE_STATUS_FILE="$BASE_DIR/lastupdatestatus"
 
@@ -62,6 +63,7 @@ fi
 log_message "Starting unpack & processing new rules."
 
 mkdir -p $BASE_DIR
+mkdir -p $CONFIG_DIR/rules
 cd $BASE_DIR
 
 # clean up work dir
@@ -69,12 +71,10 @@ rm -rf $WORK_DIR
 mkdir -p $WORK_DIR/etc
 mkdir -p $WORK_DIR/rules
 
-mv $NEW_SNORT_UPDATE_FILE $BASE_DIR/$SNORT_UPDATE_FILE.gz
-
-echo $NEW_SNORT_UPDATE_FILE.md5
+mv $NEW_SNORT_UPDATE_FILE $WORK_DIR/$SNORT_UPDATE_FILE.gz >&/dev/null
+cp -f $WORK_DIR/$SNORT_UPDATE_FILE.gz $CONFIG_DIR >& /dev/null
 
 cd $WORK_DIR
-cp ../$SNORT_UPDATE_FILE.gz . >&/dev/null
 cp ../$NEW_SNORT_UPDATE_FILE.md5 ./$SNORT_UPDATE_FILE.gz.md5 >&/dev/null
 
 # sanity check
@@ -86,15 +86,18 @@ fi
 tar xzvf $SNORT_UPDATE_FILE.gz etc>&/dev/null
 
 # We need local rules if this is the first run
-if [ ! -f /etc/snort/rules/local.rules ]; then
-  touch $WORK_DIR/rules/local.rules
+if [ ! -f $CONFIG_DIR/rules/local.rules ]; then
+  touch $CONFIG_DIR/rules/local.rules
+fi
+if [ ! -f $CONFIG_DIR/modify-sids ]; then
+  touch $CONFIG_DIR/modify-sids
 fi
 
 # generate $WORK_DIR/etc/snort/rules/vyatta.rules 
 # with pulledpork. Pulled pork now does the initial processing
 /opt/vyatta/bin/sudo-users/pulledpork.pl \
   -c /opt/vyatta/etc/ips/pulledpork.conf \
-  -T -S 2853 -n 2>&1 /dev/null
+  -T -S latest -n 2>&1 /dev/null
 
 
 # process etc/

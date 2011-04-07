@@ -76,7 +76,7 @@ if (!($config->isDifferentFrom($oconfig))) {
   exit 3;
 }
 
-if (! -d '/etc/snort/rules') {
+if (! -f '/config/ips/snortrules-snapshot-latest.tar.gz') {
   print "Error: missing snort rules.\n";
   exit 2;
 }

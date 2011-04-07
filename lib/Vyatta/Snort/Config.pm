@@ -757,7 +757,7 @@ sub modifyRules {
   system($cmd);
   # update exclude rules in new rules;
   $cmd = "/opt/vyatta/sbin/vyatta-proc-snort-changes" ;
-  $cmd .= " /opt/vyatta/etc/ips/snortrules-snapshot-2853.tar.gz 2>&1";
+  $cmd .= " /config/ips/snortrules-snapshot-latest.tar.gz 2>&1";
   system($cmd);
 
   # update HOME_NET;

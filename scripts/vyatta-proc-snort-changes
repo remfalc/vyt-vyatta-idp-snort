@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Module: vyatta-proc-snort-updates
+# Module: vyatta-proc-snort-changes
 # 
 # **** License ****
 # This program is free software; you can redistribute it and/or modify
@@ -16,9 +16,9 @@
 # Portions created by Vyatta are Copyright (C) 2008-2010 Vyatta, Inc.
 # All Rights Reserved.
 # 
-# Author: An-Cheng Huang
-# Date: May 2008
-# Description: process snort update
+# Author: John Southworth
+# Date: March 2011
+# Description: process snort ruleset changes
 # 
 # **** End License ****
 #
@@ -26,10 +26,11 @@
 NEW_SNORT_UPDATE_FILE=$1
 
 BASE_DIR='/opt/vyatta/etc/ips'
+CONFIG_DIR='/config/ips'
 WORK_DIR="$BASE_DIR/work"
 BACKUP_DIR="$BASE_DIR/backup"
 LOG_FILE="$BASE_DIR/update.log"
-SNORT_UPDATE_FILE="snortrules-snapshot-2853.tar"
+SNORT_UPDATE_FILE="snortrules-snapshot-latest.tar"
 CUR_TIME=$(date +%F-%H%M%S)
 LAST_UPDATE_STATUS_FILE="$BASE_DIR/lastupdatestatus"
 
@@ -43,8 +44,8 @@ abort_updates ()
   log_message "$*"
   log_message 'Update aborted due to error. IPS rules not updated.'
   echo update failed at `date` 
-  rm -f $BASE_DIR/SNORT_UPDATE_FILE.gz
-  rm -f $WORK_DIR/SNORT_UPDATE_FILE
+  rm -f $WORK_DIR/$SNORT_UPDATE_FILE.gz
+  rm -f $WORK_DIR/$SNORT_UPDATE_FILE.gz.md5
   exit 1
 }
 
@@ -62,6 +63,8 @@ fi
 log_message "Starting unpack & processing new rules."
 
 mkdir -p $BASE_DIR
+mkdir -p /etc/snort/rules
+mkdir -p $CONFIG_DIR/rules
 cd $BASE_DIR
 
 # clean up work dir
@@ -70,15 +73,21 @@ mkdir -p $WORK_DIR/rules
 mkdir -p $WORK_DIR/etc
 mkdir -p $BACKUP_DIR/tmp
 
-mv $NEW_SNORT_UPDATE_FILE $BASE_DIR/$SNORT_UPDATE_FILE.gz >/dev/null 2>&1
+cp -f $NEW_SNORT_UPDATE_FILE $WORK_DIR/$SNORT_UPDATE_FILE.gz >/dev/null 2>&1
 
 cd $WORK_DIR
-cp ../$SNORT_UPDATE_FILE.gz . >&/dev/null
-cp ../$NEW_SNORT_UPDATE_FILE.md5 ./$SNORT_UPDATE_FILE.gz.md5 >&/dev/null
 
 # sanity check
 if [ ! -r $WORK_DIR/$SNORT_UPDATE_FILE.gz ]; then
   abort_updates "Failed to get $SNORT_UPDATE_FILE.gz"
+fi
+
+# We need local rules if this is the first run
+if [ ! -f $CONFIG_DIR/rules/local.rules ]; then
+  touch $CONFIG_DIR/rules/local.rules
+fi
+if [ ! -f $CONFIG_DIR/modify-sids ]; then
+  touch $CONFIG_DIR/modify-sids
 fi
 
 # generate $WORK_DIR/etc/snort/rules/vyatta.rules 
@@ -86,7 +95,7 @@ fi
 echo "Processing rules..."
 /opt/vyatta/bin/sudo-users/pulledpork.pl \
   -c /opt/vyatta/etc/ips/pulledpork.conf \
-  -T -S 2853 -n > /tmp/pulledpork.log 2>&1 
+  -T -S latest -n > /tmp/pulledpork.log 2>&1 
 
 cat /tmp/pulledpork.log | 
 grep -v -e 'Done' -e 'Fly Piggy Fly' -e 'sid_changes' \
