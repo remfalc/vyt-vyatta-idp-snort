@@ -7,4 +7,14 @@ bindir=@bindir@
 sbindir=@sbindir@
 
 mkdir -p /opt/vyatta/etc/ips
+mkdir -p /config/ips/rules
+
+if [ -f /opt/vyatta/etc/ips/snortrules-snapshot-2853.tar.gz ]; then
+  cp -f /opt/vyatta/etc/ips/snortrules-snapshot-2853.tar.gz \
+        /config/ips/snortrules-snapshot-latest.tar.gz
+fi
+if [ -f /etc/snort/rules/local.rules ]; then
+  cp -f /etc/snort/rules/local.rules \
+        /config/ips/rules/local.rules
+fi
 
