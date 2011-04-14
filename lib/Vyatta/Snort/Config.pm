@@ -384,6 +384,7 @@ sub needsRuleUpdate {
  return 1 if (listsDiff($this->{_include_categories}, $that->{_include_categories}));
  return 1 if (listsDiff($this->{_disable_sids}, $that->{_disable_sids}));
  return 1 if (listsDiff($this->{_enable_sids}, $that->{_enable_sids}));
+ return 1 if (listsDiff($this->{_internal_nets}, $that->{_internal_nets}));
  return 0;
 }
 
