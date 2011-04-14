@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.112) unstable; urgency=low
+
+  * Make change of internal-networks work properly
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 14 Apr 2011 14:20:22 -0500
+
 vyatta-idp-snort (0.3.111) unstable; urgency=low
 
   * Switch to using the full config path instead of the bind mount
