@@ -699,17 +699,6 @@ sub startSnort {
   system("$SNORT_INIT start >&/dev/null");
   return 'Starting failed' if ($? >> 8);
   
-  # wait for snort to finish initialization before adding queue rules
-  # to avoid blocking traffic
-  my $count = 0;
-  $| = 1;
-  while ($count < 120 && (! -f $SNORT_DONE)) {
-    print '.';
-    sleep 2;
-    $count++;
-  }
-  return 'Initialization failed' if ($count == 120);
-
   # add iptables queue rule(s)
   return $self->addQueue();
 }
