@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.114) unstable; urgency=low
+
+  * make sure gen-msg.map is preserved during an update
+
+ -- John Southworth <john.southworth@vyatta.com>  Wed, 27 Apr 2011 11:40:08 -0500
+
 vyatta-idp-snort (0.3.113) unstable; urgency=low
 
   * We no longer need this check since snort has a new mode that will
