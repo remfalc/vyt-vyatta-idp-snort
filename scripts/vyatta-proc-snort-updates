@@ -123,6 +123,11 @@ fi
     cp -f /etc/snort/barnyard2.conf .
   fi
 
+  # copy gen-msg.map if exists
+  if [ -f /etc/snort/gen-msg.map ]; then
+    cp -f /etc/snort/gen-msg.map .
+  fi
+
   # copy threshold.conf if exists
   if [ -f /etc/snort/threshold.conf ]; then
     cp -f /etc/snort/threshold.conf .
