@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.115) unstable; urgency=low
+
+  * Migrate script to change include-category for content-inspection
+
+ -- John Southworth <john.southworth@vyatta.com>  Tue, 10 May 2011 17:38:11 -0500
+
 vyatta-idp-snort (0.3.114) unstable; urgency=low
 
   * make sure gen-msg.map is preserved during an update
