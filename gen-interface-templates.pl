@@ -107,8 +107,16 @@ sub gen_CI_template {
   open my $tp, '>', "$path/$node_file"
     or die "Can't create $path/$node_file: $!";
   my $date = `date`;
-  print $tp
-    "# Template generated at: $date\npriority: 235 #after content-inspection, before interface configuration\nhelp: Content-inspection options\n";
+  print $tp "# Template generated at: $date\n";
+  print "${if_tree}\n";
+  if (${if_tree} eq 'openvpn/node.tag'){
+    print $tp 
+      "priority: 461 #after content-inspection, before address configuration\n";
+  } else {
+    print $tp 
+      "priority: 381 #after content-inspection, before address configuration\n";
+  }
+  print $tp "help: Content-inspection options\n";
   close $tp
     or die "Can't write $path/$node_file: $!";
 }
