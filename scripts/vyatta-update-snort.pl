@@ -82,16 +82,17 @@ if (! -f '/config/ips/snortrules-snapshot-latest.tar.gz') {
 }
 
 while (1) {
-  if ($config->needsRuleUpdate($oconfig)){
-    $err = $config->modifyRules();
-  }
-  last if ($err == 1);
 
   ($snort_conf, $err) = $config->get_snort_conf();
   last if (defined($err));
   
   $err = $config->checkQueue();
   last if (defined($err));
+ 
+  if ($config->needsRuleUpdate($oconfig)){
+    $err = $config->modifyRules();
+  }
+  last if ($err == 1);
   
   # remove everything between markers
   $err = $config->removeCfg($FILE_SNORT_CONF);

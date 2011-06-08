@@ -25,6 +25,7 @@
 use strict;
 use lib "/opt/vyatta/share/perl5";
 use Vyatta::Snort::Config;
+use Vyatta::Config;
 use File::Copy;
 
 # use the proper snort config file and stop/start snort depending on config
@@ -38,7 +39,7 @@ my ($ret_antiv, $ret_ips, $orig_only) = @ARGV;
 my ($inspect_active, $global_inspect, $interface_dirs_ref, $zone_pairs_ref);
 
 my $error_prefix = 'Content Inspection configuration error';
-
+my $vconfig = new Vyatta::Config;
 my $config = new Vyatta::Snort::Config;
 my $oconfig = new Vyatta::Snort::Config;
 if (defined($orig_only)) {
@@ -64,6 +65,7 @@ if ($ret_antiv eq '1' && $ret_ips eq '1') {
     exit 1;
   }
 
+  exit 0 if (!$vconfig->existsOrig('content-inspection ips'));
   print 'Stopping Content Inspection...';
   my $err = $oconfig->shutdownSnort();
   if (defined($err)) {
