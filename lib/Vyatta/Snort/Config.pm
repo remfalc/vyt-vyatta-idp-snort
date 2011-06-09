@@ -99,7 +99,7 @@ sub setup {
   $self->{_tr_ipv6_preset} = $config->returnValue('ipv6-preset');
   $self->{_tr_ipv6_custom} = $config->returnValue('ipv6-custom');
 
-  $config->setLevel('content-inspection ips');
+  $config->setLevel('content-inspection');
   my @nodes = $config->listNodes();
   if (scalar(@nodes) <= 0) {
     $self->{_is_empty} = 1;
@@ -108,6 +108,7 @@ sub setup {
     $self->{_is_empty} = 0;
   }
 
+  $config->setLevel('content-inspection ips');
   $self->{_p1act} = $config->returnValue('actions priority-1');
   $self->{_p2act} = $config->returnValue('actions priority-2');
   $self->{_p3act} = $config->returnValue('actions priority-3');
@@ -169,7 +170,7 @@ sub setupOrig {
   $self->{_tr_ipv6_preset} = $config->returnOrigValue('ipv6-preset');
   $self->{_tr_ipv6_custom} = $config->returnOrigValue('ipv6-custom');
 
-  $config->setLevel('content-inspection ips');
+  $config->setLevel('content-inspection');
   my @nodes = $config->listOrigNodes();
   if (scalar(@nodes) <= 0) {
     $self->{_is_empty} = 1;
@@ -178,6 +179,7 @@ sub setupOrig {
     $self->{_is_empty} = 0;
   }
 
+  $config->setLevel('content-inspection ips');
   $self->{_p1act} = $config->returnOrigValue('actions priority-1');
   $self->{_p2act} = $config->returnOrigValue('actions priority-2');
   $self->{_p3act} = $config->returnOrigValue('actions priority-3');
@@ -769,7 +771,9 @@ sub modifyRules {
 
 sub get_snort_conf {
   my ($self) = @_;
-
+  my $vconfig = new Vyatta::Config;
+  return (undef, 'Must define ips actions')
+    if (!$vconfig->exists('content-inspection ips actions'));
   return (undef, 'Action for "priority-1" not defined')
     if (!defined($self->{_p1act}));
   return (undef, 'Action for "priority-2" not defined')
