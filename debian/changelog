@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.119) unstable; urgency=low
+
+  * Bugfix 7182: check to see if ipv6 has been blacklisted before
+    attempting to use ip6tables
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 16 Jun 2011 11:40:21 -0500
+
 vyatta-idp-snort (0.3.118) unstable; urgency=low
 
   * Bugfix 6196: Fix content-inspection empty config check; show a more
