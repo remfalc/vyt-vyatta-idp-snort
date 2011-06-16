@@ -444,11 +444,14 @@ sub setupIptables {
       "iptables -A $chain -j $queue_target",
       "iptables -A $chain -j RETURN";
   }
-  if ($create_hash_ipv6{'all'}) {
-    push @cmds,
-      "ip6tables -N $chain",
-      "ip6tables -A $chain -j $queue_target",
-      "ip6tables -A $chain -j RETURN";
+  my $vconfig = new Vyatta::Config;
+  if (!$vconfig->exists('system ipv6 blacklist')){
+    if ($create_hash_ipv6{'all'}) {
+      push @cmds,
+        "ip6tables -N $chain",
+        "ip6tables -A $chain -j $queue_target",
+        "ip6tables -A $chain -j RETURN";
+    }
   }
 
   # run all commands
