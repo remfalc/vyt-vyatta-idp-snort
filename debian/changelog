@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.120) unstable; urgency=low
+
+  * Revert "Bugfix 7182: check to see if ipv6 has been blacklisted
+    before attempting to use ip6tables"
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 16 Jun 2011 11:56:33 -0500
+
 vyatta-idp-snort (0.3.119) unstable; urgency=low
 
   * Bugfix 7182: check to see if ipv6 has been blacklisted before
