@@ -96,6 +96,11 @@ echo "Processing rules..."
 /opt/vyatta/bin/sudo-users/pulledpork.pl \
   -c /opt/vyatta/etc/ips/pulledpork.conf \
   -T -S latest -n > /tmp/pulledpork.log 2>&1 
+ppret=$?
+if [ $ppret -ne 0 ]
+then
+   exit 1
+fi
 
 cat /tmp/pulledpork.log | 
 grep -v -e 'Done' -e 'Fly Piggy Fly' -e 'sid_changes' \

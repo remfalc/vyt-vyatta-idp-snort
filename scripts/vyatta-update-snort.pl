@@ -92,7 +92,7 @@ while (1) {
   if ($config->needsRuleUpdate($oconfig)){
     $err = $config->modifyRules();
   }
-  last if ($err == 1);
+  last if (defined($err));
   
   # remove everything between markers
   $err = $config->removeCfg($FILE_SNORT_CONF);

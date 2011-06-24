@@ -749,8 +749,10 @@ sub modifyRules {
   system($cmd);
   # update exclude rules in new rules;
   $cmd = "/opt/vyatta/sbin/vyatta-proc-snort-changes" ;
-  $cmd .= " /config/ips/snortrules-snapshot-latest.tar.gz 2>&1";
-  system($cmd);
+  $cmd .= " /config/ips/snortrules-snapshot-latest.tar.gz 2> /dev/null ";
+  if (system($cmd) != 0){
+    return "Failed to process rules";
+  }
 
   # update HOME_NET;
   $cmd = "/opt/vyatta/sbin/vyatta-modify-sids.pl";
@@ -766,7 +768,7 @@ sub modifyRules {
   $cmd .= " --file=$BASE_DIR/external-net";
   system($cmd);
 
-  return 0;
+  return;
 }
 
 sub get_snort_conf {
