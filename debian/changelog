@@ -1,3 +1,12 @@
+vyatta-idp-snort (0.3.121) unstable; urgency=low
+
+  * Bugfix 7124 : Make failure of pulledpork prettier. It is possible
+    for pulledpork to fail if there is insufficient diskspace or the tar
+    file is corrupted, so we should catch the error and provide nicer
+    output
+
+ -- John Southworth <john.southworth@vyatta.com>  Fri, 24 Jun 2011 13:57:28 -0500
+
 vyatta-idp-snort (0.3.120) unstable; urgency=low
 
   * Revert "Bugfix 7182: check to see if ipv6 has been blacklisted
