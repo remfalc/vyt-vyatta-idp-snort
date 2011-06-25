@@ -86,8 +86,14 @@ fi
 if [ ! -f $CONFIG_DIR/rules/local.rules ]; then
   touch $CONFIG_DIR/rules/local.rules
 fi
-if [ ! -f $CONFIG_DIR/modify-sids ]; then
-  touch $CONFIG_DIR/modify-sids
+if [ ! -f $CONFIG_DIR/modify-sid ]; then
+  touch $CONFIG_DIR/modify-sid
+fi
+if [ ! -f $BASE_DIR/disable-sid ]; then
+  touch $BASE_DIR/disable-sid
+fi
+if [ ! -f $BASE_DIR/enable-sid ]; then
+  touch $BASE_DIR/enable-sid
 fi
 
 # generate $WORK_DIR/etc/snort/rules/vyatta.rules 
@@ -128,6 +134,9 @@ if ! mv rules-new/vyatta.rules /etc/snort/rules/vyatta.rules >&/dev/null; then
 fi
 if ! mv etc/sid-msg.map /etc/snort/sid-msg.map >&/dev/null; then
   abort_updates 'Failed to move rules'
+fi
+if [[ ! -f /etc/snort/snort.conf ]]; then
+  cp /etc/snort/ips.conf /etc/snort/snort.conf >&/dev/null
 fi
 
 # 'snort -T' check.
