@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.124) unstable; urgency=low
+
+  * new branch
+
+ -- Deepti Kulkarni <deepti@vyatta.com>  Thu, 07 Jul 2011 20:56:58 -0700
+
 vyatta-idp-snort (0.3.123) unstable; urgency=low
 
   * Bugfix 7193: Copy ips.conf to snort.conf if it doesn't exist before
