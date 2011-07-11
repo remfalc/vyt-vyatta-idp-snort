@@ -1,5 +1,5 @@
 type: txt
 
-help: "Oink Code" for downloading IPS rules update [REQUIRED]
+help: "Oink Code" for downloading IPS rules update 
 
 val_help: <oink code>; Oink code from snort.org
