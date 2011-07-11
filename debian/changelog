@@ -1,3 +1,12 @@
+vyatta-idp-snort (0.3.123+napa2) unstable; urgency=low
+
+  * Bugfix 7219: remove the mandatory tag from the auto-update oink
+    code, since the check is done at commit time and we have more than
+    one type of service that can be configured for auto updating. this
+    was causing problems with GUI2
+
+ -- John Southworth <john.southworth@vyatta.com>  Mon, 11 Jul 2011 13:02:36 -0500
+
 vyatta-idp-snort (0.3.123+napa1) unstable; urgency=low
 
   * new branch
