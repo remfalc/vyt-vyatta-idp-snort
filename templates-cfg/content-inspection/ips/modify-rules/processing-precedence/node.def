@@ -1,0 +1,9 @@
+help: Set the rule processing precedence 
+type: txt
+default: "enable-sid"
+allowed: local -a array;
+         array=(enable-sid disable-sid)
+         echo -n "${array[@]}"
+val_help: enable-sid; The enable-sid and include-category fields will take precedence
+val_help: disable-sid; The disable-sid and exclude-category fields will take precedence
+
