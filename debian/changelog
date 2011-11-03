@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.127) unstable; urgency=low
+
+  * Add downloaded snort.conf processing. There was an upstream change
+    in ruleset variables that we need to be able to handle
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 03 Nov 2011 16:23:29 -0500
+
 vyatta-idp-snort (0.3.126) unstable; urgency=low
 
   * Bugfix 7405: allow users to adjust the rule process precedence for
