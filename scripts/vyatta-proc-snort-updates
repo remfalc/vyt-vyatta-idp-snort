@@ -54,11 +54,11 @@ if [ ! -f $NEW_SNORT_UPDATE_FILE ]; then
   exit 1
 fi
 
-file_type=$(file --brief --mime-type $NEW_SNORT_UPDATE_FILE)
-if [ "$file_type" != "application/x-gzip" ]; then
-  log_message "Invalid file type [$file_type]."
-  exit 1
-fi
+#file_type=$(file --brief --mime-type $NEW_SNORT_UPDATE_FILE)
+#if [ "$file_type" != "application/x-gzip" ]; then
+#  log_message "Invalid file type [$file_type]."
+#  exit 1
+#fi
 
 log_message "Starting unpack & processing new rules."
 
@@ -103,10 +103,59 @@ fi
 # process etc/
 (
   cd etc
-  # use our snort.conf file
-  cp /etc/snort/ips.conf ips.conf
+  # use downloaded snort.conf file
+  tar -zxvf $SNORT_UPDATE_FILE etc/snort.conf
 
   # generate snort.conf from ips.conf
+  #cp -f ips.conf snort.conf
+  sed '/^var RULE_PATH / {
+         s/\(var RULE_PATH \).*$/\1\/etc\/snort\/rules/
+         a\
+\n### NOTE: Lines between the BEGIN and END markers below are generated\
+###       automatically. Do NOT modify by hand.\
+# === BEGIN VYATTA SNORT CONFIG ===\
+# === END VYATTA SNORT CONFIG ===
+       }' snort.conf > ips.conf
+
+  #sed -i '/^var PREPROC_RULE_PATH / {
+  #       s/\(var PREPROC_RULE_PATH \).*$/\1\/etc\/snort\/preproc_rules/
+  #     }' ips.conf
+  sed -i '/PREPROC_RULE_PATH/d' ips.conf
+  if [ ! -f ips.conf ]; then
+    abort_updates 'Cannot generate ips.conf'
+  fi
+
+  if ! grep -q 'BEGIN VYATTA SNORT CONFIG' ips.conf; then
+    abort_updates 'Cannot generate ips.conf'
+  fi
+
+  # copy the vyatta section from the old ips.conf
+  sed -n '1,/^# === BEGIN VYATTA SNORT CONFIG ===/p' ips.conf > ips.conf.new
+  sed -n '1,/^# === BEGIN VYATTA SNORT CONFIG ===/d
+          /^# === END VYATTA SNORT CONFIG ===/,$d
+          p' /etc/snort/ips.conf >> ips.conf.new
+  sed -n '/^# === END VYATTA SNORT CONFIG ===/,$p' ips.conf >> ips.conf.new
+  mv ips.conf.new ips.conf
+
+  # correct library path
+  sed -i 's/\/usr\/local\/lib/\/usr\/lib/' ips.conf
+
+  # comment out dynamicdetection 
+  sed -i s/^dynamicdetection/#dynamicdetection/ ips.conf
+  sed -i 's/^\(preprocessor normalize_.*\)/\#\1/' ips.conf
+
+  # enable preproc_rules
+  sed -i 's/^\# \(include $PREPROC_RULE_PATH\/preprocessor.rules.*$\)/\1/' \
+    ips.conf
+  sed -i 's/^\# \(include $PREPROC_RULE_PATH\/decoder.rules.*$\)/\1/' \
+    ips.conf
+  sed -i '/clamav.config/d' ips.conf
+  sed -i '/$RULE_PATH/d' ips.conf
+  sed -i '/# site specific rules/ a \
+include /config/ips/rules/local.rules \
+include /etc/snort/rules/vyatta.rules' ips.conf
+
+  cp -f ips.conf /etc/snort/ips.conf
   cp -f ips.conf snort.conf
 
   # sanity check
@@ -118,6 +167,7 @@ fi
   if ! cp /etc/snort/{antivirus.conf,clamav.config,snort.debian.conf} .; then
     abort_updates 'Original config file missing'
   fi
+
   # copy barnyard2.conf if exists
   if [ -f /etc/snort/barnyard2.conf ]; then
     cp -f /etc/snort/barnyard2.conf .

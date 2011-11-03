@@ -54,11 +54,11 @@ if [ ! -f $NEW_SNORT_UPDATE_FILE ]; then
   exit 1
 fi
 
-file_type=$(file --brief --mime-type $NEW_SNORT_UPDATE_FILE)
-if [ "$file_type" != "application/x-gzip" ]; then
-  log_message "Invalid file type [$file_type]."
-  exit 1
-fi
+#file_type=$(file --brief --mime-type $NEW_SNORT_UPDATE_FILE)
+#if [ "$file_type" != "application/x-gzip" ]; then
+#  log_message "Invalid file type [$file_type]."
+#  exit 1
+#fi
 
 log_message "Starting unpack & processing new rules."
 
