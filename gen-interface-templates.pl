@@ -44,11 +44,16 @@ my %interface_hash = (
 
   'bonding/node.tag'              => '$VAR(../../../@)',
   'bonding/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@)',
+  'bonding/node.tag/vrrp/vrrp-group/node.tag/interface' => '$VAR(../../../../../../@)v$VAR(../../../../@)',
 
   'ethernet/node.tag'                => '$VAR(../../../@)',
   'ethernet/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../../@)',
+  'ethernet/node.tag/vrrp/vrrp-group/node.tag/interface' => '$VAR(../../../../../../@)v$VAR(../../../../@)',
   'ethernet/node.tag/vif/node.tag'   => '$VAR(../../../../@).$VAR(../../../@)',
   'ethernet/node.tag/vif/node.tag/pppoe/node.tag' => 'pppoe$VAR(../../../@)',
+  'ethernet/node.tag/vif/node.tag/vrrp/vrrp-group/node.tag/interface' =>
+           '$VAR(../../../../../../../@).$VAR(../../../../../../@)v$VAR(../../../../@)',
+
   'pseudo-ethernet/node.tag'                      => '$VAR(../../../@)',
 
 #  'pseudo-ethernet/node.tag/vif/node.tag' => '$VAR(../../../../@).$VAR(../../../@)',
@@ -112,6 +117,9 @@ sub gen_CI_template {
   if (${if_tree} eq 'openvpn/node.tag'){
     print $tp 
       "priority: 461 #after content-inspection, before address configuration\n";
+  } elsif ( $if_tree =~ /vrrp/) {
+    print $tp 
+      "priority: 801 #after vrrp\n"
   } else {
     print $tp 
       "priority: 381 #after content-inspection, before address configuration\n";
@@ -240,13 +248,13 @@ exit 1"
 create:
         if ! /opt/vyatta/sbin/vyatta-intf-inspect.pl	\\
           --action=chk-intf-in-zone			\\
-          --intf=\$VAR(../../../@); then
+          --intf=$interface_hash{$if_tree}; then
           exit 1
         fi
 
         if ! /opt/vyatta/sbin/vyatta-intf-inspect.pl	\\
           --action=enable-intf-inspect			\\
-          --intf=\$VAR(../../../@)			\\
+          --intf=$interface_hash{$if_tree}              \\
           --direction=\$VAR(../@)			\\
           --cli-ip-ver=$option; then
           exit 1
@@ -255,7 +263,7 @@ create:
 delete:
         if ! /opt/vyatta/sbin/vyatta-intf-inspect.pl	\\
           --action=disable-intf-inspect			\\
-          --intf=\$VAR(../../../@)			\\
+          --intf=$interface_hash{$if_tree}              \\
           --direction=\$VAR(../@)			\\
           --cli-ip-ver=$option; then
           exit 1
