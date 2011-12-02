@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.128) unstable; urgency=low
+
+  * Generate content-inspection nodes for vrrp interfaces
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 01 Dec 2011 16:57:35 -0800
+
 vyatta-idp-snort (0.3.127) unstable; urgency=low
 
   * Add downloaded snort.conf processing. There was an upstream change
