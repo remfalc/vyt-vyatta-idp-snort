@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.130) unstable; urgency=low
+
+  * new branch
+
+ -- Deepti Kulkarni <deepti@vyatta.com>  Sat, 03 Mar 2012 02:25:58 -0800
+
 vyatta-idp-snort (0.3.129) unstable; urgency=low
 
   * Add vrrp interface parameters for bonding vifs
