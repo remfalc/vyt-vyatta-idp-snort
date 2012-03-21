@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.129+oxnard3) unstable; urgency=low
+
+  * Bugfix 7956: Show message about snort's deprecated status
+
+ -- John Southworth <john.southworth@vyatta.com>  Wed, 21 Mar 2012 16:57:52 -0700
+
 vyatta-idp-snort (0.3.129+oxnard2) unstable; urgency=low
 
   * Hide compliant mode vrrp nodes for oxnard since the syntax will
