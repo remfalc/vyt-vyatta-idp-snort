@@ -1,6 +1,9 @@
 priority: 230 # before inspect is enabled on interfaces/zones
 help: Content Inspection settings
 end: RET1=1
+     echo "WARNING: IPS is deprecated!"
+     echo "Snort rules may no longer update properly, old rulesets will continue to work."
+     echo
      if [ -x /opt/vyatta/sbin/vyatta-update-antivirus.pl ]; then
        sudo /opt/vyatta/sbin/vyatta-update-antivirus.pl
        RET1=$?
