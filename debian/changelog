@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.129+oxnard5) unstable; urgency=low
+
+  * Add more warnings about deprecation
+
+ -- John Southworth <john.southworth@vyatta.com>  Wed, 21 Mar 2012 17:52:30 -0700
+
 vyatta-idp-snort (0.3.129+oxnard4) unstable; urgency=low
 
   * Adjust snort deprecated message per PM's suggestion
