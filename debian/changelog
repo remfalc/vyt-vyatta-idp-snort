@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.129+oxnard4) unstable; urgency=low
+
+  * Adjust snort deprecated message per PM's suggestion
+
+ -- John Southworth <john.southworth@vyatta.com>  Wed, 21 Mar 2012 17:43:02 -0700
+
 vyatta-idp-snort (0.3.129+oxnard3) unstable; urgency=low
 
   * Bugfix 7956: Show message about snort's deprecated status
