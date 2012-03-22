@@ -1,5 +1,5 @@
 type: txt
 
-help: Database name
+help: Database name [DEPRECATED]
 
 val_help: <db-name>; Database name

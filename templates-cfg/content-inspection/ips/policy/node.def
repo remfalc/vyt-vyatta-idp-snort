@@ -5,7 +5,7 @@ default: "balanced"
 syntax:expression: $VAR(@) in "balanced", "connectivity", "security";
                    "Policy must be \"balanced\", \"connectivity\", or \"security\"."
 
-help: IPS ruleset policy [REQUIRED]
+help: IPS ruleset policy [REQUIRED] [DEPRECATED]
 
 val_help: balanced; Ruleset optimized for normal traffic environments
 val_help: connectivity; Ruleset optimized for environments with real-time traffic

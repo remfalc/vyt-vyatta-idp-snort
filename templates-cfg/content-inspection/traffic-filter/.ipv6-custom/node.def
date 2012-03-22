@@ -1,5 +1,5 @@
 type: txt
 
-help: Set IPv6 custom traffic filter
+help: Set IPv6 custom traffic filter [DEPRECATED]
 
 allowed: cli-shell-api listActiveNodes firewall ipv6-name

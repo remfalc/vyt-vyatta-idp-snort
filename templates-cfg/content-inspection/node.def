@@ -1,5 +1,5 @@
 priority: 230 # before inspect is enabled on interfaces/zones
-help: Content Inspection settings
+help: Content Inspection settings [DEPRECATED]
 end: RET1=1
      echo "WARNING: IPS is deprecated!"
      echo "Snort rules may no longer update properly."

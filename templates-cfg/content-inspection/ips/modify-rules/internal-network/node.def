@@ -2,7 +2,7 @@ multi:
 
 type: ipv4,ipv4net
 
-help: IPv4 internal network
+help: IPv4 internal network [DEPRECATED]
 
 val_help: IPv4 internal address
 val_help: IPv4 internal network

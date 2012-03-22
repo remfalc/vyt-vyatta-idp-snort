@@ -5,7 +5,7 @@ default: "pass"
 syntax:expression: $VAR(@) in "drop", "sdrop", "alert", "pass";
                    "Action must be \"drop\", \"sdrop\", \"alert\", or \"pass\"."
 
-help: IPS action for packets matching other rules [REQUIRED]
+help: IPS action for packets matching other rules [REQUIRED] [DEPRECATED]
 
 val_help: drop; Drop the packet and generate an alert
 val_help: sdrop; Silently drop the packet

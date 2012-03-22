@@ -1,6 +1,6 @@
 type: txt
 
-help: IPv4 preset traffic filter
+help: IPv4 preset traffic filter [DEPRECATED]
 
 syntax:expression: $VAR(@) in "all"; "Preset must be \"all\"."
 

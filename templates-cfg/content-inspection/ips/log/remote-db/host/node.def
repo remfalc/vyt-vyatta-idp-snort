@@ -1,5 +1,5 @@
 type: txt
-help: Database server hostname
+help: Database server hostname [DEPRECATED]
 
 val_help: ipv4; IPv4 address of database server
 val_help: <hostname>; Hostname of database server

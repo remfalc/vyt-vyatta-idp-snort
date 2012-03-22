@@ -1,4 +1,4 @@
-help: Syslog settings
+help: Syslog settings [DEPRECATED]
 
 commit:expression: $VAR(level/) != ""; "Must define the syslog severity level."
 commit:expression: $VAR(facility/) != ""; "Must define the syslog facility."

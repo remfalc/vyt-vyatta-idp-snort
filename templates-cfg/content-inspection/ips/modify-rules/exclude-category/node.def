@@ -2,6 +2,6 @@ multi:
 
 type: txt
 
-help: IPS rule category to exclude
+help: IPS rule category to exclude [DEPRECATED]
 
 allowed: sudo cat /opt/vyatta/etc/ips/snort-categories

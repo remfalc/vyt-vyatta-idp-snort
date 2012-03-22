@@ -1,4 +1,4 @@
-help: Policy to inspect all inbound, outbound and forwarded traffic
+help: Policy to inspect all inbound, outbound and forwarded traffic [DEPRECATED]
 
 # in future, when ipv6 is enabled, message below will say
 # either 'enable' or 'ipv6-enable' needs to be set

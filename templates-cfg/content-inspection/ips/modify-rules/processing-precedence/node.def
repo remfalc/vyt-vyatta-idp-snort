@@ -1,4 +1,4 @@
-help: Set the rule processing precedence 
+help: Set the rule processing precedence  [DEPRECATED]
 type: txt
 default: "enable-sid"
 allowed: local -a array;

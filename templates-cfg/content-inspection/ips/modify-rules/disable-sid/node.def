@@ -4,6 +4,6 @@ type: txt
 
 syntax:expression: pattern $VAR(@) "^[0-9]+\:?[0-9]*$" ; "invalid gid:sid \"$VAR(@)\""
 
-help: Snort ID (sid) to disable
+help: Snort ID (sid) to disable [DEPRECATED]
 
 val_help: [<gid>:]<sid>; Sid to disable (gid defaults to 1) 

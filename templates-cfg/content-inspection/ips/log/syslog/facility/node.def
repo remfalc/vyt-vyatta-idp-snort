@@ -1,6 +1,6 @@
 type: txt
 
-help: Syslog facility 
+help: Syslog facility  [DEPRECATED]
 
 default: "auth"
 

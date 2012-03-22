@@ -1,4 +1,4 @@
-help: Database settings
+help: Database settings [DEPRECATED]
 
 commit:expression: $VAR(db-name/) != ""; "Must define the database name."
 commit:expression: $VAR(db-type/) != ""; "Must define the database type."

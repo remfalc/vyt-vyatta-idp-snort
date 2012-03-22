@@ -1,6 +1,6 @@
 type: txt
 
-help: Database type
+help: Database type [DEPRECATED]
 
 default: "mysql"
 

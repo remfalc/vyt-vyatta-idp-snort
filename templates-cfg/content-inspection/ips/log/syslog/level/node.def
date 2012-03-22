@@ -1,6 +1,6 @@
 type: txt
 
-help: Syslog severity level
+help: Syslog severity level [DEPRECATED]
 
 default: "info"
 

@@ -1,5 +1,5 @@
 type: txt
 
-help: IPv4 custom traffic filter
+help: IPv4 custom traffic filter [DEPRECATED]
 
 allowed: cli-shell-api listActiveNodes firewall name
