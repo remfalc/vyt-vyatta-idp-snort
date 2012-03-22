@@ -1,3 +1,10 @@
+vyatta-idp-snort (0.3.129+oxnard6) unstable; urgency=low
+
+  * Make configuration mode help strings reflect the deprecated status
+    of ips
+
+ -- John Southworth <john.southworth@vyatta.com>  Thu, 22 Mar 2012 11:42:01 -0700
+
 vyatta-idp-snort (0.3.129+oxnard5) unstable; urgency=low
 
   * Add more warnings about deprecation
