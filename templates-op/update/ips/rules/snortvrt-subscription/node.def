@@ -1,3 +1,3 @@
-help: Update IPS rules with snortvrt-subscription entitlement
-run: sudo /opt/vyatta/bin/sudo-users/vyatta-op-update-rules.pl "$4"
+help: Update IPS rules with snortvrt-subscription entitlement [Deprecated] 
+run: echo "WARNING: IPS is deprecated"; sudo /opt/vyatta/bin/sudo-users/vyatta-op-update-rules.pl "$4"
 

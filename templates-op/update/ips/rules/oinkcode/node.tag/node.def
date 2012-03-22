@@ -1,2 +1,2 @@
-help: help: Update IPS rules with oinkcode
-run: sudo /opt/vyatta/bin/sudo-users/vyatta-op-update-rules.pl "$4" "$5"
+help: help: Update IPS rules with oinkcode [Deprecated]
+run: echo "WARNING: IPS is deprecated" ; sudo /opt/vyatta/bin/sudo-users/vyatta-op-update-rules.pl "$4" "$5"
