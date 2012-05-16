@@ -1,3 +1,9 @@
+vyatta-idp-snort (0.3.131) unstable; urgency=low
+
+  * No need to genererate vrrp interface templates anymore
+
+ -- John Southworth <john.southworth@vyatta.com>  Tue, 15 May 2012 20:48:40 -0700
+
 vyatta-idp-snort (0.3.130) unstable; urgency=low
 
   * new branch
